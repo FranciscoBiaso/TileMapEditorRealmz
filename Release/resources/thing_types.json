@@ -1,0 +1,9 @@
+{
+  "types": [
+            {"name": "ground", "layer": 0, "classes" : []},
+            {"name": "ground_level", "layer": 1, "classes" :    [{"name": "fluids"},{"name": "corpses"},{"name": "object"}]},
+            {"name": "furnitures", "layer": 3, "classes" : []},
+            {"name": "creatures", "layer": 3, "classes" : []},
+            {"name": "structures", "layer": 3, "classes" :      [{"name": "wall"},{"name": "door"}]}
+           ]  
+}

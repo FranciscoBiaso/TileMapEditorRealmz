@@ -1,0 +1,16 @@
+*.ipch
+*.obj
+*.log
+*.exe
+*.tlog
+*.html
+*.opendb
+*.js
+*.dll
+*.iobj
+*.ipdb
+include/*
+Debug/*
+x64/*
+Release/etc/*
+Release/Share/*
