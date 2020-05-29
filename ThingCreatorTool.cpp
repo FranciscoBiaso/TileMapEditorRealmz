@@ -182,5 +182,5 @@ void ui::ThingCreatorTool::createThing(GtkWidget* widget, gpointer data)
 {    
     gResources->addThing(thing); // add thing into stuffBook //
     gStuffBook->updateTree();
-    gAuxUI->doSearchThing(NULL, (gpointer*)thing.getName().c_str());
+    gAuxUI->cb_doSearchThing(NULL, (gpointer*)thing.getName().c_str());
 }

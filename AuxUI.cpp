@@ -1,44 +1,47 @@
 #include "AuxUI.h"
 
+// class static members //
 GObject* ui::AuxUI::gtkEntryThingSearch = nullptr;
 GObject* ui::AuxUI::gtkStatusBar = nullptr;
 
-namespace GtkUserInterface {
-    extern GtkBuilder* builder;
-}
-
+// externs //
+namespace GtkUserInterface { extern GtkBuilder* builder; }
 extern data::MapResources* gResources;
 extern ui::StuffBookUI* gStuffBook;
 
+// constructor //
 ui::AuxUI::AuxUI()
 {
+    // loading interfaces from xml //
     gtkEntryThingSearch = gtk_builder_get_object(GtkUserInterface::builder, "gtkEntryThingSearch");
     gtkStatusBar = gtk_builder_get_object(GtkUserInterface::builder, "gtkStatusBar");
 
-    g_signal_connect(gtkEntryThingSearch, "activate", G_CALLBACK(onActive), NULL);
-    g_signal_connect(gtkEntryThingSearch, "focus-in-event", G_CALLBACK(onFocusInEvent), NULL);
-    g_signal_connect(gtkEntryThingSearch, "focus-out-event", G_CALLBACK(onFocusOutEvent), NULL);
+    // callbacks //
+    g_signal_connect(gtkEntryThingSearch, "activate", G_CALLBACK(cb_onActive), NULL);
+    g_signal_connect(gtkEntryThingSearch, "focus-in-event", G_CALLBACK(cb_onFocusInEvent), NULL);
+    g_signal_connect(gtkEntryThingSearch, "focus-out-event", G_CALLBACK(cb_onFocusOutEvent), NULL);
 }
 
-void ui::AuxUI::onActive(GtkWidget* widget, gpointer data)
+
+void ui::AuxUI::cb_onActive(GtkWidget* widget, gpointer data)
 {
-    ui::AuxUI::doSearchThing(NULL, NULL);
+    ui::AuxUI::cb_doSearchThing(NULL, NULL);
 }
 
-void ui::AuxUI::onFocusInEvent(GtkWidget* widget, gpointer data)
+void ui::AuxUI::cb_onFocusInEvent(GtkWidget* widget, gpointer data)
 {
     GtkEntryBuffer* gtkEntryBuffer = gtk_entry_get_buffer(GTK_ENTRY(gtkEntryThingSearch));
     gtk_entry_buffer_delete_text(gtkEntryBuffer, 0, gtk_entry_buffer_get_length(gtkEntryBuffer));    
 }
 
-void ui::AuxUI::onFocusOutEvent(GtkWidget* widget, gpointer data)
+void ui::AuxUI::cb_onFocusOutEvent(GtkWidget* widget, gpointer data)
 {
     GtkEntryBuffer* gtkEntryBuffer = gtk_entry_get_buffer(GTK_ENTRY(gtkEntryThingSearch));
     std::string buffer = "...";
     gtk_entry_buffer_set_text(gtkEntryBuffer, buffer.c_str(), buffer.size());
 }
 
-void ui::AuxUI::doSearchThing(GtkWidget* widget, gpointer data)
+void ui::AuxUI::cb_doSearchThing(GtkWidget* widget, gpointer data)
 {  
     std::string entryText = gtk_entry_get_text(GTK_ENTRY(gtkEntryThingSearch));
     if (data != NULL)
@@ -80,7 +83,7 @@ void ui::AuxUI::doSearchThing(GtkWidget* widget, gpointer data)
                 
                 gtk_tree_path_free(path);                
 
-               // gtk_widget_show(GTK_WIDGET(gStuffBook->gtkTreeViewStuffBook));
+                // gtk_widget_show(GTK_WIDGET(gStuffBook->gtkTreeViewStuffBook));
                 //gtk_tree_view_set_focus
 
                 founded = true;

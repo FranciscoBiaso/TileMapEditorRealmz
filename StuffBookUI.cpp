@@ -135,7 +135,7 @@ gboolean ui::StuffBookUI::removeThing(GtkWidget* widget, GdkEventKey* event,gpoi
                 // can be the first element //
                 if (keyIt != (*it).second.end()) // founded //
                 {
-                    gAuxUI->doSearchThing(NULL, (gpointer*)(*keyIt).first.c_str());
+                    gAuxUI->cb_doSearchThing(NULL, (gpointer*)(*keyIt).first.c_str());
                     std::string msg = "Thing ";
                     msg += name;
                     msg += " [";
@@ -149,7 +149,7 @@ gboolean ui::StuffBookUI::removeThing(GtkWidget* widget, GdkEventKey* event,gpoi
                 else
                 {
                     auto keyItr = (*it).second.rbegin();
-                    gAuxUI->doSearchThing(NULL, (gpointer*)(*keyItr).first.c_str());
+                    gAuxUI->cb_doSearchThing(NULL, (gpointer*)(*keyItr).first.c_str());
                     std::string msg = "Thing ";
                     msg += name;
                     msg += " [";

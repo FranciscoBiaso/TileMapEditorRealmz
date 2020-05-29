@@ -14,14 +14,14 @@ namespace ui {
 	public:
 		AuxUI();
 
-		/* get */
+		/* get functions */
 		static GtkStatusbar* getStatusBar() { return GTK_STATUSBAR(gtkStatusBar); }
 
 		/* events */
-		static void doSearchThing(GtkWidget* widget, gpointer data);
-		static void onFocusInEvent(GtkWidget* widget, gpointer data);
-		static void onFocusOutEvent(GtkWidget* widget, gpointer data);
-		static void onActive(GtkWidget* widget, gpointer data);
+		static void cb_doSearchThing(GtkWidget* widget, gpointer data);
+		static void cb_onFocusInEvent(GtkWidget* widget, gpointer data);
+		static void cb_onFocusOutEvent(GtkWidget* widget, gpointer data);
+		static void cb_onActive(GtkWidget* widget, gpointer data);
 
 	};
 
