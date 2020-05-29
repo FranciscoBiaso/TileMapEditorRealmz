@@ -23,12 +23,12 @@ namespace ui {
 		 */
 		AuxUI();  
 
-		 /**
+		/**
 		 *  @brief This method get GtkStatusbar.
 		 */
 		static GtkStatusbar* getStatusBar() { return GTK_STATUSBAR(gtkStatusBar); }
 
-		/**
+	   /**
 		*  @brief This method searches for a thing by name. 
 		*  If find then select it into user interface GtkTreeView.
 		*  @param name name to be searched.		
@@ -36,21 +36,21 @@ namespace ui {
 		*/
 		static bool searchThingByName(std::string name);
 
-		/**
+	   /**
 		*  @brief This method cleans text input when focused.
 		*  @param widget that will recieve the signal.		
 		*  @param data extra information if needed. 		
 		*/
 		static void cb_onFocusInEvent(GtkWidget* widget, gpointer data);
 
-		/**
+	   /**
 		*  @brief This method add text input "..." when not focused.
 		*  @param widget that will recieve the signal.	
 		*  @param data extra information if needed.
 		*/
 		static void cb_onFocusOutEvent(GtkWidget* widget, gpointer data);		
 
-		/**
+	   /**
 		*  @brief This method call searchThingByName when activated.
 		*  @param widget that will recieve the signal.	
 		*  @param data extra information if needed.
