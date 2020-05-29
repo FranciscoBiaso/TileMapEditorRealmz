@@ -1,5 +1,6 @@
 #include "AuxUI.h"
 
+
 // class static members //
 GObject* ui::AuxUI::gtkEntryThingSearch = nullptr;
 GObject* ui::AuxUI::gtkStatusBar = nullptr;
@@ -9,7 +10,6 @@ namespace GtkUserInterface { extern GtkBuilder* builder; }
 extern data::MapResources* gResources;
 extern ui::StuffBookUI* gStuffBook;
 
-// constructor //
 ui::AuxUI::AuxUI()
 {
     // loading interfaces from xml //
@@ -22,20 +22,18 @@ ui::AuxUI::AuxUI()
     g_signal_connect(gtkEntryThingSearch, "focus-out-event", G_CALLBACK(cb_onFocusOutEvent), NULL);
 }
 
-/* [callback] on hit enter key */
+
 void ui::AuxUI::cb_onActive(GtkWidget* widget, gpointer data)
 {
-    ui::AuxUI::cb_doSearchThing(NULL, NULL);
+    searchThingByName(std::string(gtk_entry_get_text(GTK_ENTRY(gtkEntryThingSearch))));
 }
 
-/* [callback] on grab focus mouse */
 void ui::AuxUI::cb_onFocusInEvent(GtkWidget* widget, gpointer data)
 {
     GtkEntryBuffer* gtkEntryBuffer = gtk_entry_get_buffer(GTK_ENTRY(gtkEntryThingSearch));
     gtk_entry_buffer_delete_text(gtkEntryBuffer, 0, gtk_entry_buffer_get_length(gtkEntryBuffer));    
 }
 
-/* [callback] on leave focus mouse */
 void ui::AuxUI::cb_onFocusOutEvent(GtkWidget* widget, gpointer data)
 {
     GtkEntryBuffer* gtkEntryBuffer = gtk_entry_get_buffer(GTK_ENTRY(gtkEntryThingSearch));
@@ -43,14 +41,9 @@ void ui::AuxUI::cb_onFocusOutEvent(GtkWidget* widget, gpointer data)
     gtk_entry_buffer_set_text(gtkEntryBuffer, buffer.c_str(), buffer.size());
 }
 
-/* [callback] get thing from stuffbook */
-void ui::AuxUI::cb_doSearchThing(GtkWidget* widget, gpointer data)
+bool ui::AuxUI::searchThingByName(std::string name)
 {  
-    /* grab data from text input */
     std::string entryText = gtk_entry_get_text(GTK_ENTRY(gtkEntryThingSearch));
-    /* if data was provied as 2º argument, use it */
-    if (data != NULL)
-        entryText = (char *)data;
     
     gint row_count = 0; // count rows, not used  //
     gboolean valid; // check error //
@@ -97,4 +90,6 @@ void ui::AuxUI::cb_doSearchThing(GtkWidget* widget, gpointer data)
         std::string statusMsg = "Thing [" + entryText + "] not founded!";
         gtk_statusbar_push(GTK_STATUSBAR(gtkStatusBar), 0, statusMsg.c_str());
     }
+
+    return founded;
 }
