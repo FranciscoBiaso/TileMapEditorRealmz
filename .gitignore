@@ -9,6 +9,9 @@
 *.dll
 *.iobj
 *.ipdb
+*.pdb
+*.db
+*.suo
 include/*
 Debug/*
 x64/*
