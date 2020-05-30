@@ -14,33 +14,36 @@ GObject* ui::GraphicsTool::gtkToggleButton32x32 = nullptr;
 GObject* ui::GraphicsTool::gtkToggleButton32x64 = nullptr;
 GObject* ui::GraphicsTool::gtkToggleButton64x32 = nullptr;
 GObject* ui::GraphicsTool::gtkToggleButton64x64 = nullptr;
+GObject* ui::GraphicsTool::gtkViewportImgSrc = nullptr;
 
-GtkWidget* ui::GraphicsTool::drawingArea = nullptr;
-GtkWidget* ui::GraphicsTool::drawingAreaImgObj = nullptr;
-GdkPixbuf* ui::GraphicsTool::pixelBuf = nullptr;
-GdkPixbuf* ui::GraphicsTool::pixelBufImgDest = nullptr; // img pixel buf //
+GtkWidget* ui::GraphicsTool::drawingAreaImgSrc = nullptr;
+GtkWidget* ui::GraphicsTool::drawingAreaImgDst = nullptr;
+GdkPixbuf* ui::GraphicsTool::pixelBufImgSrc = nullptr;
+GdkPixbuf* ui::GraphicsTool::pixelBufImgDest = nullptr;
 
-int ui::GraphicsTool::xSqr = 0;
-int ui::GraphicsTool::ySqr = 0;
+int ui::GraphicsTool::xPosHighlightSquare = 0;
+int ui::GraphicsTool::yPosHighlightSquare = 0;
+int ui::GraphicsTool::MAX_IMG_WIDGET_WIDTH = 320;
+int ui::GraphicsTool::MAX_IMG_WIDGET_HEIGHT = 320;
 int ui::GraphicsTool::imgCursor = 0;
 bool ui::GraphicsTool::canDrawSelectedSquare = false;
 
-cairo_surface_t*  ui::GraphicsTool::surface = nullptr;
+cairo_surface_t*  ui::GraphicsTool::surfaceScr = nullptr;
+cairo_surface_t* ui::GraphicsTool::surfaceDst = nullptr;
 
-namespace GtkUserInterface {
-    extern GtkBuilder* builder;
-}
+namespace GtkUserInterface { extern GtkBuilder* builder;}
 
 ui::GraphicsTool::GraphicsTool()
 {
     // initialize timer //
-    g_timeout_add(600, timer_changeSquareData, NULL);
+    g_timeout_add(600, timerChangeSquareData, NULL);
 
     gtkFileChooserButtonImg = gtk_builder_get_object(GtkUserInterface::builder, "gtkFileChooserButtonImg");
     gtkImgInput = gtk_builder_get_object(GtkUserInterface::builder, "gtkImgInput");
     gtkFrameImg = gtk_builder_get_object(GtkUserInterface::builder, "gtkFrameImg");
     gtkFrameImgView = gtk_builder_get_object(GtkUserInterface::builder, "gtkFrameImgView");
     gtkCheckButtonGrid = gtk_builder_get_object(GtkUserInterface::builder, "gtkCheckButtonGrid");
+    gtkViewportImgSrc = gtk_builder_get_object(GtkUserInterface::builder, "gtkViewportImgSrc");
     /* toggle buttons */
     gtkToggleButton32x32 = gtk_builder_get_object(GtkUserInterface::builder, "gtkToggleButton32x32");
     gtkToggleButton32x64 = gtk_builder_get_object(GtkUserInterface::builder, "gtkToggleButton32x64");
@@ -52,27 +55,15 @@ ui::GraphicsTool::GraphicsTool()
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x32), FALSE);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64), FALSE);
     /* connect toggle buttons state */
-    g_signal_connect(gtkToggleButton32x32, "toggled", G_CALLBACK(signalGtkToggleButton32x32), gtkToggleButton32x32);
-    g_signal_connect(gtkToggleButton32x64, "toggled", G_CALLBACK(signalGtkToggleButton32x64), gtkToggleButton32x64);
-    g_signal_connect(gtkToggleButton64x32, "toggled", G_CALLBACK(signalGtkToggleButton64x32), gtkToggleButton64x32);
-    g_signal_connect(gtkToggleButton64x64, "toggled", G_CALLBACK(signalGtkToggleButton64x64), gtkToggleButton64x64);
-
-    if (drawingAreaImgObj == nullptr)
-    {
-        drawingAreaImgObj = gtk_drawing_area_new();
-        //gtk_widget_add_events(drawingArea, GDK_POINTER_MOTION_MASK);
-         gtk_container_add(GTK_CONTAINER(gtkFrameImgView), drawingAreaImgObj);
-
-        g_signal_connect(G_OBJECT(drawingAreaImgObj), "draw", G_CALLBACK(draw_callback_img_obj), NULL);
-
-        /* grab motion event */
-        //g_signal_connect(G_OBJECT(drawingArea), "motion-notify-event", G_CALLBACK(motion_notify_event_cb), NULL);
-    }
+    g_signal_connect(gtkToggleButton32x32, "toggled", G_CALLBACK(cb_signalGtkToggleButton32x32), gtkToggleButton32x32);
+    g_signal_connect(gtkToggleButton32x64, "toggled", G_CALLBACK(cb_signalGtkToggleButton32x64), gtkToggleButton32x64);
+    g_signal_connect(gtkToggleButton64x32, "toggled", G_CALLBACK(cb_signalGtkToggleButton64x32), gtkToggleButton64x32);
+    g_signal_connect(gtkToggleButton64x64, "toggled", G_CALLBACK(cb_signalGtkToggleButton64x64), gtkToggleButton64x64);
 
     // alocate memory for img pixel buf
     pixelBufImgDest = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE * 2, REALMZ_GRID_SIZE * 2);
 
-    //gtkScrolledWindowTileset = gtk_builder_get_object(GtkUserInterface::builder, "gtkScrolledWindowTileset");
+    setDrawingAreaImgDst(GTK_WIDGET(gtkFrameImgView));
 
     std::string path = g_win32_get_package_installation_directory_of_module(NULL);
     path += "\\imgs\\";
@@ -80,135 +71,122 @@ ui::GraphicsTool::GraphicsTool()
     gtk_file_chooser_set_action(GTK_FILE_CHOOSER(gtkFileChooserButtonImg), GTK_FILE_CHOOSER_ACTION_OPEN);
     //gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(gtkFileChooserButtonImg), TRUE);
 
-    //gtk_file_chooser_set_local_only(GTK_FILE_CHOOSER(gtkFileChooserButtonImg), true);
-    g_signal_connect(gtkFileChooserButtonImg, "file-set", G_CALLBACK(loadImg), gtk_builder_get_object(GtkUserInterface::builder, "viewport1"));
+    g_signal_connect(gtkFileChooserButtonImg, "file-set", G_CALLBACK(cb_onFileSet), gtkViewportImgSrc);
 
     /* bind check button to grid action (show or hide) */
-    g_signal_connect(gtkCheckButtonGrid, "toggled", G_CALLBACK(toggleButtonGrid), NULL);
+    g_signal_connect(gtkCheckButtonGrid, "toggled", G_CALLBACK(cb_toggleButtonChangeGrid), NULL);
 
 }
 
-
-gboolean ui::GraphicsTool::motion_notify_event_cb(GtkWidget* widget, GdkEventMotion* e, gpointer   user_data)
+gboolean ui::GraphicsTool::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpointer   user_data)
 {
-    xSqr = (e->x/REALMZ_GRID_SIZE);
-    xSqr = (int)xSqr * REALMZ_GRID_SIZE;
-    ySqr = (e->y / REALMZ_GRID_SIZE) ;
-    ySqr = (int)ySqr * REALMZ_GRID_SIZE;
-    if (drawingArea != nullptr)
-        gtk_widget_queue_draw(GTK_WIDGET(drawingArea));
+    xPosHighlightSquare = (int)(e->x/REALMZ_GRID_SIZE) * REALMZ_GRID_SIZE;
+    yPosHighlightSquare = (int)(e->y/REALMZ_GRID_SIZE) * REALMZ_GRID_SIZE;
+    if (drawingAreaImgSrc != nullptr)
+        gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgSrc));
     return TRUE;    
 }
 
-
-gboolean ui::GraphicsTool::click_event_cb(GtkWidget* widget, GdkEventButton* event, gpointer   user_data)
+gboolean ui::GraphicsTool::cb_clickNotify(GtkWidget* widget, GdkEventButton* event, gpointer   user_data)
 {
     // double click //
     if (event->type == GDK_DOUBLE_BUTTON_PRESS)
     {      
         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x32)) == TRUE)
         {
-            gdk_pixbuf_copy_area(pixelBuf, xSqr, ySqr, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE / 2);
+            gdk_pixbuf_copy_area(pixelBufImgSrc, xPosHighlightSquare, yPosHighlightSquare, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE / 2);
+            setDstSurfaceFromDstPixelbuf();
         }
         else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x64)) == TRUE)
         {
-            gdk_pixbuf_copy_area(pixelBuf, xSqr, ySqr, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, REALMZ_GRID_SIZE / 2,imgCursor * REALMZ_GRID_SIZE);
+            gdk_pixbuf_copy_area(pixelBufImgSrc, xPosHighlightSquare, yPosHighlightSquare, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, REALMZ_GRID_SIZE / 2,imgCursor * REALMZ_GRID_SIZE);
+            setDstSurfaceFromDstPixelbuf();
             rightShiftCursor();
         }
         else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x32)) == TRUE)
         {
-            gdk_pixbuf_copy_area(pixelBuf, xSqr, ySqr, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, imgCursor * REALMZ_GRID_SIZE, REALMZ_GRID_SIZE / 2);
+            gdk_pixbuf_copy_area(pixelBufImgSrc, xPosHighlightSquare, yPosHighlightSquare, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, imgCursor * REALMZ_GRID_SIZE, REALMZ_GRID_SIZE / 2);
+            setDstSurfaceFromDstPixelbuf();
             rightShiftCursor();
         }
         else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64)) == TRUE)
         {
             if(imgCursor <= 1)
-                gdk_pixbuf_copy_area(pixelBuf, xSqr, ySqr, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, imgCursor * REALMZ_GRID_SIZE, 0);
+                gdk_pixbuf_copy_area(pixelBufImgSrc, xPosHighlightSquare, yPosHighlightSquare, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, imgCursor * REALMZ_GRID_SIZE, 0);
             else
-                gdk_pixbuf_copy_area(pixelBuf, xSqr, ySqr, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, (imgCursor-2) * REALMZ_GRID_SIZE, REALMZ_GRID_SIZE);
+                gdk_pixbuf_copy_area(pixelBufImgSrc, xPosHighlightSquare, yPosHighlightSquare, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, (imgCursor-2) * REALMZ_GRID_SIZE, REALMZ_GRID_SIZE);
+            setDstSurfaceFromDstPixelbuf();
             rightShiftCursor();
         }
 
-        gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgObj));
+        gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgDst));
     }
 
     return TRUE;
 }
 
-/* show or hide grid */
-void ui::GraphicsTool::toggleButtonGrid(GtkToggleButton* togglebutton, gpointer user_data)
+void ui::GraphicsTool::cb_toggleButtonChangeGrid(GtkToggleButton* togglebutton, gpointer data)
 {
-    if (drawingArea != nullptr)
-        gtk_widget_queue_draw(GTK_WIDGET(drawingArea));
+    if (drawingAreaImgSrc != nullptr)
+        gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgSrc));
 }
 
-gboolean ui::GraphicsTool::draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data)
+gboolean ui::GraphicsTool::cb_draw_callback_img_src(GtkWidget* widget, cairo_t* cr, gpointer data)
 {
-    guint width, height;
-    GdkRGBA color; 
-    GtkStyleContext* context;    
-    float scaleFactor = 1;
+    // highlight Square color //
+    GdkRGBA HLSColor; HLSColor.red = 0; HLSColor.green = 0; HLSColor.blue = 0.85; HLSColor.alpha = 0.25;
+    // backgrond color //
+    GdkRGBA bgColor; bgColor.red = 0.5; bgColor.green = 0.5; bgColor.blue = 0.5; bgColor.alpha = 0.5;
 
-    cairo_set_source_rgba(cr, 0.5,0.5,0.5,1);
-    cairo_paint(cr);    
-
-    width = gtk_widget_get_allocated_width(widget);
-    height = gtk_widget_get_allocated_height(widget);
-   
-    cairo_scale(cr, scaleFactor, scaleFactor);
-
-    //gdk_pixbuf_copy_area()
-    
-    int w = cairo_image_surface_get_width(surface);
-    int h = cairo_image_surface_get_height(surface);
-
-    cairo_set_source_surface(cr, surface, 0,0);
+    // draw background //
+    cairo_set_source_rgba(cr, bgColor.red, bgColor.green,bgColor.blue,bgColor.alpha);
     cairo_paint(cr);
 
-    draw_square(cr, xSqr, ySqr, 0.1, 0.1, 0.85, 0.35);
+    guint width = gtk_widget_get_allocated_width(widget);
+    guint height = gtk_widget_get_allocated_height(widget);
+    
+    //int w = cairo_image_surface_get_width(surface);
+    //int h = cairo_image_surface_get_height(surface);
 
+    if (surfaceScr != nullptr)
+    {
+        // draw surface into widget region //
+        cairo_set_source_surface(cr, surfaceScr, 0, 0);
+        cairo_paint(cr);
+    }
+
+    // Draw the highlighted square //
+    drawSquare(cr, xPosHighlightSquare, yPosHighlightSquare,REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, HLSColor);
+
+    // draw grid //
     if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkCheckButtonGrid)) == TRUE)
-        draw_grid(cr, width, height, REALMZ_GRID_SIZE);
+        drawGrid(cr, width, height, REALMZ_GRID_SIZE);
 
     return FALSE;
 }
 
-gboolean ui::GraphicsTool::draw_callback_img_obj(GtkWidget* widget, cairo_t* cr, gpointer data)
+gboolean ui::GraphicsTool::cb_draw_callback_img_dst(GtkWidget* widget, cairo_t* cr, gpointer data)
 {
-    guint width, height;
-    GdkRGBA color;
-    GtkStyleContext* context;
-    float scaleFactor = 1;
+    // highlight Square color //
+    GdkRGBA HLSColor; HLSColor.red = 0; HLSColor.green = 0; HLSColor.blue = 0.85; HLSColor.alpha = 0.25;
+    // backgrond color //
+    GdkRGBA bgColor; bgColor.red = 0.5; bgColor.green = 0.5; bgColor.blue = 0.5; bgColor.alpha = 0.5;
+    // square color //
+    GdkRGBA sColor; sColor.red = 0.35; sColor.green = 0.35; sColor.blue = 0.35; sColor.alpha = 0.35;
 
-    cairo_set_source_rgba(cr, 0.5, 0.5, 0.5, 0.2);
+    // draw background //
+    cairo_set_source_rgba(cr, bgColor.red, bgColor.green, bgColor.blue, bgColor.alpha);
     cairo_paint(cr);
 
-    width = gtk_widget_get_allocated_width(widget);
-    height = gtk_widget_get_allocated_height(widget);
-
+    // draw background square (32x32,32x64,64x32 or 64x64)
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x32)) == TRUE)       drawImg32x32(cr, sColor);
+    else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x64)) == TRUE)  drawImg32x64(cr, sColor);
+    else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x32)) == TRUE)  drawImg64x32(cr, sColor);
+    else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64)) == TRUE)  drawImg64x64(cr, sColor);
     
-    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x32)) == TRUE)
+    if (surfaceDst != nullptr)
     {
-        drawImg32x32(cr);
-    }
-    else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x64)) == TRUE)
-    {
-        drawImg32x64(cr);
-    }
-    else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x32)) == TRUE)
-    {
-        drawImg64x32(cr);
-    }
-    else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64)) == TRUE)
-    {
-        drawImg64x64(cr);
-    }
-    
-
-    if (pixelBufImgDest != nullptr)
-    {
-        cairo_surface_t* surface = gdk_cairo_surface_create_from_pixbuf(pixelBufImgDest, 0, NULL);
-        cairo_set_source_surface(cr, surface, 0, 0);
+        cairo_set_source_surface(cr, surfaceDst, 0, 0);
         cairo_paint(cr);
     }
 
@@ -217,120 +195,156 @@ gboolean ui::GraphicsTool::draw_callback_img_obj(GtkWidget* widget, cairo_t* cr,
     {
         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x32)) == TRUE)
         {
-            draw_square(cr, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE / 2, 0,1,0, 0.2);
+            drawSquare(cr, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, HLSColor);
         }
         else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x64)) == TRUE)
         {
-            draw_square(cr, REALMZ_GRID_SIZE / 2, imgCursor * REALMZ_GRID_SIZE, 0, 1, 0, 0.2);
+            drawSquare(cr, REALMZ_GRID_SIZE / 2, imgCursor * REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, HLSColor);
         }
         else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x32)) == TRUE)
         {
-            draw_square(cr, imgCursor * REALMZ_GRID_SIZE, REALMZ_GRID_SIZE / 2, 0, 1, 0, 0.2);
+            drawSquare(cr, imgCursor * REALMZ_GRID_SIZE, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, HLSColor);
         }
         else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64)) == TRUE)
         {
             if (imgCursor <= 1)
-                draw_square(cr, imgCursor * REALMZ_GRID_SIZE, 0, 0, 1, 0, 0.2);
+                drawSquare(cr, imgCursor * REALMZ_GRID_SIZE, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, HLSColor);
             else
-                draw_square(cr, (imgCursor - 2) * REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, 0, 1, 0, 0.2);
+                drawSquare(cr, (imgCursor - 2) * REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, HLSColor);
         }
     }
     return FALSE;
 }
 
-void ui::GraphicsTool::loadImg(GtkFileChooserButton* widget, gpointer data)
-{    
+ui::GraphicsTool::FileReturnMsg ui::GraphicsTool::loadImgFromFile()
+{
+    gchar* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(gtkFileChooserButtonImg));
+    if (filename == NULL)
+        return NO_FILE_iS_SELECTED;
 
-    // create the are we can draw in
-    //GtkDrawingArea* drawingArea;
+    pixelBufImgSrc = gtk_image_get_pixbuf(GTK_IMAGE(gtk_image_new_from_file(filename)));
+    if (pixelBufImgSrc == NULL)
+        return IMAGE_IS_EMPTY;
 
-    pixelBuf = gtk_image_get_pixbuf(GTK_IMAGE(gtk_image_new_from_file(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(gtkFileChooserButtonImg)))));
-    surface = gdk_cairo_surface_create_from_pixbuf(pixelBuf, 0, NULL);
-    
-    if (drawingArea == nullptr)
-    {
-        drawingArea = gtk_drawing_area_new();
-        gtk_widget_add_events(drawingArea, GDK_POINTER_MOTION_MASK);
-        gtk_widget_add_events(drawingArea, GDK_BUTTON_PRESS_MASK);
-
-        gtk_container_add(GTK_CONTAINER(data), drawingArea);
-
-        gtk_widget_set_size_request(GTK_WIDGET(drawingArea), gdk_pixbuf_get_width(pixelBuf), gdk_pixbuf_get_height(pixelBuf));
-
-        g_signal_connect(G_OBJECT(drawingArea), "draw", G_CALLBACK(draw_callback), NULL);
-
-        /* grab motion event */
-        g_signal_connect(G_OBJECT(drawingArea), "motion-notify-event", G_CALLBACK(motion_notify_event_cb), NULL);
-        g_signal_connect(G_OBJECT(drawingArea), "button-press-event", G_CALLBACK(click_event_cb), NULL);
-
-
-        gtk_widget_show_all(GTK_WIDGET(gtk_widget_get_parent(drawingArea)));        
-    }
-   
-    //gtk_widget_set_size_request(drawingArea, gdk_pixbuf_get_width(pixelBuf), gdk_pixbuf_get_height(pixelBuf));
-    gtk_widget_set_size_request(GTK_WIDGET(gtkFrameImg), std::min(gdk_pixbuf_get_width(pixelBuf),MAX_IMG_WIDGET_WIDTH), std::min(gdk_pixbuf_get_height(pixelBuf),MAX_IMG_WIDGET_HEIGHT));
-    
-    
-    gtk_widget_show_all(GTK_WIDGET(gtk_widget_get_parent(drawingArea)));
-    //g_signal_connect(drawingArea, "configure-event",G_CALLBACK(configure_event_cb), NULL);
-
+    return FILE_OK;
 }
 
-/* toggle buttons signals */
+void ui::GraphicsTool::setSrcSurfaceFromScrPixelbuf()
+{
+    surfaceScr = gdk_cairo_surface_create_from_pixbuf(pixelBufImgSrc, 0, NULL);
+}
 
-void ui::GraphicsTool::signalGtkToggleButton32x32(GtkToggleButton* togglebutton, gpointer user_data)
+void ui::GraphicsTool::setDstSurfaceFromDstPixelbuf()
+{
+    surfaceDst = gdk_cairo_surface_create_from_pixbuf(pixelBufImgDest, 0, NULL);
+}
+
+void ui::GraphicsTool::setDrawingAreaImgDst(GtkWidget* widget)
+{
+    if (drawingAreaImgDst == nullptr)
+    {
+        drawingAreaImgDst = gtk_drawing_area_new();
+        gtk_container_add(GTK_CONTAINER(widget), drawingAreaImgDst);
+
+        g_signal_connect(G_OBJECT(drawingAreaImgDst), "draw", G_CALLBACK(cb_draw_callback_img_dst), NULL);
+    }
+}
+
+void ui::GraphicsTool::setDrawingAreaImgScr(GtkWidget * widget)
+{
+    drawingAreaImgSrc = gtk_drawing_area_new();
+    gtk_widget_add_events(drawingAreaImgSrc, GDK_POINTER_MOTION_MASK);
+    gtk_widget_add_events(drawingAreaImgSrc, GDK_BUTTON_PRESS_MASK);
+
+    gtk_container_add(GTK_CONTAINER(widget), drawingAreaImgSrc);
+
+    g_signal_connect(G_OBJECT(drawingAreaImgSrc), "draw", G_CALLBACK(cb_draw_callback_img_src), NULL);
+
+    /* grab motion event */
+    g_signal_connect(G_OBJECT(drawingAreaImgSrc), "motion-notify-event", G_CALLBACK(cb_MotionNotify), NULL);
+    g_signal_connect(G_OBJECT(drawingAreaImgSrc), "button-press-event", G_CALLBACK(cb_clickNotify), NULL);
+
+    gtk_widget_show_all(GTK_WIDGET(gtk_widget_get_parent(drawingAreaImgSrc)));
+}
+
+void ui::GraphicsTool::cb_onFileSet(GtkFileChooserButton* widget, gpointer data)
+{
+    if (loadImgFromFile() != FILE_OK)
+    {
+        std::cout << "Error to load img from file!"<<std::endl;// used until create an txt msg manipulator //
+        return;
+    }
+
+    setSrcSurfaceFromScrPixelbuf();
+    if (drawingAreaImgSrc == nullptr)
+        setDrawingAreaImgScr(GTK_WIDGET(data));
+    int width = gdk_pixbuf_get_width(pixelBufImgSrc);
+    int height = gdk_pixbuf_get_height(pixelBufImgSrc);
+    gtk_widget_set_size_request(GTK_WIDGET(drawingAreaImgSrc), width, height);
+    gtk_widget_set_size_request(GTK_WIDGET(gtkFrameImg), std::min(width,MAX_IMG_WIDGET_WIDTH), std::min(height,MAX_IMG_WIDGET_HEIGHT));
+    gtk_widget_show_all(GTK_WIDGET(gtk_widget_get_parent(drawingAreaImgSrc)));
+}
+
+void ui::GraphicsTool::cb_signalGtkToggleButton32x32(GtkToggleButton* togglebutton, gpointer user_data)
 {
     if (gtk_toggle_button_get_active(togglebutton) == TRUE)
     {
-        gdk_pixbuf_fill(pixelBufImgDest, 0x00000005);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x64), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x32), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64), FALSE);
-        gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgObj));
+       
     }
+    gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
+    setDstSurfaceFromDstPixelbuf();
+    resetCursor();
+    gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgDst));
 }
 
-void ui::GraphicsTool::signalGtkToggleButton32x64(GtkToggleButton* togglebutton, gpointer user_data)
+void ui::GraphicsTool::cb_signalGtkToggleButton32x64(GtkToggleButton* togglebutton, gpointer user_data)
 {
     if (gtk_toggle_button_get_active(togglebutton) == TRUE)
     {
-        gdk_pixbuf_fill(pixelBufImgDest, 0x00000005);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x32), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x32), FALSE);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64), FALSE);
-        gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgObj));
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64), FALSE);        
     }
+    
+    gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
+    setDstSurfaceFromDstPixelbuf();
+    resetCursor();
+    gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgDst));
 }
 
-void ui::GraphicsTool::signalGtkToggleButton64x32(GtkToggleButton* togglebutton, gpointer user_data)
+void ui::GraphicsTool::cb_signalGtkToggleButton64x32(GtkToggleButton* togglebutton, gpointer user_data)
 {
     if (gtk_toggle_button_get_active(togglebutton) == TRUE)
     {
-        gdk_pixbuf_fill(pixelBufImgDest, 0x00000005);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x32), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x64), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64), FALSE);
-        gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgObj));
     }
+    gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
+    setDstSurfaceFromDstPixelbuf();
+    resetCursor();
+    gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgDst));
 }
 
-void ui::GraphicsTool::signalGtkToggleButton64x64(GtkToggleButton* togglebutton, gpointer user_data)
+void ui::GraphicsTool::cb_signalGtkToggleButton64x64(GtkToggleButton* togglebutton, gpointer user_data)
 {
     if (gtk_toggle_button_get_active(togglebutton) == TRUE)
     {
-        gdk_pixbuf_fill(pixelBufImgDest, 0x00000005);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x32), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x64), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x32), FALSE);
-        gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgObj));
     }
+    gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
+    setDstSurfaceFromDstPixelbuf();
+    resetCursor();
+    gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgDst));
 }
 
-/* DRAWING FUNCTIONS */
-void ui::GraphicsTool::draw_grid(cairo_t* cr, int w, int h, int gridSize)
+void ui::GraphicsTool::drawGrid(cairo_t* cr, int w, int h, int gridSize)
 {
-    // grid basic settings //
-
     cairo_set_line_width(cr, 2);
     //double dashs[2] = { 1.0, 3.0 };
     //cairo_set_dash(cr, dashs, 2, 0);
@@ -356,46 +370,38 @@ void ui::GraphicsTool::draw_grid(cairo_t* cr, int w, int h, int gridSize)
     cairo_fill(cr);
 }
 
-void ui::GraphicsTool::draw_square(cairo_t* cr, int x, int y, float r, float g , float b, float a)
+void ui::GraphicsTool::drawSquare(cairo_t* cr, int x, int y, int w, int h, GdkRGBA color)
 {
-    //cairo_set_line_width(cr, 2);
-    //cairo_set_line_cap(cr, CAIRO_LINE_CAP_SQUARE);
-    
-    cairo_rectangle(cr, x, y,REALMZ_GRID_SIZE,REALMZ_GRID_SIZE);
-    cairo_set_source_rgba(cr, r, g, b, a);
+    cairo_rectangle(cr, x, y, w, h);
+    cairo_set_source_rgba(cr, color.red, color.green, color.blue , color.alpha);
     cairo_fill(cr);
 }
 
-void ui::GraphicsTool::drawImg32x32(cairo_t* cr)
+void ui::GraphicsTool::drawImg32x32(cairo_t* cr, GdkRGBA color)
 {
-    /* draw on center */
-    draw_square(cr, REALMZ_GRID_SIZE/2, REALMZ_GRID_SIZE / 2, 0.2, 0.2, 0.2, 0.5);
+    drawSquare(cr, REALMZ_GRID_SIZE/2, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, color);
 }
 
-
-void ui::GraphicsTool::drawImg32x64(cairo_t* cr)
+void ui::GraphicsTool::drawImg32x64(cairo_t* cr, GdkRGBA color)
 {
-    draw_square(cr, REALMZ_GRID_SIZE / 2, 0, 0.2, 0.2, 0.2, 0.5);
-    draw_square(cr, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE, 0.2, 0.2, 0.2, 0.5);
+    drawSquare(cr, REALMZ_GRID_SIZE / 2,0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, color);
+    drawSquare(cr, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, color);
 }
 
-void ui::GraphicsTool::drawImg64x32(cairo_t* cr)
+void ui::GraphicsTool::drawImg64x32(cairo_t* cr, GdkRGBA color)
 {
-    draw_square(cr, 0, REALMZ_GRID_SIZE / 2, 0.2, 0.2, 0.2, 0.5);
-    draw_square(cr, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE / 2, 0.2, 0.2, 0.2, 0.5);
+    drawSquare(cr, 0, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, color);
+    drawSquare(cr, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, color);
 }
 
-void ui::GraphicsTool::drawImg64x64(cairo_t* cr)
+void ui::GraphicsTool::drawImg64x64(cairo_t* cr, GdkRGBA color)
 {
-    draw_square(cr, 0, 0, 0.2, 0.2, 0.2, 0.5);
-    draw_square(cr, 0, REALMZ_GRID_SIZE, 0.2, 0.2, 0.2, 0.5);
-    draw_square(cr, REALMZ_GRID_SIZE, 0, 0.2, 0.2, 0.2, 0.5);
-    draw_square(cr, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, 0.2, 0.2, 0.2, 0.5);
+    drawSquare(cr, 0, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, color);
+    drawSquare(cr, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, color);
+    drawSquare(cr, REALMZ_GRID_SIZE, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, color);
+    drawSquare(cr, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, color);
 }
 
-
-
-/* logical */
 void ui::GraphicsTool::rightShiftCursor()
 {
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x64)) == TRUE || gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x32)) == TRUE)
@@ -422,14 +428,18 @@ void ui::GraphicsTool::leftShiftCursor()
     }       
 }
 
-/* timer functions */
-gboolean ui::GraphicsTool::timer_changeSquareData(gpointer data)
+void ui::GraphicsTool::resetCursor()
+{
+    imgCursor = 0;
+}
+
+gboolean ui::GraphicsTool::timerChangeSquareData(gpointer data)
 {
     if (canDrawSelectedSquare)
         canDrawSelectedSquare = false;
     else
         canDrawSelectedSquare = true;
-    gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgObj));
+    gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgDst));
 
     return TRUE;
 }

@@ -13,13 +13,13 @@ namespace ui {
 	class AuxUI
 	{
 	private:
-		static GObject* gtkEntryThingSearch;   
-		static GObject* gtkStatusBar;   
+		static GObject* gtkEntryThingSearch;
+		static GObject* gtkStatusBar;
 
 	public:
 		
 		/**
-		 *	constructor
+		 *  constructor
 		 */
 		AuxUI();
 

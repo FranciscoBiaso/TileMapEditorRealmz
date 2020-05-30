@@ -6,11 +6,7 @@
 #include <string>
 #include <iostream>
 #include <algorithm> // max
-
-#define MAX_IMG_WIDGET_WIDTH 320
-#define MAX_IMG_WIDGET_HEIGHT 320
-#define REALMZ_GRID_SIZE 32
-
+#include "Definitions.h"
 namespace ui {
 	/*!
 		Graphicas module
@@ -20,6 +16,14 @@ namespace ui {
 	 */
 	class GraphicsTool
 	{
+		enum FileReturnMsg{
+			FILE_OK,
+			NO_FILE_iS_SELECTED,
+			IMAGE_IS_EMPTY
+		};
+
+		static int MAX_IMG_WIDGET_WIDTH;
+		static int MAX_IMG_WIDGET_HEIGHT;
 	private:
 		static GObject* gtkFileChooserButtonImg;
 		static GObject* gtkImgInput;
@@ -41,10 +45,11 @@ namespace ui {
 		static GtkWidget* drawingAreaImgDst; // region to display selected img from uploaded img //
 		static GdkPixbuf* pixelBufImgSrc;    // buffer of upload img //
 		static GdkPixbuf* pixelBufImgDest;   // buffer of selected img //
-		static cairo_surface_t* surface;
+		static cairo_surface_t* surfaceScr;
+		static cairo_surface_t* surfaceDst;
 
-		static int xSqr;  // position x of mouse into selected img region multiple by GRID_SIZE //
-		static int ySqr;  // position y of mouse into selected img region multiple by GRID_SIZE //
+		static int xPosHighlightSquare;  // position x of mouse into selected img region multiple by GRID_SIZE //
+		static int yPosHighlightSquare;  // position y of mouse into selected img region multiple by GRID_SIZE //
 
 		static int imgCursor; // cursor to identify region of selected img region, 4 possibilities //
 		static bool canDrawSelectedSquare; // used to draw flashing square //
@@ -55,33 +60,40 @@ namespace ui {
 		GraphicsTool();
 		
 		/**
-		 *  @brief This method load image from input file and stores into GdkPixbuf.
+		 *  @brief This method loads an image from the selected file and stores it in GdkPixbuf.
+		 *  @param name to be searched.
+		 *  @see cb_onFileSet
+		 */
+		static FileReturnMsg loadImgFromFile();
+
+		/**
+		 *  @brief This method set src surface for drawing from src GdkPixbuf;
 		 *  @param name name to be searched.
 		 *  @see cb_onFileSet
 		 */
-		static int loadImgFromFile();
+		static void setSrcSurfaceFromScrPixelbuf();
 
 		/**
-		 *  @brief This method set cairo surface for drawing from GdkPixbuf;
+		 *  @brief This method set dst surface for drawing from dst GdkPixbuf;
 		 *  @param name name to be searched.
 		 *  @see cb_onFileSet
 		 */
-		static void setSurfaceFromPixelbuf(const GdkPixbuf * gdkPixelBuf);
+		static void setDstSurfaceFromDstPixelbuf();
 
 		/**
-		 *  @brief This method sets drawingArea for img src.
+		 *  @brief This method sets widget drawingArea for src image.
 		 *  @param widget is a container where drawing area will be stored.
 		 */
 		static void setDrawingAreaImgScr(GtkWidget*widget);
 
 		/**
-		 *  @brief This method sets drawingArea for img dst.
+		 *  @brief This method sets widget drawingArea for dst image.
 		 *  @param widget is a container where drawing area will be stored.
 		 */
 		static void setDrawingAreaImgDst(GtkWidget* widget);
 
 		/**
-		 *  @brief This method load image from input set file.
+		 *  @brief This method load image from selected file.
 		 *  @param widget that will recieve the signal.
 		 *  @param data extra information if needed.
 		 *  @see loadImgFromFile
@@ -96,13 +108,13 @@ namespace ui {
 		static void cb_toggleButtonChangeGrid(GtkToggleButton* togglebutton, gpointer data);
 
 		/**
-		 *  @brief This method draws a grid into draw suface.
+		 *  @brief This method draws a grid lines.
 		 *  @param cr surface to draw.
 		 *  @param width to draw.
 		 *  @param height to draw.
 		 *  @param gridSize the space between grid lines.
 		 */
-		static void draw_grid(cairo_t* cr, int width, int height, int gridSize);
+		static void drawGrid(cairo_t* cr, int width, int height, int gridSize);
 
 		/**
 		 *  @brief This method draws a simples square.
@@ -113,24 +125,27 @@ namespace ui {
 		 *  @param h height.
 		 *  @param color RGBA color.
 		 */
-		static void draw_square(cairo_t* cr, int x, int y, int w = REALMZ_GRID_SIZE, int h = REALMZ_GRID_SIZE, GdkRGBA color = { 1,1,1,1 });
+		static void drawSquare(cairo_t* cr, int x, int y, int w = REALMZ_GRID_SIZE, int h = REALMZ_GRID_SIZE, GdkRGBA color = { 1,1,1,1 });
 		
 		/**
 		 *  @brief This method draws a 32x32 background img centered.
 		 */
-		static void drawImg32x32(cairo_t* cr);
+		static void drawImg32x32(cairo_t* cr, GdkRGBA color = { 1,1,1,1 });
+
 		/**
 		 *  @brief This method draws a 32x64 background img centered.
 		 */
-		static void drawImg32x64(cairo_t* cr);
+		static void drawImg32x64(cairo_t* cr, GdkRGBA color = { 1,1,1,1 });
+
 		/**
 		 *  @brief This method draws a 64x32 background img centered.
 		 */
-		static void drawImg64x32(cairo_t* cr);
+		static void drawImg64x32(cairo_t* cr, GdkRGBA color = { 1,1,1,1 });
+
 		/**
 		 *  @brief This method draws a 64x64 background img centered.
 		 */
-		static void drawImg64x64(cairo_t* cr);
+		static void drawImg64x64(cairo_t* cr, GdkRGBA color = { 1,1,1,1 });
 		
 		/**
 		 *  @brief This method represents a redenring callback of src img widget region.
@@ -143,12 +158,12 @@ namespace ui {
 		static gboolean cb_draw_callback_img_dst(GtkWidget* widget, cairo_t* cr, gpointer data);
 
 		/**
-		 *  @brief This method detects mouse movement.
+		 *  @brief This method detects mouse movement and adjust the position values (x, y) to draw the highlighted square.
 		 */
 		static gboolean cb_MotionNotify(GtkWidget* widget, GdkEventMotion* event, gpointer   user_data);
 
 		/**
-		 * @brief This method captures mouse click.
+		 * @brief This method copy the 32x32 region of src img where mouse is positioned into sub square (32x32) region of dst img when 2x click.
 		 */
 		static gboolean cb_clickNotify(GtkWidget* widget, GdkEventButton* event, gpointer   user_data);
 
@@ -163,7 +178,12 @@ namespace ui {
 		static void leftShiftCursor();
 
 		/**
-		 * @brief This method it is called repeatedly in milliseconds to manipulate additional graphic objects.
+		 * @brief This method resets the image cursor position.
+		 */
+		static void resetCursor();
+
+		/**
+		 * @brief This method it is called repeatedly in milliseconds to manipulate highlight square.
 		 */
 		static gboolean timerChangeSquareData(gpointer data);
 
