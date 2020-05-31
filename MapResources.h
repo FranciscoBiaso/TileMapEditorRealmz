@@ -7,23 +7,50 @@
 #include <iostream>
 
 namespace data {
+	/*!
+		MAP EDITOR RESOURCES
+		====================
 
+		This class contains the resources that will be used by the software.
+	 */
 	class MapResources{
 
 	private:
 		std::map<std::string, std::map<std::string, Thing>> stuffBook; // dicionary of dicionary (things) //
 		Json::Value thingTypesJson; // used to manipulate json files //
 
-		void createStuffBookFromJson(); // load thing types from json file //
+		/**
+		 *  @brief This method fills stuffBook data loading from json file.
+		 */
+		void createStuffBookFromJson(); 
 		void loadImgBook() {} 
 	public:
+		/**
+		 *  constructor
+		 */
 		MapResources();
 
-		void addThing(Thing thingObj); // add thing into stuffbook //
-		void delThing(std::string thingName, std::string keyThingType);  //delet thing from stuffbook //
+		/**
+		 *  @brief This method adds a Thing object to the stuffBook.
+		 *  @param Thing Object to be added.
+		 */
+		void addThing(Thing thingObj);
 
-		/* get */
+		/**
+		 *  @brief This method deletes a Thing object from the stuffBook.
+		 *  @param thingName object to be deleted.
+		 *  @param thingType class of this object.
+		 */
+		void delThing(std::string thingName, std::string thingType);  
+
+		/**
+		 *  @brief This method gets the stuffBook.
+		 */
 		std::map<std::string, std::map<std::string, Thing>>& getStuffBook() { return stuffBook; }
+
+		/**
+		 *  @brief This method gets the a json object.
+		 */
 		const Json::Value getThingTypesJson() { return thingTypesJson; }
 	};
 };
