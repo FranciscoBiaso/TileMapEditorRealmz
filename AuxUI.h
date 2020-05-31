@@ -24,7 +24,7 @@ namespace ui {
 		AuxUI();
 
 		/**
-		 *  @brief This method get GtkStatusbar.
+		 *  @brief This method gets GtkStatusbar.
 		 */
 		static GtkStatusbar* getStatusBar() { return GTK_STATUSBAR(gtkStatusBar); }
 		

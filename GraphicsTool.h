@@ -61,22 +61,16 @@ namespace ui {
 		
 		/**
 		 *  @brief This method loads an image from the selected file and stores it in GdkPixbuf.
-		 *  @param name to be searched.
-		 *  @see cb_onFileSet
 		 */
 		static FileReturnMsg loadImgFromFile();
 
 		/**
 		 *  @brief This method set src surface for drawing from src GdkPixbuf;
-		 *  @param name name to be searched.
-		 *  @see cb_onFileSet
 		 */
 		static void setSrcSurfaceFromScrPixelbuf();
 
 		/**
 		 *  @brief This method set dst surface for drawing from dst GdkPixbuf;
-		 *  @param name name to be searched.
-		 *  @see cb_onFileSet
 		 */
 		static void setDstSurfaceFromDstPixelbuf();
 
@@ -95,8 +89,6 @@ namespace ui {
 		/**
 		 *  @brief This method load image from selected file.
 		 *  @param widget that will recieve the signal.
-		 *  @param data extra information if needed.
-		 *  @see loadImgFromFile
 		 */
 		static void cb_onFileSet(GtkFileChooserButton* widget, gpointer data);
 
