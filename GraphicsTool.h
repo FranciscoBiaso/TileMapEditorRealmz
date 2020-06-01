@@ -181,6 +181,13 @@ namespace ui {
 		static void resetCursor();
 
 		/**
+		 * @brief This method sets the image cursor to a specific position.
+		 * @param x mouse position.
+		 * @param y mouse position.
+		 */
+		static void setCursor(int x, int y);
+
+		/**
 		 * @brief This method it is called repeatedly in milliseconds to manipulate highlight square.
 		 */
 		static gboolean timerChangeSquareData(gpointer data);
@@ -213,7 +220,7 @@ namespace ui {
 		/**
 		 * @brief This method is used to change the target image with the pre-configured icon.
 		 */
-		static gboolean cb_dragMotion(GtkWidget* widget, GdkDragContext* context,
+		static gboolean cb_dragDrop(GtkWidget* widget, GdkDragContext* context,
 			gint            x,
 			gint            y,
 			guint           time,

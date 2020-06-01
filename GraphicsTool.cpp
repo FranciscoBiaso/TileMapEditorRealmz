@@ -258,7 +258,7 @@ void ui::GraphicsTool::setDrawingAreaImgDst(GtkWidget* widget)
         gtk_container_add(GTK_CONTAINER(widget), drawingAreaImgDst);
 
         g_signal_connect(G_OBJECT(drawingAreaImgDst), "draw", G_CALLBACK(cb_draw_callback_img_dst), NULL);
-        g_signal_connect(G_OBJECT(drawingAreaImgDst), "drag-drop", G_CALLBACK(cb_dragMotion), NULL);                
+        g_signal_connect(G_OBJECT(drawingAreaImgDst), "drag-drop", G_CALLBACK(cb_dragDrop), NULL);                
     }
 }
 
@@ -449,6 +449,43 @@ void ui::GraphicsTool::resetCursor()
     imgCursor = 0;
 }
 
+void ui::GraphicsTool::setCursor(int x, int y)
+{
+    int xTmp = (int)(x / REALMZ_GRID_SIZE) * REALMZ_GRID_SIZE;
+    int yTmp = (int)(y / REALMZ_GRID_SIZE) * REALMZ_GRID_SIZE;
+
+
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x32)) == TRUE)
+    {
+        imgCursor = 0;
+    }
+    else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x64)) == TRUE)
+    {
+        if (yTmp == 0)
+            imgCursor = 0;
+        else if(yTmp == 32)
+            imgCursor = 1;
+    }
+    else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x32)) == TRUE)
+    {
+        if (xTmp == 0)
+            imgCursor = 0;
+        else if (xTmp == 32)
+            imgCursor = 1;
+    }
+    else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64)) == TRUE)
+    {
+        if (xTmp == 0 && yTmp == 0)
+            imgCursor = 0;
+        else if (xTmp == 32 && yTmp == 0)
+            imgCursor = 1;
+        else if (xTmp == 0 && yTmp == 32)
+            imgCursor = 2;
+        else if (xTmp == 32 && yTmp == 32)
+            imgCursor = 3;
+    }
+}
+
 gboolean ui::GraphicsTool::timerChangeSquareData(gpointer data)
 {
     if (canDrawSelectedSquare)
@@ -465,7 +502,7 @@ void ui::GraphicsTool::cb_dragBegin(GtkWidget* widget, GdkDragContext* context, 
     gdk_pixbuf_copy_area(pixelBufImgSrc, xPosHighlightSquare, yPosHighlightSquare, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, dragIcon32x32, 0, 0);
 }
 
-gboolean  ui::GraphicsTool::cb_dragMotion(GtkWidget* widget, GdkDragContext* context,
+gboolean  ui::GraphicsTool::cb_dragDrop(GtkWidget* widget, GdkDragContext* context,
         gint            x,
         gint            y,
         guint           time,
@@ -473,22 +510,27 @@ gboolean  ui::GraphicsTool::cb_dragMotion(GtkWidget* widget, GdkDragContext* con
 {
     xPosDropSquare = (int)(x / REALMZ_GRID_SIZE) * REALMZ_GRID_SIZE;
     yPosDropSquare = (int)(y / REALMZ_GRID_SIZE) * REALMZ_GRID_SIZE;
+    setCursor(xPosDropSquare, yPosDropSquare);
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x32)) == TRUE)
     {
-        gdk_pixbuf_copy_area(dragIcon32x32, 0, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE / 2);
+        gdk_pixbuf_copy_area(dragIcon32x32, 0, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE / 2);        
     }
     else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x64)) == TRUE)
     {
-        gdk_pixbuf_copy_area(dragIcon32x32, 0, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, REALMZ_GRID_SIZE / 2, yPosDropSquare);
+        gdk_pixbuf_copy_area(dragIcon32x32, 0, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, REALMZ_GRID_SIZE / 2, yPosDropSquare);  
+        rightShiftCursor();
     }
     else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x32)) == TRUE)
     {
         gdk_pixbuf_copy_area(dragIcon32x32, 0, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, xPosDropSquare, REALMZ_GRID_SIZE / 2);
+        rightShiftCursor();
     }
     else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64)) == TRUE)
     {
         gdk_pixbuf_copy_area(dragIcon32x32, 0, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, xPosDropSquare, yPosDropSquare);
+        rightShiftCursor();
     }
+
     setDstSurfaceFromDstPixelbuf();
     gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgDst));
     return TRUE;
