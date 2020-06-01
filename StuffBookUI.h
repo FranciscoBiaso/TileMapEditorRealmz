@@ -10,24 +10,37 @@
 #include <map>
 
 namespace ui {
+	/*!
+		STUFF BOOK 
+		==========
+
+		This class represents the stuffbook graphical interface.
+	 */
 	class StuffBookUI
 	{
 	private:
-		static GObject* gtkTreeViewStuffBook;        // tree model // 
-		static GObject* gtkScrolledWindowStuffbook;  // scrolled window // 
-	
-
-	public:
+		static GObject* gtkTreeViewStuffBook;        // tree model //
+		static GObject* gtkScrolledWindowStuffbook;  // scrolled window //
+		
 		void createTreeView();           // create model //
 		static GtkTreeModel* fillTree(); // fill model //
-		
+		static void updateTree();        // update user interface //
+
+	public:
+
+		/**
+		 *  constructor
+		 */
 		StuffBookUI();
 
-		/* update models */
-		static void updateTree();
-		static gboolean removeThing(GtkWidget* widget, GdkEventKey* event,gpointer   user_data);
+		/**
+		 *  @brief This removes a Thing from stuffbook dicionary.
+		 */
+		static gboolean removeThing(GtkWidget* widget, GdkEventKey* event, gpointer   user_data);
 
-		/* get */
+		/**
+		 *  @brief This method gets gtkTreeViewStuffBook.
+		 */
 		static GtkTreeView* getTreeViewStuffBook() { return GTK_TREE_VIEW(gtkTreeViewStuffBook); }
 	};
 }
