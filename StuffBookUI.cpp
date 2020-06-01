@@ -13,7 +13,7 @@ ui::StuffBookUI::StuffBookUI()
     gtkTreeViewStuffBook = gtk_builder_get_object(GtkUserInterface::builder, "gtkTreeViewStuffBook");
     gtkScrolledWindowStuffbook = gtk_builder_get_object(GtkUserInterface::builder, "gtkScrolledWindowStuffbook");
     
-    g_signal_connect(gtkTreeViewStuffBook, "key-press-event", G_CALLBACK(removeThing), NULL);
+    g_signal_connect(gtkTreeViewStuffBook, "key-press-event", G_CALLBACK(cb_removeThing), NULL);
 
     createTreeView();
     updateTree();
@@ -71,7 +71,7 @@ GtkTreeModel* ui::StuffBookUI::fillTree()
     return GTK_TREE_MODEL(treestore);
 }
 
-gboolean ui::StuffBookUI::removeThing(GtkWidget* widget, GdkEventKey* event,gpointer user_data)
+gboolean ui::StuffBookUI::cb_removeThing(GtkWidget* widget, GdkEventKey* event,gpointer user_data)
 {
     // is delete key ? if no, do nothing //
     if (event->keyval != GDK_KEY_Delete)

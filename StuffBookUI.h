@@ -35,7 +35,7 @@ namespace ui {
 		/**
 		 *  @brief This removes a Thing from stuffbook dicionary.
 		 */
-		static gboolean removeThing(GtkWidget* widget, GdkEventKey* event, gpointer   user_data);
+		static gboolean cb_removeThing(GtkWidget* widget, GdkEventKey* event, gpointer   user_data);
 
 		/**
 		 *  @brief This method gets gtkTreeViewStuffBook.

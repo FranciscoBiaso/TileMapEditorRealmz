@@ -8,13 +8,13 @@
 #include <json/json.h>
 #include <iostream>
 
-enum {
-	COLUMN = 0,
-	NUM_COLS
-};
-
 namespace ui {
+	/*!
+		THING CREATOR MODULE
+		====================
 
+		This class represents all graphical interface necessary to create a thing obj.
+	 */
 	class ThingCreatorTool
 	{
 	private:
@@ -24,29 +24,50 @@ namespace ui {
 		static GObject* gtkTreeViewThingObj;      /* show thing atributes */
 		static GObject* gtkButtonCreateThing;     /* create thing [add to stuffBook] */
 
-		static TME::Thing thing; // thing structure 		
+		static TME::Thing thing; // thing structure 
 
-	public:
-		ThingCreatorTool();
-		
-		/* create models */
+
 		void createTreeViewThingObj();
 		void createTreeViewThingType();
-
-		/* update models */
 		static GtkTreeModel* fillTreeThingObj();
 		static GtkTreeModel* fillTreeThingType();
+
+	public:
+		/*
+		 * constructor
+		*/
+		ThingCreatorTool();
+
+		/**
+		 *  @brief This method update user interface tree view thing obj.
+		 */
 		static void updateTreeThingObj();
+
+		/**
+		 *  @brief This method update user interface tree view thing type.
+		 */
 		static void updateTreeThingType();
 
-		/* create functions */
-		static void createThing(GtkWidget* widget, gpointer data);
+		/**
+		 *  @brief This method create a thing, update user interface then select the new thing into the tree view.
+		 *  @param widget that will recieve the signal.
+		 *  @param data extra information if needed.
+		 */
+		static void cb_createThing(GtkWidget* widget, gpointer data);
 
-		/* update functions */
-		static void updateThingName();
-		static void onGtkEntryThingNameChanged(GtkWidget* widget, gpointer data);
-		
-		static void updateThingType(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data);
+		/**
+		 *  @brief This method change a thing name when key are pressed from user interface thing name.
+		 *  @param widget that will recieve the signal.
+		 *  @param data extra information if needed.
+		 */
+		static void cb_updateThingName(GtkWidget* widget, gpointer data);
+
+		/**
+		 *  @brief This method change a thing type when 2x click into user interface tree view thing type.
+		 *  @param widget that will recieve the signal.
+		 *  @param data extra information if needed.
+		 */
+		static void cb_updateThingType(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data);
 
 	};
 }
