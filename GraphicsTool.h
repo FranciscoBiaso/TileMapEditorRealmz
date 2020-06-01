@@ -57,6 +57,8 @@ namespace ui {
 
 		static int imgCursor; // cursor to identify region of selected img region, 4 possibilities //
 		static bool canDrawSelectedSquare; // used to draw flashing square //
+		
+		static GtkTargetEntry dragTarget;
 	public:
 		/**
 		 *  constructor

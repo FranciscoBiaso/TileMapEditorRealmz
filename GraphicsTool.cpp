@@ -34,6 +34,8 @@ bool ui::GraphicsTool::canDrawSelectedSquare = false;
 cairo_surface_t*  ui::GraphicsTool::surfaceScr = nullptr;
 cairo_surface_t* ui::GraphicsTool::surfaceDst = nullptr;
 
+GtkTargetEntry ui::GraphicsTool::dragTarget = { (gchar*)"targetImg",0, 0 };
+
 namespace GtkUserInterface { extern GtkBuilder* builder;}
 
 ui::GraphicsTool::GraphicsTool()
@@ -244,27 +246,6 @@ void ui::GraphicsTool::setDstSurfaceFromDstPixelbuf()
     surfaceDst = gdk_cairo_surface_create_from_pixbuf(pixelBufImgDest, 0, NULL);
 }
 
-enum {
-    TARGET_INT32,
-    TARGET_STRING,
-    TARGET_ROOTWIN
-};
-
-gchar a[] = "2222";
-gchar b[] = "2222";
-gchar c[] = "2222";
-gchar d[] = "2222";
-
-
-static GtkTargetEntry target_list[] = {
-        { a,    0, TARGET_INT32 },
-        { b,     0, TARGET_STRING },
-        { c, 0, TARGET_STRING },
-        { d, 0, TARGET_ROOTWIN }
-};
-
-static guint n_targets = G_N_ELEMENTS(target_list);
-
 void ui::GraphicsTool::setDrawingAreaImgDst(GtkWidget* widget)
 {
     if (drawingAreaImgDst == nullptr)
@@ -272,15 +253,12 @@ void ui::GraphicsTool::setDrawingAreaImgDst(GtkWidget* widget)
         drawingAreaImgDst = gtk_drawing_area_new();
         gtk_widget_add_events(drawingAreaImgDst, GDK_ALL_EVENTS_MASK);
         
-        gtk_drag_dest_set(drawingAreaImgDst, GTK_DEST_DEFAULT_MOTION, target_list, n_targets, GDK_ACTION_COPY);
+        gtk_drag_dest_set(drawingAreaImgDst, GTK_DEST_DEFAULT_MOTION, &dragTarget, 1, GDK_ACTION_COPY);
 
         gtk_container_add(GTK_CONTAINER(widget), drawingAreaImgDst);
 
         g_signal_connect(G_OBJECT(drawingAreaImgDst), "draw", G_CALLBACK(cb_draw_callback_img_dst), NULL);
-        //g_signal_connect(G_OBJECT(drawingAreaImgDst), "motion-notify-event", G_CALLBACK(cb_MotionNotifyDst), NULL);
-        g_signal_connect(G_OBJECT(drawingAreaImgDst), "drag-drop", G_CALLBACK(cb_dragMotion), NULL);
-        
-        
+        g_signal_connect(G_OBJECT(drawingAreaImgDst), "drag-drop", G_CALLBACK(cb_dragMotion), NULL);                
     }
 }
 
@@ -290,7 +268,7 @@ void ui::GraphicsTool::setDrawingAreaImgScr(GtkWidget * widget)
     drawingAreaImgSrc = gtk_drawing_area_new();
     gtk_widget_add_events(drawingAreaImgSrc, GDK_POINTER_MOTION_MASK);
     gtk_widget_add_events(drawingAreaImgSrc, GDK_BUTTON_PRESS_MASK);
-    gtk_drag_source_set(drawingAreaImgSrc, GDK_BUTTON1_MASK, target_list, n_targets, GDK_ACTION_COPY);
+    gtk_drag_source_set(drawingAreaImgSrc, GDK_BUTTON1_MASK, &dragTarget, 1, GDK_ACTION_COPY);
     gtk_drag_source_set_icon_pixbuf(drawingAreaImgSrc, dragIcon32x32);
 
     gtk_container_add(GTK_CONTAINER(widget), drawingAreaImgSrc);
@@ -486,7 +464,6 @@ void ui::GraphicsTool::cb_dragBegin(GtkWidget* widget, GdkDragContext* context, 
 {
     gdk_pixbuf_copy_area(pixelBufImgSrc, xPosHighlightSquare, yPosHighlightSquare, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, dragIcon32x32, 0, 0);
 }
-
 
 gboolean  ui::GraphicsTool::cb_dragMotion(GtkWidget* widget, GdkDragContext* context,
         gint            x,
