@@ -7,6 +7,9 @@
 #include <iostream>
 #include <algorithm> // max
 #include "Definitions.h"
+
+#include "ImgObj.h"
+
 namespace ui {
 	/*!
 		Graphicas module
@@ -59,6 +62,12 @@ namespace ui {
 		static bool canDrawSelectedSquare; // used to draw flashing square //
 		
 		static GtkTargetEntry dragTarget;
+
+		void createTreeViewImgObj(); // create tree view model //
+		void updateTreeImgObj();  // update the view model //
+		GtkTreeModel* fillTreeImgObj();  // fills model when needs //
+
+		static data::ImgObj imgObj;
 	public:
 		/**
 		 *  constructor
