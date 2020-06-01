@@ -20,9 +20,12 @@ GtkWidget* ui::GraphicsTool::drawingAreaImgSrc = nullptr;
 GtkWidget* ui::GraphicsTool::drawingAreaImgDst = nullptr;
 GdkPixbuf* ui::GraphicsTool::pixelBufImgSrc = nullptr;
 GdkPixbuf* ui::GraphicsTool::pixelBufImgDest = nullptr;
+GdkPixbuf* ui::GraphicsTool::dragIcon32x32 = nullptr;
 
 int ui::GraphicsTool::xPosHighlightSquare = 0;
 int ui::GraphicsTool::yPosHighlightSquare = 0;
+int ui::GraphicsTool::xPosDropSquare = 0;
+int ui::GraphicsTool::yPosDropSquare = 0;
 int ui::GraphicsTool::MAX_IMG_WIDGET_WIDTH = 320;
 int ui::GraphicsTool::MAX_IMG_WIDGET_HEIGHT = 320;
 int ui::GraphicsTool::imgCursor = 0;
@@ -62,6 +65,7 @@ ui::GraphicsTool::GraphicsTool()
 
     // alocate memory for img pixel buf
     pixelBufImgDest = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE * 2, REALMZ_GRID_SIZE * 2);
+    dragIcon32x32 = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE);
 
     setDrawingAreaImgDst(GTK_WIDGET(gtkFrameImgView));
 
@@ -75,6 +79,7 @@ ui::GraphicsTool::GraphicsTool()
 
     /* bind check button to grid action (show or hide) */
     g_signal_connect(gtkCheckButtonGrid, "toggled", G_CALLBACK(cb_toggleButtonChangeGrid), NULL);
+
 
 }
 
@@ -239,30 +244,61 @@ void ui::GraphicsTool::setDstSurfaceFromDstPixelbuf()
     surfaceDst = gdk_cairo_surface_create_from_pixbuf(pixelBufImgDest, 0, NULL);
 }
 
+enum {
+    TARGET_INT32,
+    TARGET_STRING,
+    TARGET_ROOTWIN
+};
+
+gchar a[] = "2222";
+gchar b[] = "2222";
+gchar c[] = "2222";
+gchar d[] = "2222";
+
+
+static GtkTargetEntry target_list[] = {
+        { a,    0, TARGET_INT32 },
+        { b,     0, TARGET_STRING },
+        { c, 0, TARGET_STRING },
+        { d, 0, TARGET_ROOTWIN }
+};
+
+static guint n_targets = G_N_ELEMENTS(target_list);
+
 void ui::GraphicsTool::setDrawingAreaImgDst(GtkWidget* widget)
 {
     if (drawingAreaImgDst == nullptr)
     {
         drawingAreaImgDst = gtk_drawing_area_new();
+        gtk_widget_add_events(drawingAreaImgDst, GDK_ALL_EVENTS_MASK);
+        
+        gtk_drag_dest_set(drawingAreaImgDst, GTK_DEST_DEFAULT_MOTION, target_list, n_targets, GDK_ACTION_COPY);
+
         gtk_container_add(GTK_CONTAINER(widget), drawingAreaImgDst);
 
         g_signal_connect(G_OBJECT(drawingAreaImgDst), "draw", G_CALLBACK(cb_draw_callback_img_dst), NULL);
+        //g_signal_connect(G_OBJECT(drawingAreaImgDst), "motion-notify-event", G_CALLBACK(cb_MotionNotifyDst), NULL);
+        g_signal_connect(G_OBJECT(drawingAreaImgDst), "drag-drop", G_CALLBACK(cb_dragMotion), NULL);
+        
+        
     }
 }
 
 void ui::GraphicsTool::setDrawingAreaImgScr(GtkWidget * widget)
 {
+
     drawingAreaImgSrc = gtk_drawing_area_new();
     gtk_widget_add_events(drawingAreaImgSrc, GDK_POINTER_MOTION_MASK);
     gtk_widget_add_events(drawingAreaImgSrc, GDK_BUTTON_PRESS_MASK);
+    gtk_drag_source_set(drawingAreaImgSrc, GDK_BUTTON1_MASK, target_list, n_targets, GDK_ACTION_COPY);
+    gtk_drag_source_set_icon_pixbuf(drawingAreaImgSrc, dragIcon32x32);
 
     gtk_container_add(GTK_CONTAINER(widget), drawingAreaImgSrc);
 
     g_signal_connect(G_OBJECT(drawingAreaImgSrc), "draw", G_CALLBACK(cb_draw_callback_img_src), NULL);
-
-    /* grab motion event */
     g_signal_connect(G_OBJECT(drawingAreaImgSrc), "motion-notify-event", G_CALLBACK(cb_MotionNotify), NULL);
     g_signal_connect(G_OBJECT(drawingAreaImgSrc), "button-press-event", G_CALLBACK(cb_clickNotify), NULL);
+    g_signal_connect(G_OBJECT(drawingAreaImgSrc), "drag-begin", G_CALLBACK(cb_dragBegin), NULL);
 
     gtk_widget_show_all(GTK_WIDGET(gtk_widget_get_parent(drawingAreaImgSrc)));
 }
@@ -277,7 +313,9 @@ void ui::GraphicsTool::cb_onFileSet(GtkFileChooserButton* widget, gpointer data)
 
     setSrcSurfaceFromScrPixelbuf();
     if (drawingAreaImgSrc == nullptr)
+    {
         setDrawingAreaImgScr(GTK_WIDGET(data));
+    }
     int width = gdk_pixbuf_get_width(pixelBufImgSrc);
     int height = gdk_pixbuf_get_height(pixelBufImgSrc);
     gtk_widget_set_size_request(GTK_WIDGET(drawingAreaImgSrc), width, height);
@@ -441,5 +479,40 @@ gboolean ui::GraphicsTool::timerChangeSquareData(gpointer data)
         canDrawSelectedSquare = true;
     gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgDst));
 
+    return TRUE;
+}
+
+void ui::GraphicsTool::cb_dragBegin(GtkWidget* widget, GdkDragContext* context, gpointer user_data)
+{
+    gdk_pixbuf_copy_area(pixelBufImgSrc, xPosHighlightSquare, yPosHighlightSquare, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, dragIcon32x32, 0, 0);
+}
+
+
+gboolean  ui::GraphicsTool::cb_dragMotion(GtkWidget* widget, GdkDragContext* context,
+        gint            x,
+        gint            y,
+        guint           time,
+        gpointer        user_data)
+{
+    xPosDropSquare = (int)(x / REALMZ_GRID_SIZE) * REALMZ_GRID_SIZE;
+    yPosDropSquare = (int)(y / REALMZ_GRID_SIZE) * REALMZ_GRID_SIZE;
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x32)) == TRUE)
+    {
+        gdk_pixbuf_copy_area(dragIcon32x32, 0, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE / 2);
+    }
+    else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x64)) == TRUE)
+    {
+        gdk_pixbuf_copy_area(dragIcon32x32, 0, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, REALMZ_GRID_SIZE / 2, yPosDropSquare);
+    }
+    else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x32)) == TRUE)
+    {
+        gdk_pixbuf_copy_area(dragIcon32x32, 0, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, xPosDropSquare, REALMZ_GRID_SIZE / 2);
+    }
+    else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64)) == TRUE)
+    {
+        gdk_pixbuf_copy_area(dragIcon32x32, 0, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, xPosDropSquare, yPosDropSquare);
+    }
+    setDstSurfaceFromDstPixelbuf();
+    gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgDst));
     return TRUE;
 }

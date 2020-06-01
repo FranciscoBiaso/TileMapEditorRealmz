@@ -45,11 +45,15 @@ namespace ui {
 		static GtkWidget* drawingAreaImgDst; // region to display selected img from uploaded img //
 		static GdkPixbuf* pixelBufImgSrc;    // buffer of upload img //
 		static GdkPixbuf* pixelBufImgDest;   // buffer of selected img //
+		static GdkPixbuf* dragIcon32x32;     // drag icon //
 		static cairo_surface_t* surfaceScr;
 		static cairo_surface_t* surfaceDst;
 
 		static int xPosHighlightSquare;  // position x of mouse into selected img region multiple by GRID_SIZE //
 		static int yPosHighlightSquare;  // position y of mouse into selected img region multiple by GRID_SIZE //
+
+		static int xPosDropSquare;  // position x of mouse when drop img from img scr //
+		static int yPosDropSquare;  // position y of mouse when drop img from img scr //
 
 		static int imgCursor; // cursor to identify region of selected img region, 4 possibilities //
 		static bool canDrawSelectedSquare; // used to draw flashing square //
@@ -152,7 +156,7 @@ namespace ui {
 		/**
 		 *  @brief This method detects mouse movement and adjust the position values (x, y) to draw the highlighted square.
 		 */
-		static gboolean cb_MotionNotify(GtkWidget* widget, GdkEventMotion* event, gpointer   user_data);
+		static gboolean cb_MotionNotify(GtkWidget* widget, GdkEventMotion* event, gpointer   user_data);		
 
 		/**
 		 * @brief This method copy the 32x32 region of src img where mouse is positioned into sub square (32x32) region of dst img when 2x click.
@@ -198,6 +202,20 @@ namespace ui {
 		 * @brief This method occurs when the toggle button 64x64 is triggered.
 		 */
 		static void cb_signalGtkToggleButton64x64(GtkToggleButton* togglebutton, gpointer user_data);
+
+		/**
+		 * @brief This method is used to configure the icon to be dragged.
+		 */
+		static void cb_dragBegin(GtkWidget* widget, GdkDragContext* context,gpointer user_data);
+
+		/**
+		 * @brief This method is used to change the target image with the pre-configured icon.
+		 */
+		static gboolean cb_dragMotion(GtkWidget* widget, GdkDragContext* context,
+			gint            x,
+			gint            y,
+			guint           time,
+			gpointer        user_data);
 
 	};
 
