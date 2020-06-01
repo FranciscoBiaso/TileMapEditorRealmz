@@ -16,7 +16,7 @@ namespace data {
 	class MapResources{
 
 	private:
-		std::map<std::string, std::map<std::string, Thing>> stuffBook; // dicionary of dicionary (things) //
+		std::map<std::string, std::map<std::string, TME::Thing>> stuffBook; // dicionary of dicionary (things) //
 		Json::Value thingTypesJson; // used to manipulate json files //
 
 		/**
@@ -34,7 +34,7 @@ namespace data {
 		 *  @brief This method adds a Thing object to the stuffBook.
 		 *  @param Thing Object to be added.
 		 */
-		void addThing(Thing thingObj);
+		void addThing(TME::Thing thingObj);
 
 		/**
 		 *  @brief This method deletes a Thing object from the stuffBook.
@@ -46,7 +46,7 @@ namespace data {
 		/**
 		 *  @brief This method gets the stuffBook.
 		 */
-		std::map<std::string, std::map<std::string, Thing>>& getStuffBook() { return stuffBook; }
+		std::map<std::string, std::map<std::string, TME::Thing>>& getStuffBook() { return stuffBook; }
 
 		/**
 		 *  @brief This method gets the a json object.

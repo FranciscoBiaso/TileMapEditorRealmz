@@ -1,6 +1,6 @@
 #include "ThingCreatorTool.h"
 
-Thing ui::ThingCreatorTool::thing("", "");
+TME::Thing ui::ThingCreatorTool::thing("", "");
 GObject* ui::ThingCreatorTool::gtkEntryThingName = nullptr;
 GObject* ui::ThingCreatorTool::gtkEntryThingImg = nullptr;
 GObject* ui::ThingCreatorTool::gtkTreeViewThingType = nullptr;

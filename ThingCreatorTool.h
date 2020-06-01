@@ -24,7 +24,7 @@ namespace ui {
 		static GObject* gtkTreeViewThingObj;      /* show thing atributes */
 		static GObject* gtkButtonCreateThing;     /* create thing [add to stuffBook] */
 
-		static Thing thing; // thing structure 		
+		static TME::Thing thing; // thing structure 		
 
 	public:
 		ThingCreatorTool();

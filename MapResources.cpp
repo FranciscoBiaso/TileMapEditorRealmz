@@ -4,11 +4,11 @@ data::MapResources::MapResources(){
 	createStuffBookFromJson();
 }
 
-void data::MapResources::addThing(Thing thing){
+void data::MapResources::addThing(TME::Thing thing){
 	auto it = stuffBook.find(thing.getType());
 	if (it != stuffBook.end()) // we found the thing type //
 	{
-		it->second.insert(std::pair<std::string, Thing>(thing.getName(), thing));
+		it->second.insert(std::pair<std::string, TME::Thing>(thing.getName(), thing));
 	}
 }
 
@@ -27,11 +27,11 @@ void data::MapResources::createStuffBookFromJson()
 		const Json::Value& _class = types[i]["class"]; // access class //
 		if (_class.size() != 0) { // check if classes is bigger than 0 //
 			for (auto j = 0; j < _class.size(); j++) { // iterate through them [classes] // 
-				stuffBook.insert(std::pair<std::string, std::map<std::string, Thing>>(_class[j]["name"].asString(), std::map<std::string, Thing >())); // fill our data //
+				stuffBook.insert(std::pair<std::string, std::map<std::string, TME::Thing>>(_class[j]["name"].asString(), std::map<std::string, TME::Thing >())); // fill our data //
 			}
 		}
 		else{
-			stuffBook.insert(std::pair<std::string, std::map<std::string, Thing>>(name, std::map<std::string, Thing >())); // fill our data //
+			stuffBook.insert(std::pair<std::string, std::map<std::string, TME::Thing>>(name, std::map<std::string, TME::Thing >())); // fill our data //
 		}
 	}
 }
