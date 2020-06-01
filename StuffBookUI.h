@@ -24,7 +24,7 @@ namespace ui {
 		
 		void createTreeView();           // create model //
 		static GtkTreeModel* fillTree(); // fill model //
-		static void updateTree();        // update user interface //
+		static void updateTree();        // update user interface tree view //
 
 	public:
 
