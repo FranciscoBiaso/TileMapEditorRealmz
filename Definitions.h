@@ -4,7 +4,7 @@
 *  GRID SIZE
 */
 #define REALMZ_GRID_SIZE 32
-
+#define TEXTURE_ATLAS_MAX_WIDTH 200 
 
 namespace def{
     /**
@@ -20,6 +20,7 @@ namespace def{
     enum ReturnMsg {
         FILE_OK,
         FILE_NOT_SELECTED,
-        IMAGE_EMPTY
+        IMAGE_EMPTY,
+        NOT_ENOUGH_MEMORY
     };
 }
