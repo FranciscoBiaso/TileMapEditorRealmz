@@ -31,7 +31,7 @@ int ui::GraphicsTool::MAX_IMG_WIDGET_HEIGHT = 320;
 int ui::GraphicsTool::imgCursor = 0;
 bool ui::GraphicsTool::canDrawSelectedSquare = false;
 
-data::ImgObj ui::GraphicsTool::imgObj(IMG_SIZE::IMG_SIZE_32X32);
+data::ImgObj ui::GraphicsTool::imgObj(def::IMG_SIZE::IMG_SIZE_32X32);
 
 cairo_surface_t*  ui::GraphicsTool::surfaceScr = nullptr;
 cairo_surface_t* ui::GraphicsTool::surfaceDst = nullptr;
@@ -232,17 +232,17 @@ gboolean ui::GraphicsTool::cb_draw_callback_img_dst(GtkWidget* widget, cairo_t* 
     return FALSE;
 }
 
-ui::GraphicsTool::FileReturnMsg ui::GraphicsTool::loadImgFromFile()
+def::ReturnMsg ui::GraphicsTool::loadImgFromFile()
 {
     gchar* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(gtkFileChooserButtonImg));
     if (filename == NULL)
-        return NO_FILE_iS_SELECTED;
+        return def::ReturnMsg::FILE_NOT_SELECTED;
 
     pixelBufImgSrc = gtk_image_get_pixbuf(GTK_IMAGE(gtk_image_new_from_file(filename)));
     if (pixelBufImgSrc == NULL)
-        return IMAGE_IS_EMPTY;
+        return def::ReturnMsg::IMAGE_EMPTY;
 
-    return FILE_OK;
+    return def::ReturnMsg::FILE_OK;
 }
 
 void ui::GraphicsTool::setSrcSurfaceFromScrPixelbuf()
@@ -292,7 +292,7 @@ void ui::GraphicsTool::setDrawingAreaImgScr(GtkWidget * widget)
 
 void ui::GraphicsTool::cb_onFileSet(GtkFileChooserButton* widget, gpointer data)
 {
-    if (loadImgFromFile() != FILE_OK)
+    if (loadImgFromFile() != def::ReturnMsg::FILE_OK)
     {
         std::cout << "Error to load img from file!"<<std::endl;// used until create an txt msg manipulator //
         return;

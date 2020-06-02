@@ -11,25 +11,31 @@ namespace data {
 		int line; /**< line represents y position into the texture atlas images. */
 		int col;  /**< col represents x position into the texture atlas images. */
 	} ImgRef;
-		
+
+	/*!
+		ImgObj class
+		============
+
+		This class represents an image object that can contain n images where n is equal to 1, 2 or 4 in the following sizes: 32x32,32x64,64x32 or 64x64.
+	 */
 	class ImgObj
 	{
 	private:
 		std::string name; // name of the img obj //
-		IMG_SIZE size; // size of this image 32x32, 32x64, etc //		
+		def::IMG_SIZE size; // size of this image 32x32, 32x64, etc //		
 		std::vector<ImgRef> imgs; // references to real images //
 
 		/**
 		 * @brief This method sets name of ImgObj.
 		 * @param size of the ImgObj.
 		 */
-		void setSize(IMG_SIZE size);
+		void setSize(def::IMG_SIZE size);
 	public:
 		/**
 		 * constructor. 
 		 * @param size internal img size (32x32, 32x64, 64x32 or 64x64).
 		 */
-		ImgObj(IMG_SIZE size = IMG_SIZE::IMG_SIZE_32X32);
+		ImgObj(def::IMG_SIZE size = def::IMG_SIZE::IMG_SIZE_32X32);
 
 		/**
 		 * @brief This method sets name of ImgObj.
@@ -52,7 +58,7 @@ namespace data {
 		/**
 		 * @brief This method gets IMG_SIZE of ImgObj.
 		 */
-		IMG_SIZE getSize() const { return size; }
+		def::IMG_SIZE getSize() const { return size; }
 
 		/**
 		 * @brief This method gets IMG_SIZE of ImgObj as a std::string.
@@ -68,7 +74,7 @@ namespace data {
 		 * @brief This method reallocates the imgs vector to the specified size.
 		 * @param size to be reallocated.
 		 */
-		void resize(IMG_SIZE size = IMG_SIZE::IMG_SIZE_32X32);
+		void resize(def::IMG_SIZE size = def::IMG_SIZE::IMG_SIZE_32X32);
 	};
 
 }

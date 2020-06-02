@@ -19,12 +19,6 @@ namespace ui {
 	 */
 	class GraphicsTool
 	{
-		enum FileReturnMsg{
-			FILE_OK,
-			NO_FILE_iS_SELECTED,
-			IMAGE_IS_EMPTY
-		};
-
 		static int MAX_IMG_WIDGET_WIDTH;
 		static int MAX_IMG_WIDGET_HEIGHT;
 	private:
@@ -77,7 +71,7 @@ namespace ui {
 		/**
 		 *  @brief This method loads an image from the selected file and stores it in GdkPixbuf.
 		 */
-		static FileReturnMsg loadImgFromFile();
+		static def::ReturnMsg loadImgFromFile();
 
 		/**
 		 *  @brief This method set src surface for drawing from src GdkPixbuf;

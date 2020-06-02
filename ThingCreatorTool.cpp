@@ -82,7 +82,6 @@ void ui::ThingCreatorTool::createTreeViewThingObj()
 
     col = gtk_tree_view_column_new();
     gtk_tree_view_column_set_title(col, "ThingObj");
-    gtk_tree_view_column_set_title(col, "atribute");
     col2 = gtk_tree_view_column_new();
     gtk_tree_view_column_set_title(col2, "value");
     gtk_tree_view_append_column(GTK_TREE_VIEW(gtkTreeViewThingObj), col);
