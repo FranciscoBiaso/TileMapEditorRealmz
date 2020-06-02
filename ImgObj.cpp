@@ -2,7 +2,7 @@
 
 data::ImgObj::ImgObj(IMG_SIZE size) : name("empty")
 {
-	resize(); // sets size(32x32) and alocate imgs vetor //
+	resize(); // sets size(32x32) and alocate imgs vector //
 }
 
 void data::ImgObj::setName(std::string name)
@@ -19,7 +19,7 @@ void data::ImgObj::setImg(int index, ImgRef ref)
 {
 	// code prevent error //
 	if (index < 0 || index > imgs.size() - 1)
-		return;// in future we will throw ;
+		return;// in future we will throw ; //
 	imgs[index] = ref;
 }
 
@@ -46,9 +46,8 @@ int data::ImgObj::getSizeAsInt()
 	{
 	case IMG_SIZE::IMG_SIZE_32X32: return 1;
 		break;
-	case IMG_SIZE::IMG_SIZE_32X64: return 2;
-		break;
-	case IMG_SIZE::IMG_SIZE_64X32: return 3;
+	case IMG_SIZE::IMG_SIZE_32X64: // return 2 //
+	case IMG_SIZE::IMG_SIZE_64X32: return 2;
 		break;
 	case IMG_SIZE::IMG_SIZE_64X64: return 4;
 		break;
