@@ -61,6 +61,7 @@ namespace ui {
 		void updateTreeImgObj();  // update the view model //
 		GtkTreeModel* fillTreeImgObj();  // fills model when needs //
 
+		static std::string imgName;
 		static data::ImgObj imgObj;
 	public:
 		/**

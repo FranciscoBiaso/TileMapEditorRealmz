@@ -32,6 +32,7 @@ int ui::GraphicsTool::imgCursor = 0;
 bool ui::GraphicsTool::canDrawSelectedSquare = false;
 
 data::ImgObj ui::GraphicsTool::imgObj(def::IMG_SIZE::IMG_SIZE_32X32);
+std::string ui::GraphicsTool::imgName = "empty";
 
 cairo_surface_t*  ui::GraphicsTool::surfaceScr = nullptr;
 cairo_surface_t* ui::GraphicsTool::surfaceDst = nullptr;
@@ -562,7 +563,7 @@ GtkTreeModel* ui::GraphicsTool::fillTreeImgObj()
     treestore = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
 
     gtk_tree_store_append(treestore, &toplevel, NULL);
-    gtk_tree_store_set(treestore, &toplevel, 0, "name:", 1, imgObj.getName().c_str(), -1);
+    gtk_tree_store_set(treestore, &toplevel, 0, "name:", 1, imgName.c_str(), -1);
 
     gtk_tree_store_append(treestore, &toplevel, NULL);
     gtk_tree_store_set(treestore, &toplevel, 0, "size:", 1, imgObj.getSizeAsString().c_str(), -1);
