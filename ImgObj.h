@@ -21,7 +21,6 @@ namespace data {
 	class ImgObj
 	{
 	private:
-		std::string name; // name of the img obj //
 		def::IMG_SIZE size; // size of this image 32x32, 32x64, etc //		
 		std::vector<ImgRef> imgs; // references to real images //
 
@@ -49,11 +48,6 @@ namespace data {
 		 * @param ref of imgs vector[index].
 		 */
 		void setImg(int index, ImgRef ref);
-
-		/**
-		 * @brief This method gets name of ImgObj.
-		 */
-		std::string getName() const { return name; }
 		
 		/**
 		 * @brief This method gets IMG_SIZE of ImgObj.

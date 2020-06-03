@@ -1,13 +1,8 @@
 #include "ImgObj.h"
 
-data::ImgObj::ImgObj(def::IMG_SIZE size) : name("empty")
+data::ImgObj::ImgObj(def::IMG_SIZE size)
 {
 	resize(); // sets size(32x32) and alocate imgs vector //
-}
-
-void data::ImgObj::setName(std::string name)
-{
-	this->name = name;
 }
 
 void data::ImgObj::setSize(def::IMG_SIZE size)
