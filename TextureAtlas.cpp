@@ -23,6 +23,9 @@ void data::TextureAtlas::rightShiftCursor()
 
 void data::TextureAtlas::addImgObj(GdkPixbuf* srcImg, def::IMG_SIZE size)
 {
+	if(gdk_pixbuf_get_width(srcImg) != 64 || gdk_pixbuf_get_height(srcImg) != 64)
+		throw def::ReturnMsg::PIXELBUF_INVALID_SIZE;
+
 	switch (size)
 	{
 	case def::IMG_SIZE::IMG_SIZE_32X32:
@@ -61,5 +64,18 @@ void data::TextureAtlas::addImgObj(GdkPixbuf* srcImg, def::IMG_SIZE size)
 		break;
 	default: 
 		break;
+	}
+}
+
+void data::TextureAtlas::delImgObj(data::ImgObj imgObj)
+{
+	switch (imgObj.getSize())
+	{
+	case def::IMG_SIZE::IMG_SIZE_32X32:
+	{
+
+	}
+		break;
+
 	}
 }
