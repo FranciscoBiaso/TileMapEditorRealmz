@@ -5,6 +5,7 @@
 */
 #define REALMZ_GRID_SIZE 32
 #define TEXTURE_ATLAS_MAX_WIDTH 200 
+#define IMGOBJ_MAX_IMGS 4
 
 namespace def{
     /**
@@ -22,6 +23,8 @@ namespace def{
         FILE_NOT_SELECTED,
         IMAGE_EMPTY,
         NOT_ENOUGH_MEMORY,
-        PIXELBUF_INVALID_SIZE
+        PIXELBUF_INVALID_SIZE,
+        ARRAY_OUT_OF_RANGE
+
     };
 }
