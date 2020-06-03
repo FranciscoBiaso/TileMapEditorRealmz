@@ -21,6 +21,7 @@ namespace def{
         FILE_OK,
         FILE_NOT_SELECTED,
         IMAGE_EMPTY,
-        NOT_ENOUGH_MEMORY
+        NOT_ENOUGH_MEMORY,
+        PIXELBUF_INVALID_SIZE
     };
 }
