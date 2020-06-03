@@ -12,7 +12,7 @@ namespace math {
 
 		This class represents a vec2(x,y) strucutre and its basic operations.
 	 */
-	template <class T>
+	template <class T=int>
 	class Vec2
 	{
 	private:
@@ -55,6 +55,13 @@ namespace math {
 		 * @param y.
 		 */
 		void setY(T y) { xy[AT_Y] = y; }
+
+		/**
+		 * @brief This method sets xy position.
+		 * @param x.
+		 * @param y.
+		 */
+		void setXY(T x, T y) { xy[AT_X] = x; xy[AT_Y] = y; }
 
 
 		/**
