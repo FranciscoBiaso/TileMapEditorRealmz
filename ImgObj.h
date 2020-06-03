@@ -14,6 +14,7 @@ namespace data {
 	class ImgObj
 	{
 	private:
+		def::IMG_SIZE size;
 		math::Vec2<int> imgs[IMGOBJ_MAX_IMGS];
 
 	public:
@@ -21,7 +22,17 @@ namespace data {
 		 * constructor. 
 		 * @param size internal img size (32x32, 32x64, 64x32 or 64x64).
 		 */
-		ImgObj(const std::vector<math::Vec2<int>>& references);
+		ImgObj(def::IMG_SIZE size, const std::vector<math::Vec2<int>>& references);
+
+		/**
+		 * @brief This method gets IMG_SIZE of ImgObj as a std::string.
+		 */
+		std::string getSizeAsString() const;
+
+		/**
+		 * @brief This method gets IMG_SIZE of ImgObj as a int.
+		 */
+		int getSizeAsInt();
 	};
 
 }
