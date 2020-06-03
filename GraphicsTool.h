@@ -62,7 +62,7 @@ namespace ui {
 		GtkTreeModel* fillTreeImgObj();  // fills model when needs //
 
 		static std::string imgName;
-		static data::ImgObj imgObj;
+        static std::string imgFormat;
 	public:
 		/**
 		 *  constructor

@@ -31,8 +31,8 @@ int ui::GraphicsTool::MAX_IMG_WIDGET_HEIGHT = 320;
 int ui::GraphicsTool::imgCursor = 0;
 bool ui::GraphicsTool::canDrawSelectedSquare = false;
 
-data::ImgObj ui::GraphicsTool::imgObj(def::IMG_SIZE::IMG_SIZE_32X32);
 std::string ui::GraphicsTool::imgName = "empty";
+std::string ui::GraphicsTool::imgFormat = "empty";
 
 cairo_surface_t*  ui::GraphicsTool::surfaceScr = nullptr;
 cairo_surface_t* ui::GraphicsTool::surfaceDst = nullptr;
@@ -320,6 +320,7 @@ void ui::GraphicsTool::cb_signalGtkToggleButton32x32(GtkToggleButton* togglebutt
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64), FALSE);
        
     }
+    imgFormat = "32x32";
     gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
     setDstSurfaceFromDstPixelbuf();
     resetCursor();
@@ -334,7 +335,7 @@ void ui::GraphicsTool::cb_signalGtkToggleButton32x64(GtkToggleButton* togglebutt
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x32), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64), FALSE);        
     }
-    
+    imgFormat = "32x64";
     gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
     setDstSurfaceFromDstPixelbuf();
     resetCursor();
@@ -349,6 +350,7 @@ void ui::GraphicsTool::cb_signalGtkToggleButton64x32(GtkToggleButton* togglebutt
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x64), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64), FALSE);
     }
+    imgFormat = "64x32";
     gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
     setDstSurfaceFromDstPixelbuf();
     resetCursor();
@@ -363,6 +365,7 @@ void ui::GraphicsTool::cb_signalGtkToggleButton64x64(GtkToggleButton* togglebutt
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x64), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x32), FALSE);
     }
+    imgFormat = "64x64";
     gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
     setDstSurfaceFromDstPixelbuf();
     resetCursor();
@@ -566,7 +569,7 @@ GtkTreeModel* ui::GraphicsTool::fillTreeImgObj()
     gtk_tree_store_set(treestore, &toplevel, 0, "name:", 1, imgName.c_str(), -1);
 
     gtk_tree_store_append(treestore, &toplevel, NULL);
-    gtk_tree_store_set(treestore, &toplevel, 0, "size:", 1, imgObj.getSizeAsString().c_str(), -1);
+    gtk_tree_store_set(treestore, &toplevel, 0, "size:", 1, imgFormat.c_str(), -1);
 
 
     return GTK_TREE_MODEL(treestore);
