@@ -2,6 +2,10 @@
 #include <gdk/gdk.h>
 #include "Definitions.h"
 #include "ImgObj.h"
+#include "Vec2.h"
+
+#define AT_COL 0
+#define AT_ROW 1
 
 namespace data {
 	/*!
@@ -17,14 +21,14 @@ namespace data {
 	{
 	private:
 		static GdkPixbuf* pixelBuf;  // Atlas into memory //
-
-		int rowCursor;
-		int colCursor;
+		math::Vec2<int> cursor;
+		data::ImgObj* last4ImgsPtr[IMGOBJ_MAX_IMGS]; // we need last 4 imgs to keep delet with O(1) time //
 	
 		void resetCursor();
 		void rightShiftCursor();
 		void leftShiftCursor();
 	public:
+		TextureAtlas(){}
 		/**
 		 * constructor.
 		 * 
@@ -53,13 +57,19 @@ namespace data {
 		 * 
 		 * @param srcImg pixelbuf that contains the data to be copied.
 		 * @param size of ImgObj.
+		 * @return images references added into texture atlas.
 		 */
-		void addImgObj(GdkPixbuf* srcImg, def::IMG_SIZE size);
+		const std::vector<math::Vec2<int>> addAddImgs(const GdkPixbuf* srcImg, const def::IMG_SIZE size);
 
 		/**
 		 * @brief This methods erases the texture atlas releasing data of atlas pixelbuf.
 		 */
-		void delImgObj(ImgObj);
+		void delImgObj(const ImgObj *);
+
+		
+		void rightShiftPtrs();
+		void leftShiftPtrs();
+		void setFirstPtr(ImgObj*);
 	};
 }
 
