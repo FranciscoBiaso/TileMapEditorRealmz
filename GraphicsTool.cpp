@@ -330,6 +330,7 @@ void ui::GraphicsTool::cb_signalGtkToggleButton32x32(GtkToggleButton* togglebutt
        
     }
     imgFormat = def::IMG_SIZE::IMG_SIZE_32X32;
+    updateTreeImgObj(); // update tree view //
     gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
     setDstSurfaceFromDstPixelbuf();
     resetCursor();
@@ -345,6 +346,7 @@ void ui::GraphicsTool::cb_signalGtkToggleButton32x64(GtkToggleButton* togglebutt
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64), FALSE);        
     }
     imgFormat = def::IMG_SIZE::IMG_SIZE_32X64;
+    updateTreeImgObj(); // update tree view //
     gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
     setDstSurfaceFromDstPixelbuf();
     resetCursor();
@@ -360,6 +362,7 @@ void ui::GraphicsTool::cb_signalGtkToggleButton64x32(GtkToggleButton* togglebutt
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64), FALSE);
     }
     imgFormat = def::IMG_SIZE::IMG_SIZE_64X32;
+    updateTreeImgObj(); // update tree view //
     gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
     setDstSurfaceFromDstPixelbuf();
     resetCursor();
@@ -375,6 +378,7 @@ void ui::GraphicsTool::cb_signalGtkToggleButton64x64(GtkToggleButton* togglebutt
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x32), FALSE);
     }
     imgFormat = def::IMG_SIZE::IMG_SIZE_64X64;
+    updateTreeImgObj(); // update tree view //
     gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
     setDstSurfaceFromDstPixelbuf();
     resetCursor();
@@ -578,7 +582,7 @@ GtkTreeModel* ui::GraphicsTool::fillTreeImgObj()
     gtk_tree_store_set(treestore, &toplevel, 0, "name:", 1, imgName.c_str(), -1);
 
     gtk_tree_store_append(treestore, &toplevel, NULL);
-    gtk_tree_store_set(treestore, &toplevel, 0, "size:", 1, "", -1);
+    gtk_tree_store_set(treestore, &toplevel, 0, "size:", 1, getSizeAsString().c_str(), -1);
 
 
     return GTK_TREE_MODEL(treestore);
@@ -611,7 +615,6 @@ void ui::GraphicsTool::cb_createImgObj(GtkWidget* widget, gpointer data)
 {
     gResources->getImgPack().addImgObj(imgName, pixelBufImgDest, imgFormat);
     gImgPackUI->updateTree(); // update tree view //
-
    
 #ifdef TME_DEBUG
     debugTextureAtlas->surface = gdk_cairo_surface_create_from_pixbuf(gResources->getImgPack().getTextureAtlas()->getPixelbuf(), 0, NULL);
@@ -623,4 +626,21 @@ void ui::GraphicsTool::cb_updateImgObjName(GtkWidget* widget, gpointer data)
 {
     imgName =gtk_entry_get_text(GTK_ENTRY(gtkEntryImgName)); // set name //
     updateTreeImgObj(); // update tree thing obj //
+}
+
+std::string ui::GraphicsTool::getSizeAsString()
+{
+    switch (imgFormat)
+    {
+    case def::IMG_SIZE::IMG_SIZE_32X32: return "32x32";
+        break;
+    case def::IMG_SIZE::IMG_SIZE_32X64: return "32x64";
+        break;
+    case def::IMG_SIZE::IMG_SIZE_64X32: return "64x32";
+        break;
+    case def::IMG_SIZE::IMG_SIZE_64X64: return "64x64";
+        break;
+    default: return "getSizeAsString() unknown type!";
+        break;
+    }
 }

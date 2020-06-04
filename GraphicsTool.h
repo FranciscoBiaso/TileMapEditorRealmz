@@ -252,6 +252,12 @@ namespace ui {
 		 */
 		static void cb_updateImgObjName(GtkWidget* widget, gpointer data);
 
+		/**
+		 * @brief This method helps to get the img size as string.
+		 * \return size as std::string.
+		 */
+		static std::string getSizeAsString();
+
 	};
 
 };
