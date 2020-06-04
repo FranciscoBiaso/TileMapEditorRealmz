@@ -23,7 +23,7 @@ void data::TextureAtlas::resetCursor()
 
 void data::TextureAtlas::rightShiftCursor()
 {
-	if (cursor(AT_COL) == TEXTURE_ATLAS_MAX_WIDTH)
+	if (cursor(AT_COL) == (TEXTURE_ATLAS_MAX_WIDTH-1))
 		cursor(AT_ROW) = cursor(AT_ROW) + 1;
 	cursor(AT_COL) = (cursor(AT_COL) + 1) % TEXTURE_ATLAS_MAX_WIDTH;	
 }
