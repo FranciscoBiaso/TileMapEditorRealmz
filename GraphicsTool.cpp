@@ -32,7 +32,7 @@ int ui::GraphicsTool::imgCursor = 0;
 bool ui::GraphicsTool::canDrawSelectedSquare = false;
 
 std::string ui::GraphicsTool::imgName = "empty";
-std::string ui::GraphicsTool::imgFormat = "empty";
+def::IMG_SIZE ui::GraphicsTool::imgFormat = def::IMG_SIZE::IMG_SIZE_32X32;
 
 cairo_surface_t*  ui::GraphicsTool::surfaceScr = nullptr;
 cairo_surface_t* ui::GraphicsTool::surfaceDst = nullptr;
@@ -40,6 +40,9 @@ cairo_surface_t* ui::GraphicsTool::surfaceDst = nullptr;
 GtkTargetEntry ui::GraphicsTool::dragTarget = { (gchar*)"targetImg",0, 0 };
 
 namespace GtkUserInterface { extern GtkBuilder* builder;}
+extern data::MapResources* gResources;
+extern DebugTextureAtlas* debugTextureAtlas;
+extern ui::ImgPackUI* gImgPackUI;
 
 ui::GraphicsTool::GraphicsTool()
 {
@@ -53,6 +56,9 @@ ui::GraphicsTool::GraphicsTool()
     gtkCheckButtonGrid = gtk_builder_get_object(GtkUserInterface::builder, "gtkCheckButtonGrid");
     gtkViewportImgSrc= gtk_builder_get_object(GtkUserInterface::builder, "gtkViewportImgSrc");
     gtkTreeViewImgObj = gtk_builder_get_object(GtkUserInterface::builder, "gtkTreeViewImgObj");
+    gtkButtonCreateImg = gtk_builder_get_object(GtkUserInterface::builder, "gtkButtonCreateImg");
+    gtkEntryImgName = gtk_builder_get_object(GtkUserInterface::builder, "gtkEntryImgName");
+
     /* toggle buttons */
     gtkToggleButton32x32 = gtk_builder_get_object(GtkUserInterface::builder, "gtkToggleButton32x32");
     gtkToggleButton32x64 = gtk_builder_get_object(GtkUserInterface::builder, "gtkToggleButton32x64");
@@ -84,7 +90,11 @@ ui::GraphicsTool::GraphicsTool()
     g_signal_connect(gtkFileChooserButtonImg, "file-set", G_CALLBACK(cb_onFileSet), gtkViewportImgSrc);
 
     /* bind check button to grid action (show or hide) */
-    g_signal_connect(gtkCheckButtonGrid, "toggled", G_CALLBACK(cb_toggleButtonChangeGrid), NULL);
+    g_signal_connect(gtkButtonCreateImg, "clicked", G_CALLBACK(cb_createImgObj), NULL);
+
+    /* bind cb button create img obj */
+    g_signal_connect(gtkFileChooserButtonImg, "file-set", G_CALLBACK(cb_onFileSet), gtkViewportImgSrc);
+    g_signal_connect(gtkEntryImgName, "changed", G_CALLBACK(cb_updateImgObjName), NULL);
 
     createTreeViewImgObj();
     updateTreeImgObj();
@@ -274,7 +284,6 @@ void ui::GraphicsTool::setDrawingAreaImgDst(GtkWidget* widget)
 
 void ui::GraphicsTool::setDrawingAreaImgScr(GtkWidget * widget)
 {
-
     drawingAreaImgSrc = gtk_drawing_area_new();
     gtk_widget_add_events(drawingAreaImgSrc, GDK_POINTER_MOTION_MASK);
     gtk_widget_add_events(drawingAreaImgSrc, GDK_BUTTON_PRESS_MASK);
@@ -320,7 +329,7 @@ void ui::GraphicsTool::cb_signalGtkToggleButton32x32(GtkToggleButton* togglebutt
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64), FALSE);
        
     }
-    imgFormat = "32x32";
+    imgFormat = def::IMG_SIZE::IMG_SIZE_32X32;
     gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
     setDstSurfaceFromDstPixelbuf();
     resetCursor();
@@ -335,7 +344,7 @@ void ui::GraphicsTool::cb_signalGtkToggleButton32x64(GtkToggleButton* togglebutt
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x32), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64), FALSE);        
     }
-    imgFormat = "32x64";
+    imgFormat = def::IMG_SIZE::IMG_SIZE_32X64;
     gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
     setDstSurfaceFromDstPixelbuf();
     resetCursor();
@@ -350,7 +359,7 @@ void ui::GraphicsTool::cb_signalGtkToggleButton64x32(GtkToggleButton* togglebutt
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x64), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64), FALSE);
     }
-    imgFormat = "64x32";
+    imgFormat = def::IMG_SIZE::IMG_SIZE_64X32;
     gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
     setDstSurfaceFromDstPixelbuf();
     resetCursor();
@@ -365,7 +374,7 @@ void ui::GraphicsTool::cb_signalGtkToggleButton64x64(GtkToggleButton* togglebutt
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x64), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x32), FALSE);
     }
-    imgFormat = "64x64";
+    imgFormat = def::IMG_SIZE::IMG_SIZE_64X64;
     gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
     setDstSurfaceFromDstPixelbuf();
     resetCursor();
@@ -569,7 +578,7 @@ GtkTreeModel* ui::GraphicsTool::fillTreeImgObj()
     gtk_tree_store_set(treestore, &toplevel, 0, "name:", 1, imgName.c_str(), -1);
 
     gtk_tree_store_append(treestore, &toplevel, NULL);
-    gtk_tree_store_set(treestore, &toplevel, 0, "size:", 1, imgFormat.c_str(), -1);
+    gtk_tree_store_set(treestore, &toplevel, 0, "size:", 1, "", -1);
 
 
     return GTK_TREE_MODEL(treestore);
@@ -596,4 +605,22 @@ void ui::GraphicsTool::createTreeViewImgObj()
 
     gtk_tree_view_set_show_expanders(GTK_TREE_VIEW(gtkTreeViewImgObj), true); // expanders //
     gtk_tree_view_set_enable_tree_lines(GTK_TREE_VIEW(gtkTreeViewImgObj), true); // tree lines //
+}
+
+void ui::GraphicsTool::cb_createImgObj(GtkWidget* widget, gpointer data)
+{
+    gResources->getImgPack().addImgObj(imgName, pixelBufImgDest, imgFormat);
+    gImgPackUI->updateTree(); // update tree view //
+
+   
+#ifdef TME_DEBUG
+    debugTextureAtlas->surface = gdk_cairo_surface_create_from_pixbuf(gResources->getImgPack().getTextureAtlas()->getPixelbuf(), 0, NULL);
+    gtk_widget_queue_draw(GTK_WIDGET(debugTextureAtlas->drawingArea));
+#endif // TME_DEBUG
+}
+
+void ui::GraphicsTool::cb_updateImgObjName(GtkWidget* widget, gpointer data)
+{
+    imgName =gtk_entry_get_text(GTK_ENTRY(gtkEntryImgName)); // set name //
+    updateTreeImgObj(); // update tree thing obj //
 }

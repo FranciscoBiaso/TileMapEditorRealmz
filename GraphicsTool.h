@@ -7,8 +7,14 @@
 #include <iostream>
 #include <algorithm> // max
 #include "Definitions.h"
+#include "MapResources.h"
+#include "ImgPackUI.h"
 
 #include "ImgObj.h"
+
+#ifdef TME_DEBUG
+#include "DebugTextureAtlas.h"
+#endif
 
 namespace ui {
 	/*!
@@ -58,12 +64,13 @@ namespace ui {
 		static GtkTargetEntry dragTarget;
 
 		void createTreeViewImgObj(); // create tree view model //
-		void updateTreeImgObj();  // update the view model //
-		GtkTreeModel* fillTreeImgObj();  // fills model when needs //
+		static void updateTreeImgObj();  // update the view model //
+		static GtkTreeModel* fillTreeImgObj();  // fills model when needs //
 
 		static std::string imgName;
-        static std::string imgFormat;
+        static def::IMG_SIZE imgFormat;
 	public:
+
 		/**
 		 *  constructor
 		 */
@@ -229,6 +236,21 @@ namespace ui {
 			gint            y,
 			guint           time,
 			gpointer        user_data);
+
+		/**
+		 *  @brief This method create a ImgObj.
+		 *  @param widget that will recieve the signal.
+		 *  @param data extra information if needed.
+		 */
+		static void cb_createImgObj(GtkWidget* widget, gpointer data);
+
+
+		/**
+		 *  @brief This method change a imgObj name when key are pressed from user interface img name.
+		 *  @param widget that will recieve the signal.
+		 *  @param data extra information if needed.
+		 */
+		static void cb_updateImgObjName(GtkWidget* widget, gpointer data);
 
 	};
 
