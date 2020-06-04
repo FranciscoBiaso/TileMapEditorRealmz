@@ -21,6 +21,9 @@ public:
 	/**
 	 * rendering function.
 	 */
+
+	static GtkWidget*  p_window;
+
 	static gboolean cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data);
 	static GtkWidget* drawingArea; /**< drawing area*/
 	static cairo_surface_t* surface;  /**< drawing surface*/
