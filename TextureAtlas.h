@@ -4,8 +4,8 @@
 #include "ImgObj.h"
 #include "Vec2.h"
 
-#define AT_COL 0
-#define AT_ROW 1
+#define AT_ROW 0
+#define AT_COL 1
 
 namespace data {
 	/*!
@@ -70,6 +70,9 @@ namespace data {
 		void rightShiftPtrs();
 		void leftShiftPtrs();
 		void setFirstPtr(ImgObj*);
+
+		GdkPixbuf* getPixelbuf() const { return pixelBuf; }
 	};
+
 }
 

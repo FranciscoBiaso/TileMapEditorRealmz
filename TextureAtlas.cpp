@@ -24,8 +24,8 @@ void data::TextureAtlas::resetCursor()
 void data::TextureAtlas::rightShiftCursor()
 {
 	if (cursor(AT_COL) == TEXTURE_ATLAS_MAX_WIDTH)
-		cursor(AT_ROW)++;
-	cursor(AT_COL) %= TEXTURE_ATLAS_MAX_WIDTH;
+		cursor(AT_ROW) = cursor(AT_ROW) + 1;
+	cursor(AT_COL) = (cursor(AT_COL) + 1) % TEXTURE_ATLAS_MAX_WIDTH;	
 }
 
 void data::TextureAtlas::leftShiftCursor()
@@ -33,13 +33,13 @@ void data::TextureAtlas::leftShiftCursor()
 	if (cursor(AT_COL) == 0)
 	{
 		if (cursor(AT_ROW) != 0)
-			cursor(AT_ROW)--;
+			cursor(AT_ROW) = cursor(AT_ROW) - 1;
 		else if (cursor(AT_COL) > 0)
-			cursor(AT_COL)--;
+			cursor(AT_COL) = cursor(AT_COL) - 1;
 		cursor(AT_COL) = TEXTURE_ATLAS_MAX_WIDTH;
 	}
 	else
-		cursor(AT_COL)--;
+		cursor(AT_COL) = cursor(AT_COL) - 1;
 }
 
 const std::vector<math::Vec2<int>> data::TextureAtlas::addAddImgs(const GdkPixbuf* srcImg, const def::IMG_SIZE size)
@@ -52,35 +52,35 @@ const std::vector<math::Vec2<int>> data::TextureAtlas::addAddImgs(const GdkPixbu
 	{
 	case def::IMG_SIZE::IMG_SIZE_32X32:
 	{
-		gdk_pixbuf_copy_area(srcImg, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBuf, cursor[AT_ROW] * REALMZ_GRID_SIZE, cursor[AT_COL] * REALMZ_GRID_SIZE);
+		gdk_pixbuf_copy_area(srcImg, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBuf, cursor[AT_COL] * REALMZ_GRID_SIZE, cursor[AT_ROW] * REALMZ_GRID_SIZE);
 		refs.push_back(cursor); rightShiftCursor();		
 	}
 	break;
 	case def::IMG_SIZE::IMG_SIZE_32X64:
 	{
-		gdk_pixbuf_copy_area(srcImg, REALMZ_GRID_SIZE / 2, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBuf, cursor[AT_ROW] * REALMZ_GRID_SIZE, cursor[AT_COL] * REALMZ_GRID_SIZE);
+		gdk_pixbuf_copy_area(srcImg, REALMZ_GRID_SIZE / 2, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBuf, cursor[AT_COL] * REALMZ_GRID_SIZE, cursor[AT_ROW] * REALMZ_GRID_SIZE);
 		refs.push_back(cursor); rightShiftCursor();
-		gdk_pixbuf_copy_area(srcImg, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBuf, cursor[AT_ROW] * REALMZ_GRID_SIZE, cursor[AT_COL] * REALMZ_GRID_SIZE);
+		gdk_pixbuf_copy_area(srcImg, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBuf, cursor[AT_COL] * REALMZ_GRID_SIZE, cursor[AT_ROW] * REALMZ_GRID_SIZE);
 		refs.push_back(cursor); rightShiftCursor();
 	}
 	break;
 	case def::IMG_SIZE::IMG_SIZE_64X32:
 	{
-		gdk_pixbuf_copy_area(srcImg, 0, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBuf, cursor[AT_ROW] * REALMZ_GRID_SIZE, cursor[AT_COL] * REALMZ_GRID_SIZE);
+		gdk_pixbuf_copy_area(srcImg, 0, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBuf, cursor[AT_COL] * REALMZ_GRID_SIZE, cursor[AT_ROW] * REALMZ_GRID_SIZE);
 		refs.push_back(cursor); rightShiftCursor();
-		gdk_pixbuf_copy_area(srcImg, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBuf, cursor[AT_ROW] * REALMZ_GRID_SIZE, cursor[AT_COL] * REALMZ_GRID_SIZE);
+		gdk_pixbuf_copy_area(srcImg, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBuf, cursor[AT_COL] * REALMZ_GRID_SIZE, cursor[AT_ROW] * REALMZ_GRID_SIZE);
 		refs.push_back(cursor); rightShiftCursor();
 	}
 	break;
 	case def::IMG_SIZE::IMG_SIZE_64X64:
 	{
-		gdk_pixbuf_copy_area(srcImg, 0, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBuf, cursor[AT_ROW] * REALMZ_GRID_SIZE, cursor[AT_COL] * REALMZ_GRID_SIZE);
+		gdk_pixbuf_copy_area(srcImg, 0, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBuf, cursor[AT_COL] * REALMZ_GRID_SIZE, cursor[AT_ROW] * REALMZ_GRID_SIZE);
 		refs.push_back(cursor); rightShiftCursor();
-		gdk_pixbuf_copy_area(srcImg, REALMZ_GRID_SIZE, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBuf, cursor[AT_ROW] * REALMZ_GRID_SIZE, cursor[AT_COL] * REALMZ_GRID_SIZE);
+		gdk_pixbuf_copy_area(srcImg, REALMZ_GRID_SIZE, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBuf, cursor[AT_COL] * REALMZ_GRID_SIZE, cursor[AT_ROW] * REALMZ_GRID_SIZE);
 		refs.push_back(cursor); rightShiftCursor();
-		gdk_pixbuf_copy_area(srcImg, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBuf, cursor[AT_ROW] * REALMZ_GRID_SIZE, cursor[AT_COL] * REALMZ_GRID_SIZE);
+		gdk_pixbuf_copy_area(srcImg, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBuf, cursor[AT_COL] * REALMZ_GRID_SIZE, cursor[AT_ROW] * REALMZ_GRID_SIZE);
 		refs.push_back(cursor); rightShiftCursor();
-		gdk_pixbuf_copy_area(srcImg, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBuf, cursor[AT_ROW] * REALMZ_GRID_SIZE, cursor[AT_COL] * REALMZ_GRID_SIZE);
+		gdk_pixbuf_copy_area(srcImg, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBuf, cursor[AT_COL] * REALMZ_GRID_SIZE, cursor[AT_ROW] * REALMZ_GRID_SIZE);
 		refs.push_back(cursor); rightShiftCursor();
 	}
 	break;
