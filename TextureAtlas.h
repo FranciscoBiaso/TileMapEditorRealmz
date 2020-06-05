@@ -4,8 +4,9 @@
 #include "ImgObj.h"
 #include "Vec2.h"
 
-#define AT_ROW 0
-#define AT_COL 1
+#define AT_COL 0
+#define AT_ROW 1
+
 
 namespace data {
 	/*!
@@ -21,12 +22,15 @@ namespace data {
 	{
 	private:
 		static GdkPixbuf* pixelBuf;  // Atlas into memory //
+		static GdkPixbuf* pixelBufClean32x32;  // region 32x32 to clean images into memory //
 		math::Vec2<int> cursor;
-		data::ImgObj* last4ImgsPtr[IMGOBJ_MAX_IMGS]; // we need last 4 imgs to keep delet with O(1) time //
-	
+		
+
 		void resetCursor();
 		void rightShiftCursor();
 		void leftShiftCursor();
+
+		ImgObj* lastImgAdd; // we need last 4 imgs to keep delet with O(1) time //
 	public:
 		TextureAtlas(){}
 		/**
@@ -64,12 +68,12 @@ namespace data {
 		/**
 		 * @brief This methods erases the texture atlas releasing data of atlas pixelbuf.
 		 */
-		void delImgObj(const ImgObj *);
+		void delImgObj(ImgObj* imgObjToDelete);
 
 		
 		void rightShiftPtrs();
 		void leftShiftPtrs();
-		void setFirstPtr(ImgObj*);
+		void setIterator(ImgObj* lastImgAdd);
 
 		GdkPixbuf* getPixelbuf() const { return pixelBuf; }
 	};
