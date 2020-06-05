@@ -2,6 +2,8 @@
 
 data::ImgObj::ImgObj(def::IMG_SIZE size, const std::vector<math::Vec2<int>>& references) : size(size)
 {
+	setNext(nullptr);
+	setPrevious(nullptr);
 	for (int i = 0; i < references.size(); i++)
 		imgs[i] = references[i];
 }
@@ -23,7 +25,7 @@ std::string data::ImgObj::getSizeAsString() const
 	}
 }
 
-int data::ImgObj::getSizeAsInt()
+int data::ImgObj::getSizeAsInt() const
 {
 	switch (size)
 	{
@@ -37,4 +39,11 @@ int data::ImgObj::getSizeAsInt()
 	default: return 1;
 		break;
 	}
+}
+
+
+void data::ImgObj::setImgRefs(const std::vector<math::Vec2<int>> references)
+{
+	for (int i = 0; i < references.size(); i++)
+		imgs[i] = references[i];
 }
