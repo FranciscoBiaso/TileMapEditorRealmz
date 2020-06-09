@@ -1,14 +1,10 @@
 #pragma once
 #include "Definitions.h"
-#include <initializer_list>
-#define VEC2_SIZE 2
-#define AT_X 0
-#define AT_Y 1
 
 namespace math {
 	/*!
-		VECTOR 2D CLASS
-		===============
+		Vec2 class 
+		==========
 
 		This class represents a vec2(x,y) strucutre and its basic operations.
 	 */
@@ -62,7 +58,7 @@ namespace math {
 		 * @brief This method sets y position.
 		 * @param y.
 		 */
-		void setY(T y) { this->y = x; }
+		void setY(T y) { this->y = y; }
 
 		/**
 		 * @brief This method sets xy position.
@@ -71,7 +67,6 @@ namespace math {
 		 */
 		void setXY(T x, T y) { this->x = x; this->y = y;}
 
-
 		/**
 		 * @brief This method gets position from index [0,1].
 		 */
@@ -79,21 +74,21 @@ namespace math {
 		{
 			if (index < 0 || index > 1)
 				throw def::ReturnMsg::ARRAY_OUT_OF_RANGE;
-			return index ? y : x;
+			return (index == 0) ? x : y;
 		}
 
 		/**
-		 * @brief This method sets position of index [0,1].
+		 * @brief This method checks if Vec2 is diferent from another Vec2.
+		 * It compares x and y data.
 		 */
-		/*
-		T & operator()(int index)
+		bool operator!=(const Vec2& v2)
 		{
-			if (index < 0 || index > 1)
-				throw def::ReturnMsg::ARRAY_OUT_OF_RANGE;
-			return index ? y : x;
+			return x != v2.getX() || y != v2.getY() ? true : false;
 		}
-		*/
 
+		/**
+		 * @brief This method overloadis the assignment operator.
+		 */
 		Vec2& operator=(const Vec2& v2)
 		{
 			this->x = v2.getX();
@@ -101,6 +96,36 @@ namespace math {
 			return *this;
 		}
 
+		/**
+		 * @brief This method increments the x and y position as a matrix of width mod.
+		 */
+		void rightShiftCursor(int mod)
+		{
+			if (getX() == (mod - 1))
+			{
+				setX(0);
+				setY(getY() + 1);
+			}
+			else
+				setX((getX() + 1) % mod);
+		}
+
+		/**
+		 * @brief This method decrements the x and y position as a matrix of width mod.
+		 */
+		void leftShiftCursor(int mod)
+		{
+			if (getX() == 0)
+			{
+				if (getY() > 0)
+				{
+					setY(getY() - 1);
+					setX(mod - 1);
+				}
+			}
+			else
+				setX(getX() - 1);
+		}
 	};
 }
 
