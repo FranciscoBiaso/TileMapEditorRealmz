@@ -21,23 +21,31 @@ namespace data {
 	class TextureAtlas
 	{
 	private:
-		static GdkPixbuf* pixelBuf;  // Atlas into memory //
-		static GdkPixbuf* pixelBufClean32x32;  // region 32x32 to clean images into memory //
-		math::Vec2<int> cursor;
+		static GdkPixbuf* pixelBuf;   /**< Atlas into memory  */
+		static GdkPixbuf* pixelBufClean32x32; /**< region 32x32 to clean images into memory  */
+		math::Vec2<int> cursor; /**< cursor to identify the last empty position */ 
 		
-
+		/**
+		 * @brief reset cursor position to (0,0). 
+		 */
 		void resetCursor();
-		void rightShiftCursor();
-		void leftShiftCursor();
 
-		ImgObj* lastImgAdd; // we need last 4 imgs to keep delet with O(1) time //
+		/**
+		 * @brief shift right cursor position to (x+1,0).
+		 */
+		void rightShiftCursor();
+
+		/**
+		 * @brief shift left cursor position to (x-1,0).
+		 */
+		void leftShiftCursor();	
 	public:
-		TextureAtlas(){}
+		TextureAtlas() = delete;
 		/**
 		 * constructor.
 		 * 
-		 * @param width count 32x32 imgs rows.
-		 * @param height count 32x32 imgs cols.
+		 * @param width count imgs (32x32) rows.
+		 * @param height count imgs (32x32 columns.
 		 */
 		TextureAtlas(int width, int height);
 
@@ -68,14 +76,13 @@ namespace data {
 		/**
 		 * @brief This methods erases the texture atlas releasing data of atlas pixelbuf.
 		 */
-		void delImgObj(ImgObj* imgObjToDelete);
-
+		void delImgObj(std::vector<data::ImgObj>::iterator it, std::vector<data::ImgObj>::iterator end);
 		
-		void rightShiftPtrs();
-		void leftShiftPtrs();
-		void setIterator(ImgObj* lastImgAdd);
-
+		/**
+		 * @brief This methods gets buffer of pixels (GdkPixbuf*).
+		 */
 		GdkPixbuf* getPixelbuf() const { return pixelBuf; }
+
 	};
 
 }
