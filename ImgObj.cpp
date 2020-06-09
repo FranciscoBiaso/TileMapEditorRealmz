@@ -1,9 +1,7 @@
 #include "ImgObj.h"
 
-data::ImgObj::ImgObj(def::IMG_SIZE size, const std::vector<math::Vec2<int>>& references) : size(size)
+data::ImgObj::ImgObj(std::string name, def::IMG_SIZE size, const std::vector<math::Vec2<int>> references) : name(name), size(size)
 {
-	setNext(nullptr);
-	setPrevious(nullptr);
 	for (int i = 0; i < references.size(); i++)
 		imgs[i] = references[i];
 }
