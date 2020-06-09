@@ -1,4 +1,5 @@
 #include "GraphicsTool.h"
+#include <cstdlib>
 
 GObject* ui::GraphicsTool::gtkFileChooserButtonImg = nullptr;
 GObject* ui::GraphicsTool::gtkImgInput = nullptr;
@@ -107,6 +108,28 @@ gboolean ui::GraphicsTool::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e,
     if (drawingAreaImgSrc != nullptr)
         gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgSrc));
     return TRUE;    
+}
+
+void ui::GraphicsTool::simulate()
+{
+    xPosHighlightSquare = (rand() % 15) * REALMZ_GRID_SIZE;
+    yPosHighlightSquare = (rand() % 15) * REALMZ_GRID_SIZE;
+    int r = rand() % 2;
+    if (r == 0)
+    {
+        imgFormat = def::IMG_SIZE::IMG_SIZE_32X32;
+        gdk_pixbuf_copy_area(pixelBufImgSrc, xPosHighlightSquare, yPosHighlightSquare, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE / 2);
+
+    }
+    if (r == 1)
+    {
+        imgFormat = def::IMG_SIZE::IMG_SIZE_64X64;
+        gdk_pixbuf_copy_area(pixelBufImgSrc, xPosHighlightSquare, yPosHighlightSquare, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, 0, 0);
+        gdk_pixbuf_copy_area(pixelBufImgSrc, xPosHighlightSquare, yPosHighlightSquare, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, REALMZ_GRID_SIZE, 0);
+        gdk_pixbuf_copy_area(pixelBufImgSrc, xPosHighlightSquare, yPosHighlightSquare, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, 0, REALMZ_GRID_SIZE);
+        gdk_pixbuf_copy_area(pixelBufImgSrc, xPosHighlightSquare, yPosHighlightSquare, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE);
+          
+    }
 }
 
 gboolean ui::GraphicsTool::cb_clickNotify(GtkWidget* widget, GdkEventButton* event, gpointer   user_data)
@@ -246,6 +269,7 @@ gboolean ui::GraphicsTool::cb_draw_callback_img_dst(GtkWidget* widget, cairo_t* 
 def::ReturnMsg ui::GraphicsTool::loadImgFromFile()
 {
     gchar* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(gtkFileChooserButtonImg));
+    std::cout << filename << std::endl;
     if (filename == NULL)
         return def::ReturnMsg::FILE_NOT_SELECTED;
 
@@ -264,6 +288,7 @@ void ui::GraphicsTool::setSrcSurfaceFromScrPixelbuf()
 void ui::GraphicsTool::setDstSurfaceFromDstPixelbuf()
 {
     surfaceDst = gdk_cairo_surface_create_from_pixbuf(pixelBufImgDest, 0, NULL);
+
 }
 
 void ui::GraphicsTool::setDrawingAreaImgDst(GtkWidget* widget)
@@ -613,11 +638,11 @@ void ui::GraphicsTool::createTreeViewImgObj()
 
 void ui::GraphicsTool::cb_createImgObj(GtkWidget* widget, gpointer data)
 {
-    gResources->getImgPack().addImgObj(imgName, pixelBufImgDest, imgFormat);
+    gResources->getImgPack()->addImgObj(imgName, pixelBufImgDest, imgFormat);
     gImgPackUI->updateTree(); // update tree view //
    
 #ifdef TME_DEBUG
-    debugTextureAtlas->surface = gdk_cairo_surface_create_from_pixbuf(gResources->getImgPack().getTextureAtlas()->getPixelbuf(), 0, NULL);
+    debugTextureAtlas->surface = gdk_cairo_surface_create_from_pixbuf(gResources->getImgPack()->getTextureAtlas()->getPixelbuf(), 0, NULL);
     gtk_widget_queue_draw(GTK_WIDGET(debugTextureAtlas->drawingArea));
 #endif // TME_DEBUG
 }

@@ -258,7 +258,26 @@ namespace ui {
 		 */
 		static std::string getSizeAsString();
 
+		/**
+		 * @brief This method gets def::IMG_SIZE.
+		 */
+		static def::IMG_SIZE getImgFormat() { return imgFormat; }
+
+		/**
+		 * @brief This method gets GdkPixbuf*.
+		 */
+		static GdkPixbuf* getPixelBufDest() { return pixelBufImgDest; }
+		
+		/**
+		 * @brief This method sets GdkPixbuf* source (loaded image region).
+		 */
+		static void setPixBufSrc(GdkPixbuf* src) { pixelBufImgSrc = src; }
+
+		/**
+		 * @brief This method is used to simulate random images select by user.
+		 */
+		static void simulate();
 	};
 
-};
+}
 
