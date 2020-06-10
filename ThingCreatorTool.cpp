@@ -10,7 +10,6 @@ GObject* ui::ThingCreatorTool::gtkFrameThingImgView = nullptr;
 
 GdkPixbuf* ui::ThingCreatorTool::pixelRegion = nullptr;
 GdkPixbuf* ui::ThingCreatorTool::pixelRegionBackground = nullptr;
-cairo_surface_t* ui::ThingCreatorTool::drawSurface = nullptr;
 GtkWidget* ui::ThingCreatorTool::drawingArea = nullptr;
 
 namespace GtkUserInterface { extern GtkBuilder* builder;}
@@ -42,6 +41,7 @@ ui::ThingCreatorTool::ThingCreatorTool()
 
     pixelRegion = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE * 2, REALMZ_GRID_SIZE * 2);
     pixelRegionBackground = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE * 2, REALMZ_GRID_SIZE * 2);    
+    gdk_pixbuf_fill(pixelRegion, 0x00000000); // clean buffer //   
     gdk_pixbuf_fill(pixelRegionBackground, 0x22222211); // clean buffer //
     
     if (drawingArea == nullptr)
@@ -186,7 +186,7 @@ GtkTreeModel* ui::ThingCreatorTool::fillTreeThingObj()
     }
 
     gtk_tree_store_append(treestore, &toplevel, NULL);
-    gtk_tree_store_set(treestore, &toplevel, 0, "ImgName:", 1, imgObjName.c_str(), -1);
+    gtk_tree_store_set(treestore, &toplevel, 0, "img:", 1, imgObjName.c_str(), -1);
        
     return GTK_TREE_MODEL(treestore);
 }

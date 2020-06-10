@@ -31,8 +31,7 @@ namespace ui {
 		static TME::Thing thing; // thing structure 
 
 		static GdkPixbuf* pixelRegion;   
-		static GdkPixbuf* pixelRegionBackground;
-		static cairo_surface_t* drawSurface;
+		static GdkPixbuf* pixelRegionBackground;		
 		static GtkWidget* drawingArea;
 
 		void createTreeViewThingObj();

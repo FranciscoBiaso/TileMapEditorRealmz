@@ -224,6 +224,11 @@ namespace ui {
 		static void cb_signalGtkToggleButton64x64(GtkToggleButton* togglebutton, gpointer user_data);
 
 		/**
+		* @brief This method occurs when the toggle button grid is triggered.
+		*/
+		static void cb_signalGtkToggleButtonGrid(GtkToggleButton* togglebutton, gpointer user_data);
+
+		/**
 		 * @brief This method is used to configure the icon to be dragged.
 		 */
 		static void cb_dragBegin(GtkWidget* widget, GdkDragContext* context,gpointer user_data);

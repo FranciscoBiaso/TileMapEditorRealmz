@@ -56,13 +56,13 @@ ui::GraphicsTool::GraphicsTool()
     gtkImgInput = gtk_builder_get_object(GtkUserInterface::builder, "gtkImgInput");
     gtkFrameImg = gtk_builder_get_object(GtkUserInterface::builder, "gtkFrameImg");
     gtkFrameImgView = gtk_builder_get_object(GtkUserInterface::builder, "gtkFrameImgView");
-    gtkCheckButtonGrid = gtk_builder_get_object(GtkUserInterface::builder, "gtkCheckButtonGrid");
     gtkViewportImgSrc= gtk_builder_get_object(GtkUserInterface::builder, "gtkViewportImgSrc");
     gtkTreeViewImgObj = gtk_builder_get_object(GtkUserInterface::builder, "gtkTreeViewImgObj");
     gtkButtonCreateImg = gtk_builder_get_object(GtkUserInterface::builder, "gtkButtonCreateImg");
     gtkEntryImgName = gtk_builder_get_object(GtkUserInterface::builder, "gtkEntryImgName");
 
     /* toggle buttons */
+    gtkCheckButtonGrid = gtk_builder_get_object(GtkUserInterface::builder, "gtkCheckButtonGrid");
     gtkToggleButton32x32 = gtk_builder_get_object(GtkUserInterface::builder, "gtkToggleButton32x32");
     gtkToggleButton32x64 = gtk_builder_get_object(GtkUserInterface::builder, "gtkToggleButton32x64");
     gtkToggleButton64x32 = gtk_builder_get_object(GtkUserInterface::builder, "gtkToggleButton64x32");
@@ -73,6 +73,7 @@ ui::GraphicsTool::GraphicsTool()
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x32), FALSE);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton64x64), FALSE);
     /* connect toggle buttons state */
+    g_signal_connect(gtkCheckButtonGrid, "toggled", G_CALLBACK(cb_signalGtkToggleButtonGrid), gtkCheckButtonGrid);
     g_signal_connect(gtkToggleButton32x32, "toggled", G_CALLBACK(cb_signalGtkToggleButton32x32), gtkToggleButton32x32);
     g_signal_connect(gtkToggleButton32x64, "toggled", G_CALLBACK(cb_signalGtkToggleButton32x64), gtkToggleButton32x64);
     g_signal_connect(gtkToggleButton64x32, "toggled", G_CALLBACK(cb_signalGtkToggleButton64x32), gtkToggleButton64x32);
@@ -80,6 +81,7 @@ ui::GraphicsTool::GraphicsTool()
 
     // alocate memory for img pixel buf
     pixelBufImgDest = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE * 2, REALMZ_GRID_SIZE * 2);
+    gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //   
     dragIcon32x32 = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE);
 
     setDrawingAreaImgDst(GTK_WIDGET(gtkFrameImgView));
@@ -89,8 +91,6 @@ ui::GraphicsTool::GraphicsTool()
     gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(gtkFileChooserButtonImg), path.c_str());
     gtk_file_chooser_set_action(GTK_FILE_CHOOSER(gtkFileChooserButtonImg), GTK_FILE_CHOOSER_ACTION_OPEN);
     //gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(gtkFileChooserButtonImg), TRUE);
-
-    g_signal_connect(gtkFileChooserButtonImg, "file-set", G_CALLBACK(cb_onFileSet), gtkViewportImgSrc);
 
     /* bind check button to grid action (show or hide) */
     g_signal_connect(gtkButtonCreateImg, "clicked", G_CALLBACK(cb_createImgObj), NULL);
@@ -271,7 +271,7 @@ gboolean ui::GraphicsTool::cb_draw_callback_img_dst(GtkWidget* widget, cairo_t* 
 def::ReturnMsg ui::GraphicsTool::loadImgFromFile()
 {
     gchar* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(gtkFileChooserButtonImg));
-    std::cout << filename << std::endl;
+    
     if (filename == NULL)
         return def::ReturnMsg::FILE_NOT_SELECTED;
 
@@ -346,6 +346,11 @@ void ui::GraphicsTool::cb_onFileSet(GtkFileChooserButton* widget, gpointer data)
     gtk_widget_set_size_request(GTK_WIDGET(drawingAreaImgSrc), width, height);
     gtk_widget_set_size_request(GTK_WIDGET(gtkFrameImg), std::min(width,MAX_IMG_WIDGET_WIDTH), std::min(height,MAX_IMG_WIDGET_HEIGHT));
     gtk_widget_show_all(GTK_WIDGET(gtk_widget_get_parent(drawingAreaImgSrc)));
+}
+
+void ui::GraphicsTool::cb_signalGtkToggleButtonGrid(GtkToggleButton* togglebutton, gpointer user_data)
+{
+    gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgSrc));
 }
 
 void ui::GraphicsTool::cb_signalGtkToggleButton32x32(GtkToggleButton* togglebutton, gpointer user_data)
@@ -596,7 +601,6 @@ void ui::GraphicsTool::updateTreeImgObj()
     gtk_tree_view_set_model(GTK_TREE_VIEW(gtkTreeViewImgObj), model);
     g_object_unref(model);
 }
-
 
 GtkTreeModel* ui::GraphicsTool::fillTreeImgObj()
 {
