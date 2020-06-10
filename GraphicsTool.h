@@ -282,6 +282,7 @@ namespace ui {
 		 * @brief This method is used to simulate random images select by user.
 		 */
 		static void simulate();
+
 	};
 
 }

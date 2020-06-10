@@ -1,6 +1,6 @@
 #include "ThingCreatorTool.h"
 
-TME::Thing ui::ThingCreatorTool::thing("", "");
+TME::Thing ui::ThingCreatorTool::thing;
 GObject* ui::ThingCreatorTool::gtkEntryThingName = nullptr;
 GObject* ui::ThingCreatorTool::gtkEntryThingImg = nullptr;
 GObject* ui::ThingCreatorTool::gtkTreeViewThingType = nullptr;
@@ -51,8 +51,8 @@ ui::ThingCreatorTool::ThingCreatorTool()
         gtk_widget_set_size_request(GTK_WIDGET(drawingArea), REALMZ_GRID_SIZE * 2, REALMZ_GRID_SIZE * 2);
         gtk_container_add(GTK_CONTAINER(gtkFrameThingImgView), drawingArea);
 
-        g_signal_connect(G_OBJECT(drawingArea), "draw", G_CALLBACK(cb_draw_callback), NULL);        
-    }    
+        g_signal_connect(G_OBJECT(drawingArea), "draw", G_CALLBACK(cb_draw_callback), NULL);
+    }
 }
 
 void ui::ThingCreatorTool::cb_updateThingName(GtkWidget* widget, gpointer data)
@@ -94,7 +94,6 @@ void ui::ThingCreatorTool::createTreeViewThingType()
 
 void ui::ThingCreatorTool::createTreeViewThingObj()
 {
-
     GtkCellRenderer* renderer;
     GtkCellRenderer* renderer2;
     GtkTreeViewColumn* col;
@@ -109,11 +108,11 @@ void ui::ThingCreatorTool::createTreeViewThingObj()
 
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_column_pack_start(col, renderer, TRUE);
-    gtk_tree_view_column_add_attribute(col, renderer, "text", 0);
+    gtk_tree_view_column_add_attribute(col, renderer, "text", 0);    
 
     renderer2 = gtk_cell_renderer_text_new();
     gtk_tree_view_column_pack_start(col2, renderer2, TRUE);
-    gtk_tree_view_column_add_attribute(col2, renderer2, "text", 1);
+    gtk_tree_view_column_add_attribute(col2, renderer2, "text", 1);    
 }
 
 void ui::ThingCreatorTool::updateTreeThingObj()
@@ -170,23 +169,29 @@ GtkTreeModel* ui::ThingCreatorTool::fillTreeThingObj()
     // fill tree view thing obj //
     GtkTreeStore* treestore;
     GtkTreeIter toplevel;
-
-    treestore = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
-   
-    gtk_tree_store_append(treestore, &toplevel, NULL);
-    gtk_tree_store_set(treestore, &toplevel, 0, "name:", 1, thing.getName().c_str(), -1);
+    std::string tmpStr;
     
-    gtk_tree_store_append(treestore, &toplevel, NULL);
-    gtk_tree_store_set(treestore, &toplevel, 0, "thingType:", 1, thing.getType().c_str(), -1);
+    treestore = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_STRING);   
 
-    std::string imgObjName = "empty";
+    tmpStr = thing.getName();
+    tmpStr.resize(UI_THING_OBJ_LABELS_MAX_CHAR);
+    gtk_tree_store_append(treestore, &toplevel, NULL);
+    gtk_tree_store_set(treestore, &toplevel, 0, "name:", 1, tmpStr.c_str(), -1);
+    
+    tmpStr = thing.getType();
+    tmpStr.resize(UI_THING_OBJ_LABELS_MAX_CHAR);
+    gtk_tree_store_append(treestore, &toplevel, NULL);
+    gtk_tree_store_set(treestore, &toplevel, 0, "type:", 1, tmpStr.c_str(), -1);
+
+    tmpStr = "-";
     if (thing.getImgObjPtr() != nullptr)
     {
-        imgObjName = thing.getImgObjPtr()->getName();
+        tmpStr = thing.getImgObjPtr()->getName();
     }
+    tmpStr.resize(UI_THING_OBJ_LABELS_MAX_CHAR);
 
     gtk_tree_store_append(treestore, &toplevel, NULL);
-    gtk_tree_store_set(treestore, &toplevel, 0, "img:", 1, imgObjName.c_str(), -1);
+    gtk_tree_store_set(treestore, &toplevel, 0, "img:", 1, tmpStr.c_str(), -1);
        
     return GTK_TREE_MODEL(treestore);
 }

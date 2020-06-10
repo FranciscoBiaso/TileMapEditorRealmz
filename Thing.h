@@ -16,7 +16,7 @@ namespace TME {
 		/**
 		 *  constructor
 		 */
-		Thing(std::string name, std::string strType);
+		Thing(std::string name = "-", std::string strType = "-");
 
 		/**
 		 *  @brief This method gets name.
