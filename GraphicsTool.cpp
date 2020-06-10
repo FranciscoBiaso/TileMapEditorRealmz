@@ -638,11 +638,11 @@ void ui::GraphicsTool::createTreeViewImgObj()
 
 void ui::GraphicsTool::cb_createImgObj(GtkWidget* widget, gpointer data)
 {
-    gResources->getImgPack()->addImgObj(imgName, pixelBufImgDest, imgFormat);
+    gResources->getImgPack().addImgObj(imgName, pixelBufImgDest, imgFormat);
     gImgPackUI->updateTree(); // update tree view //
    
 #ifdef TME_DEBUG
-    debugTextureAtlas->surface = gdk_cairo_surface_create_from_pixbuf(gResources->getImgPack()->getTextureAtlas()->getPixelbuf(), 0, NULL);
+    debugTextureAtlas->surface = gdk_cairo_surface_create_from_pixbuf(gResources->getImgPack().getTextureAtlas()->getPixelbuf(), 0, NULL);
     gtk_widget_queue_draw(GTK_WIDGET(debugTextureAtlas->drawingArea));
 #endif // TME_DEBUG
 }

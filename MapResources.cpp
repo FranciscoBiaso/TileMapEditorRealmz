@@ -1,6 +1,7 @@
 #include "MapResources.h"
 
-data::MapResources::MapResources(){
+data::MapResources::MapResources()
+{
 	createStuffBookFromJson();
 }
 

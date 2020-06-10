@@ -56,7 +56,7 @@ GtkTreeModel* ui::ImgPackUI::fillTree()
     for (auto it = mapType.begin(); it != mapType.end(); it++) // iterate through stuffbook //
     {
         gtk_tree_store_append(treestore, &toplevel, NULL); // top level //
-        gtk_tree_store_set(treestore, &toplevel, 0, it->first.c_str(), -1); // set type //
+        gtk_tree_store_set(treestore, &toplevel, 0, it->getName().c_str(), -1); // set type //
         //GtkTreeIter child;
         //gtk_tree_store_append(treestore, &child, &toplevel); // add child //
         //gtk_tree_store_set(treestore, &child, 0, it->first.c_str(), -1); // set name //        

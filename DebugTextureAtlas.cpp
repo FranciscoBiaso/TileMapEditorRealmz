@@ -72,8 +72,6 @@ gboolean DebugTextureAtlas::pop_operations(gpointer data)
     return TRUE;
 }
 
-
-
 gboolean DebugTextureAtlas::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data)
 {
     // draw surface //

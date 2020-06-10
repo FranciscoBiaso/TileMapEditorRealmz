@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "ImgObj.h"
 
 namespace TME {
 	/*!
@@ -40,6 +41,6 @@ namespace TME {
 		std::string name; 
 		std::string type;
 		std::string img;
-
+		data::ImgObj* imgObj_ptr;
 	};
 }

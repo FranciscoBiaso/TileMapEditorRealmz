@@ -1,10 +1,12 @@
 #pragma once
 #include <map>
 #include <string>
-#include "Thing.h"
 #include <fstream>
 #include <json/json.h>
 #include <iostream>
+
+#include "Thing.h"
+#include "ImgPack.h"
 
 namespace data {
 	/*!
@@ -18,6 +20,7 @@ namespace data {
 	private:
 		std::map<std::string, std::map<std::string, TME::Thing>> stuffBook; // dicionary of dicionary (things) //
 		Json::Value thingTypesJson; // used to manipulate json files //
+		ImgPack imgPack;
 
 		/**
 		 *  @brief This method fills stuffBook data loading from json file.
@@ -52,6 +55,8 @@ namespace data {
 		 *  @brief This method gets the a json object.
 		 */
 		const Json::Value getThingTypesJson() { return thingTypesJson; }
+
+		ImgPack& getImgPack() { return imgPack; }
 	};
-};
+}
 

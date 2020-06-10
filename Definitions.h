@@ -4,14 +4,14 @@
 *  GRID SIZE
 */
 #define REALMZ_GRID_SIZE 32
-#define TEXTURE_ATLAS_MAX_WIDTH 200 
+#define TEXTURE_ATLAS_MAX_WIDTH 20
 #define IMGOBJ_MAX_IMGS 4
 
 namespace def{
     /**
      * ENUM IMG SIZES.
      */
-    enum class IMG_SIZE {
+    enum class IMG_SIZE : int {
         IMG_SIZE_32X32, /**< enum IMG_SIZE_32X32  */
         IMG_SIZE_32X64, /**< enum IMG_SIZE_32X64  */
         IMG_SIZE_64X32, /**< enum IMG_SIZE_64X32  */
