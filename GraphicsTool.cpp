@@ -304,6 +304,7 @@ void ui::GraphicsTool::setDrawingAreaImgDst(GtkWidget* widget)
 
         gtk_container_add(GTK_CONTAINER(widget), drawingAreaImgDst);
 
+
         g_signal_connect(G_OBJECT(drawingAreaImgDst), "draw", G_CALLBACK(cb_draw_callback_img_dst), NULL);
         g_signal_connect(G_OBJECT(drawingAreaImgDst), "drag-drop", G_CALLBACK(cb_dragDrop), NULL);                
     }

@@ -6,6 +6,12 @@ GObject* ui::ThingCreatorTool::gtkEntryThingImg = nullptr;
 GObject* ui::ThingCreatorTool::gtkTreeViewThingType = nullptr;
 GObject* ui::ThingCreatorTool::gtkTreeViewThingObj = nullptr;
 GObject* ui::ThingCreatorTool::gtkButtonCreateThing = nullptr;
+GObject* ui::ThingCreatorTool::gtkFrameThingImgView = nullptr;
+
+GdkPixbuf* ui::ThingCreatorTool::pixelRegion = nullptr;
+GdkPixbuf* ui::ThingCreatorTool::pixelRegionBackground = nullptr;
+cairo_surface_t* ui::ThingCreatorTool::drawSurface = nullptr;
+GtkWidget* ui::ThingCreatorTool::drawingArea = nullptr;
 
 namespace GtkUserInterface { extern GtkBuilder* builder;}
 
@@ -20,6 +26,7 @@ ui::ThingCreatorTool::ThingCreatorTool()
     gtkTreeViewThingType = gtk_builder_get_object(GtkUserInterface::builder, "gtkTreeViewThingType");
     gtkTreeViewThingObj = gtk_builder_get_object(GtkUserInterface::builder, "gtkTreeViewThingObj");
     gtkButtonCreateThing = gtk_builder_get_object(GtkUserInterface::builder, "gtkButtonCreateThing");
+    gtkFrameThingImgView = gtk_builder_get_object(GtkUserInterface::builder, "gtkFrameThingImgView");
 
     // creating models //
     createTreeViewThingType();
@@ -32,8 +39,21 @@ ui::ThingCreatorTool::ThingCreatorTool()
     
     updateTreeThingType();
     updateTreeThingObj();
-}
 
+    pixelRegion = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE * 2, REALMZ_GRID_SIZE * 2);
+    pixelRegionBackground = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE * 2, REALMZ_GRID_SIZE * 2);    
+    gdk_pixbuf_fill(pixelRegionBackground, 0x22222211); // clean buffer //
+    
+    if (drawingArea == nullptr)
+    {
+        drawingArea = gtk_drawing_area_new();
+
+        gtk_widget_set_size_request(GTK_WIDGET(drawingArea), REALMZ_GRID_SIZE * 2, REALMZ_GRID_SIZE * 2);
+        gtk_container_add(GTK_CONTAINER(gtkFrameThingImgView), drawingArea);
+
+        g_signal_connect(G_OBJECT(drawingArea), "draw", G_CALLBACK(cb_draw_callback), NULL);        
+    }    
+}
 
 void ui::ThingCreatorTool::cb_updateThingName(GtkWidget* widget, gpointer data)
 {
@@ -178,9 +198,27 @@ void ui::ThingCreatorTool::cb_createThing(GtkWidget* widget, gpointer data)
     gAuxUI->searchThingByName(thing.getName()); // select thing //
 }
 
-
 void ui::ThingCreatorTool::setThingImgObjPtr(data::ImgObj* imgPtr)
 {
     thing.setImgObjPtr(imgPtr);
     updateTreeThingObj(); // update tree thing obj //
+}
+
+gboolean ui::ThingCreatorTool::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data)
+{
+    gdk_cairo_set_source_pixbuf(cr, pixelRegionBackground, 0, 0);
+    cairo_paint(cr);
+
+    gdk_cairo_set_source_pixbuf(cr, pixelRegion, 0, 0);
+    cairo_paint(cr);
+
+    return FALSE;
+}
+
+void ui::ThingCreatorTool::copyPixels(const GdkPixbuf* srcToCopy)
+{
+    gdk_pixbuf_fill(pixelRegion, 0x22222211); // clean buffer //
+    gdk_pixbuf_copy_area(srcToCopy, 0, 0, 2 * REALMZ_GRID_SIZE, 2 * REALMZ_GRID_SIZE, pixelRegion, 0, 0);
+    
+    gtk_widget_queue_draw(GTK_WIDGET(drawingArea));
 }

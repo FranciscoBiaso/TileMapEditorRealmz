@@ -25,9 +25,15 @@ namespace ui {
 		static GObject* gtkTreeViewThingType;     /* shows thing types */
 		static GObject* gtkTreeViewThingObj;      /* show thing atributes */
 		static GObject* gtkButtonCreateThing;     /* create thing [add to stuffBook] */
+		static GObject* gtkFrameThingImgView;     /* gtkFrame */
+		
 
 		static TME::Thing thing; // thing structure 
 
+		static GdkPixbuf* pixelRegion;   
+		static GdkPixbuf* pixelRegionBackground;
+		static cairo_surface_t* drawSurface;
+		static GtkWidget* drawingArea;
 
 		void createTreeViewThingObj();
 		void createTreeViewThingType();
@@ -71,8 +77,20 @@ namespace ui {
 		 */
 		static void cb_updateThingType(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data);
 
+		/**
+		 *  @brief This method sets the Thing ImgObj pointer (data::ImgObj *).
+		 */
 		static void setThingImgObjPtr(data::ImgObj *);
 
+		/**
+		 *  @brief This method represents a redenring callback of Thing ImgObj.
+		 */
+		static  gboolean cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data);
+
+		/**
+		 *  @brief This method copies a GdkPixbuf into this pixel region.
+		 */
+		void copyPixels(const GdkPixbuf* srcToCopy);
 	};
 }
 

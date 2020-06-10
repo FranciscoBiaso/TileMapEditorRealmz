@@ -8,6 +8,7 @@ namespace GtkUserInterface { extern GtkBuilder* builder; }
 extern data::MapResources* gResources;
 extern ui::AuxUI* gAuxUI;
 extern ui::ThingCreatorTool* gThingCreatorTool;
+extern ui::GraphicsTool* gGraphicsTool;
 
 #ifdef TME_DEBUG
 extern DebugTextureAtlas* debugTextureAtlas;
@@ -112,5 +113,6 @@ void ui::ImgPackUI::cb_selectImg(GtkTreeView* tree_view,GtkTreePath* path,GtkTre
         gtk_tree_model_get(model, &iter, 0, &imgObjName, -1); // get ImgObj name //                
         auto it = gResources->getImgPack().find(std::string(imgObjName));
         gThingCreatorTool->setThingImgObjPtr(&(*it));        
+        gThingCreatorTool->copyPixels(gGraphicsTool->getPixelBufDest());
     }        
 }

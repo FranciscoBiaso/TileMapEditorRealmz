@@ -5,6 +5,7 @@
 #include "AuxUI.h" // Delet Things
 #include "DebugTextureAtlas.h"
 #include "ThingCreatorTool.h"
+#include "GraphicsTool.h"
 
 namespace ui {
 

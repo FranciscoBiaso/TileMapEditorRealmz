@@ -314,11 +314,56 @@
                                 <property name="can_focus">False</property>
                                 <property name="label_xalign">0</property>
                                 <child>
-                                  <object class="GtkTreeView" id="gtkTreeViewThingObj">
+                                  <object class="GtkHBox" id="hbox6">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="headers_visible">False</property>
-                                    <property name="enable_tree_lines">True</property>
+                                    <property name="can_focus">False</property>
+                                    <child>
+                                      <object class="GtkTreeView" id="gtkTreeViewThingObj">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="headers_visible">False</property>
+                                        <property name="enable_tree_lines">True</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkVSeparator" id="vseparator1">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkFrame" id="gtkFrameThingImgView">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="label_xalign">0</property>
+                                        <property name="shadow_type">none</property>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child type="label">
+                                          <object class="GtkLabel" id="label19">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="use_markup">True</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">False</property>
+                                        <property name="position">2</property>
+                                      </packing>
+                                    </child>
                                   </object>
                                 </child>
                                 <child type="label">
