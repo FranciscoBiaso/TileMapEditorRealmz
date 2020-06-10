@@ -42,7 +42,9 @@ GtkTargetEntry ui::GraphicsTool::dragTarget = { (gchar*)"targetImg",0, 0 };
 
 namespace GtkUserInterface { extern GtkBuilder* builder;}
 extern data::MapResources* gResources;
+#ifdef TME_DEBUG
 extern DebugTextureAtlas* debugTextureAtlas;
+#endif
 extern ui::ImgPackUI* gImgPackUI;
 
 ui::GraphicsTool::GraphicsTool()

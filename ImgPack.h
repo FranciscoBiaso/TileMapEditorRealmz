@@ -49,11 +49,17 @@ namespace data {
 		/**
 		 *  @brief This method gets vector<data::ImgObj>&.
 		 */
-		std::vector<data::ImgObj>& getMap() { return imgVec; }
+		std::vector<data::ImgObj>& getStrucutre() { return imgVec; }
 
 		/**
 		 *  @brief This method gets count of ImgObj.
 		 */
 		int getCountImgs() { return imgVec.size(); }
+
+		/**
+		 *  @brief This method find img by name. If dont exists return nullpointer.
+		 */
+		std::vector<data::ImgObj>::iterator find(std::string imgName);
+
 	};
 }

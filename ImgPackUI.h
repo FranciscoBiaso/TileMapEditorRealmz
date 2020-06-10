@@ -4,6 +4,7 @@
 #include "MapResources.h"
 #include "AuxUI.h" // Delet Things
 #include "DebugTextureAtlas.h"
+#include "ThingCreatorTool.h"
 
 namespace ui {
 
@@ -30,9 +31,16 @@ namespace ui {
 		static void updateTree();
 
 		/**
-		 *  @brief This removes a Thing from stuffbook dicionary.
+		 *  @brief This method removes a Thing from stuffbook dicionary.
 		 */
 		static gboolean cb_removeImgObj(GtkWidget* widget, GdkEventKey* event, gpointer   user_data);
+
+
+		/**
+		 *  @brief This method select a ImgObj and add it to the Thing creator tool.
+		 */
+		static void cb_selectImg(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data);
+
 	};
 
 }

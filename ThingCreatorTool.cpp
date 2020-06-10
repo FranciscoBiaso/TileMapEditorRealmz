@@ -158,7 +158,16 @@ GtkTreeModel* ui::ThingCreatorTool::fillTreeThingObj()
     
     gtk_tree_store_append(treestore, &toplevel, NULL);
     gtk_tree_store_set(treestore, &toplevel, 0, "thingType:", 1, thing.getType().c_str(), -1);
-    
+
+    std::string imgObjName = "empty";
+    if (thing.getImgObjPtr() != nullptr)
+    {
+        imgObjName = thing.getImgObjPtr()->getName();
+    }
+
+    gtk_tree_store_append(treestore, &toplevel, NULL);
+    gtk_tree_store_set(treestore, &toplevel, 0, "ImgName:", 1, imgObjName.c_str(), -1);
+       
     return GTK_TREE_MODEL(treestore);
 }
 
@@ -167,4 +176,11 @@ void ui::ThingCreatorTool::cb_createThing(GtkWidget* widget, gpointer data)
     gResources->addThing(thing); // add thing into stuffBook //
     gStuffBook->updateTree(); // update tree view //
     gAuxUI->searchThingByName(thing.getName()); // select thing //
+}
+
+
+void ui::ThingCreatorTool::setThingImgObjPtr(data::ImgObj* imgPtr)
+{
+    thing.setImgObjPtr(imgPtr);
+    updateTreeThingObj(); // update tree thing obj //
 }

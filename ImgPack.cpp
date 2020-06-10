@@ -15,11 +15,7 @@ void data::ImgPack::addImgObj(std::string name,const GdkPixbuf* srcImg,const def
 void data::ImgPack::delImgObj(std::string name)
 {
 	// try to find ImgObj by name // O(n)
-	std::vector<data::ImgObj>::iterator it = std::find_if(imgVec.begin(), imgVec.end(), [&, name](data::ImgObj & img) {
-		if (img.getName() == name)
-			return true;
-		return false;
-			});
+	std::vector<data::ImgObj>::iterator it = find(name);
 	// if founded //
 	if (it != imgVec.end())
 	{
@@ -28,6 +24,15 @@ void data::ImgPack::delImgObj(std::string name)
 		// erase the image O(1) //
 		imgVec.erase(it);
 	}
+}
+
+std::vector<data::ImgObj>::iterator data::ImgPack::find(std::string imgName)
+{
+	return std::find_if(imgVec.begin(), imgVec.end(), [&, imgName](data::ImgObj& img) {
+		if (img.getName() == imgName)
+			return true;
+		return false;
+		});	
 }
 
 data::TextureAtlas* data::ImgPack::getTextureAtlas() const

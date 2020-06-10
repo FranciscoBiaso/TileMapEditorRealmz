@@ -8,6 +8,8 @@
 #include <json/json.h>
 #include <iostream>
 
+namespace data { class ImgObj; }
+
 namespace ui {
 	/*!
 		THING CREATOR MODULE
@@ -68,6 +70,8 @@ namespace ui {
 		 *  @param data extra information if needed.
 		 */
 		static void cb_updateThingType(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data);
+
+		static void setThingImgObjPtr(data::ImgObj *);
 
 	};
 }

@@ -1,3 +1,4 @@
+#ifdef TME_DEBUG
 #include "DebugTextureAtlas.h"
 #include "MapResources.h"
 #include "GraphicsTool.h"
@@ -117,3 +118,4 @@ gboolean DebugTextureAtlas::remImgs()
     }
     return TRUE;
 }
+#endif

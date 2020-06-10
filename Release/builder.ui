@@ -266,7 +266,7 @@
                                   <object class="GtkLabel" id="label18">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">&lt;i&gt;thing image&lt;/i&gt;</property>
+                                    <property name="label" translatable="yes">&lt;i&gt;thing img obj&lt;/i&gt;</property>
                                     <property name="use_markup">True</property>
                                   </object>
                                 </child>

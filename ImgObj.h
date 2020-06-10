@@ -44,7 +44,7 @@ namespace data {
 		/**
 		 * @brief This method gets std::string name;
 		 */
-		std::string getName() { return name; }
+		const std::string getName() const { return name; }
 
 		/**
 		 * @brief This method sets ImgObj references as a const std::vector<math::Vec2<int>>;
