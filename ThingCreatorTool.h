@@ -21,7 +21,7 @@ namespace ui {
 	{
 	private:
 		static GObject* gtkEntryThingName;        /* label to enter the name of thing [creating a new name] */
-		static GObject* gtkEntryThingImg;         /* label to enter the name of img from imgBook */	
+		//static GObject* gtkEntryThingImg;         /* label to enter the name of img from imgBook */	
 		static GObject* gtkTreeViewThingType;     /* shows thing types */
 		static GObject* gtkTreeViewThingObj;      /* show thing atributes */
 		static GObject* gtkButtonCreateThing;     /* create thing [add to stuffBook] */
