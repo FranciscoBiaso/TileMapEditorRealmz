@@ -3,6 +3,7 @@
 #include "MapResources.h"
 #include "StuffBookUI.h"
 #include "ImgPackUI.h"
+#include <string>
 
 namespace ui {
 	/*!

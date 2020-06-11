@@ -68,6 +68,17 @@ void ui::AuxUI::cb_onFocusOutEventImgByNameTextEntry(GtkWidget* widget, gpointer
 
 bool ui::AuxUI::searchThingByName(std::string name)
 {  
+    size_t ret = name.find(',');
+    std::string partThingType; // Thing Type
+    bool useSpecification = false;
+    // in this case the user wants to find using char ',' //
+    if (ret != std::string::npos)
+    {
+        partThingType = name.substr(ret + 1, name.size());
+        name = name.substr(0, ret);
+        useSpecification = true;
+    }
+
     gint row_count = 0; // count rows, not used  //
     gboolean valid; // check error //
     GtkTreeIter iter; // our node to iterate through the model //
@@ -77,15 +88,26 @@ bool ui::AuxUI::searchThingByName(std::string name)
     valid = gtk_tree_model_get_iter_first(model, &iter);
 
     bool founded = false; // start as not founded //
+    gchar* str_data;
     while (valid && !founded) // while iterating and not founded //
     {
         GtkTreeIter iterChildren;
         gboolean validChildren;
 
+        if (useSpecification)
+        {
+            gtk_tree_model_get(model, &iter, 0, &str_data, -1); // grab data from model, check root //
+            
+            if (std::string(str_data) != partThingType)
+            {
+                valid = gtk_tree_model_iter_next(model, &iter); // jump to next data //
+                row_count++; // increment row //
+                continue;
+            }
+        }
         validChildren = gtk_tree_model_iter_children(model, &iterChildren, &iter);
         while (validChildren && !founded) // iterate through children //
         {
-            gchar* str_data;
             gtk_tree_model_get(model, &iterChildren, 0, &str_data, -1); // grab data from model //
 
             if (std::string(str_data) == name) // compare //

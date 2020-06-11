@@ -2,7 +2,7 @@
 
 TME::Thing ui::ThingCreatorTool::thing;
 GObject* ui::ThingCreatorTool::gtkEntryThingName = nullptr;
-GObject* ui::ThingCreatorTool::gtkEntryThingImg = nullptr;
+//GObject* ui::ThingCreatorTool::gtkEntryThingImg = nullptr;
 GObject* ui::ThingCreatorTool::gtkTreeViewThingType = nullptr;
 GObject* ui::ThingCreatorTool::gtkTreeViewThingObj = nullptr;
 GObject* ui::ThingCreatorTool::gtkButtonCreateThing = nullptr;
@@ -21,7 +21,7 @@ extern ui::AuxUI* gAuxUI;
 ui::ThingCreatorTool::ThingCreatorTool()
 {
     gtkEntryThingName = gtk_builder_get_object(GtkUserInterface::builder, "gtkEntryThingName");
-    gtkEntryThingImg = gtk_builder_get_object(GtkUserInterface::builder, "gtkEntryThingImg");
+    //gtkEntryThingImg = gtk_builder_get_object(GtkUserInterface::builder, "gtkEntryThingImg");
     gtkTreeViewThingType = gtk_builder_get_object(GtkUserInterface::builder, "gtkTreeViewThingType");
     gtkTreeViewThingObj = gtk_builder_get_object(GtkUserInterface::builder, "gtkTreeViewThingObj");
     gtkButtonCreateThing = gtk_builder_get_object(GtkUserInterface::builder, "gtkButtonCreateThing");
