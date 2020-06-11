@@ -36,12 +36,15 @@ namespace ui {
 		 */
 		static gboolean cb_removeImgObj(GtkWidget* widget, GdkEventKey* event, gpointer   user_data);
 
-
 		/**
 		 *  @brief This method select a ImgObj and add it to the Thing creator tool.
 		 */
 		static void cb_selectImg(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data);
-
+		
+		/**
+		 *  @brief This method gets gtkTreeViewImgPack (GTK_TREE_VIEW);
+		 */
+		static GtkTreeView* getTreeView() { return GTK_TREE_VIEW(gtkTreeViewImgPack); }
 	};
 
 }

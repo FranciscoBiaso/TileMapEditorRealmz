@@ -2,6 +2,7 @@
 #include <gtk/gtk.h>
 #include "MapResources.h"
 #include "StuffBookUI.h"
+#include "ImgPackUI.h"
 
 namespace ui {
 	/*!
@@ -14,6 +15,7 @@ namespace ui {
 	{
 	private:
 		static GObject* gtkEntryThingSearch;
+		static GObject* gtkEntryImgSearch;
 		static GObject* gtkStatusBar;
 
 	public:
@@ -57,6 +59,17 @@ namespace ui {
 		 *  @see searchThingByName
 		 */
 		static void cb_onActive(GtkWidget* widget, gpointer data);
+
+		/**
+		 *  @brief This method call searchImgByName when activated.
+		 */
+		static void cb_onActiveImgSearch(GtkWidget* widget, gpointer data);
+
+		/**
+		 *  @brief This method searches for a ImgObj into the ImgPack user interface.
+		 *  If found then select.
+		 */
+		static bool searchImgByName(std::string name);
 	};
 
 }
