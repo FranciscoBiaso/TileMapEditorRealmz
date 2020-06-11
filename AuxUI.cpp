@@ -24,6 +24,8 @@ ui::AuxUI::AuxUI()
     g_signal_connect(gtkEntryImgSearch, "activate", G_CALLBACK(cb_onActiveImgSearch), NULL);
     g_signal_connect(gtkEntryThingSearch, "focus-in-event", G_CALLBACK(cb_onFocusInEvent), NULL);
     g_signal_connect(gtkEntryThingSearch, "focus-out-event", G_CALLBACK(cb_onFocusOutEvent), NULL);
+    g_signal_connect(gtkEntryImgSearch, "focus-in-event", G_CALLBACK(cb_onFocusInEventImgByNameTextEntry), NULL);
+    g_signal_connect(gtkEntryImgSearch, "focus-out-event", G_CALLBACK(cb_onFocusOutEventImgByNameTextEntry), NULL);
 }
 
 
@@ -44,9 +46,22 @@ void ui::AuxUI::cb_onFocusInEvent(GtkWidget* widget, gpointer data)
     gtk_entry_buffer_delete_text(gtkEntryBuffer, 0, gtk_entry_buffer_get_length(gtkEntryBuffer));    
 }
 
+void ui::AuxUI::cb_onFocusInEventImgByNameTextEntry(GtkWidget* widget, gpointer data)
+{
+    GtkEntryBuffer* gtkEntryBuffer = gtk_entry_get_buffer(GTK_ENTRY(gtkEntryImgSearch));
+    gtk_entry_buffer_delete_text(gtkEntryBuffer, 0, gtk_entry_buffer_get_length(gtkEntryBuffer));
+}
+
 void ui::AuxUI::cb_onFocusOutEvent(GtkWidget* widget, gpointer data)
 {
     GtkEntryBuffer* gtkEntryBuffer = gtk_entry_get_buffer(GTK_ENTRY(gtkEntryThingSearch));
+    std::string buffer = "...";
+    gtk_entry_buffer_set_text(gtkEntryBuffer, buffer.c_str(), buffer.size());
+}
+
+void ui::AuxUI::cb_onFocusOutEventImgByNameTextEntry(GtkWidget* widget, gpointer data)
+{
+    GtkEntryBuffer* gtkEntryBuffer = gtk_entry_get_buffer(GTK_ENTRY(gtkEntryImgSearch));
     std::string buffer = "...";
     gtk_entry_buffer_set_text(gtkEntryBuffer, buffer.c_str(), buffer.size());
 }
@@ -101,7 +116,6 @@ bool ui::AuxUI::searchThingByName(std::string name)
 
     return founded;
 }
-
 
 bool ui::AuxUI::searchImgByName(std::string name)
 {

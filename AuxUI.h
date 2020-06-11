@@ -44,6 +44,11 @@ namespace ui {
 		 *  @param data extra information if needed.
 		 */
 		static void cb_onFocusInEvent(GtkWidget* widget, gpointer data);
+		
+		/**
+		 *  @brief This method cleans text on imgByName user interface when focused..
+		 */
+		static void cb_onFocusInEventImgByNameTextEntry(GtkWidget* widget, gpointer data);
 
 		/**
 		 *  @brief This method add text input "..." when not focused.
@@ -51,6 +56,12 @@ namespace ui {
 		 *  @param data extra information if needed.
 		 */
 		static void cb_onFocusOutEvent(GtkWidget* widget, gpointer data);
+
+
+		/**
+		 *  @brief This method add text input on imgByName user interface "..." when not focused.
+		 */
+		static void cb_onFocusOutEventImgByNameTextEntry(GtkWidget* widget, gpointer data);
 
 		/**
 		 *  @brief This method call searchThingByName when activated.
