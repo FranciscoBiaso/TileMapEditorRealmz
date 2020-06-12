@@ -28,7 +28,7 @@ namespace ui {
 		static GObject* gtkFrameThingImgView;     /* gtkFrame */
 		
 
-		static TME::Thing thing; // thing structure 
+		static data::Thing thing; // thing structure 
 
 		static GdkPixbuf* pixelRegion;   
 		static GdkPixbuf* pixelRegionBackground;		

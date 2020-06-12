@@ -3,7 +3,7 @@
 
 namespace data { class ImgObj; }
 
-namespace TME {
+namespace data {
 	/*!
 		Thing obj
 		=========

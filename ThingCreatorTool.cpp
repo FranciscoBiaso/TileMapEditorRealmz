@@ -1,6 +1,6 @@
 #include "ThingCreatorTool.h"
 
-TME::Thing ui::ThingCreatorTool::thing;
+data::Thing ui::ThingCreatorTool::thing;
 GObject* ui::ThingCreatorTool::gtkEntryThingName = nullptr;
 //GObject* ui::ThingCreatorTool::gtkEntryThingImg = nullptr;
 GObject* ui::ThingCreatorTool::gtkTreeViewThingType = nullptr;
@@ -135,7 +135,7 @@ GtkTreeModel* ui::ThingCreatorTool::fillTreeThingType()
     GtkTreeStore* treestore;
     GtkTreeIter toplevel, child;
 
-    treestore = gtk_tree_store_new(2, G_TYPE_STRING,GDK_TYPE_PIXBUF);
+    treestore = gtk_tree_store_new(1, G_TYPE_STRING);
 
     Json::Value obj = gResources->getThingTypesJson();
     
@@ -231,6 +231,7 @@ void ui::ThingCreatorTool::updateImgPixelArea()
     case def::IMG_SIZE::IMG_SIZE_32X32:
     {
         math::Vec2 ref = img->getRef(0) * REALMZ_GRID_SIZE;
+
         gdk_pixbuf_copy_area(atlas, ref[0], ref[1], REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelRegion, REALMZ_GRID_SIZE/2, REALMZ_GRID_SIZE/2);
     }
     break;

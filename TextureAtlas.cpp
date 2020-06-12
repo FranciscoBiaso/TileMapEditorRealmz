@@ -115,7 +115,7 @@ void data::TextureAtlas::delImgObj(std::vector<data::ImgObj>::iterator it, std::
 		shiftFront.rightShiftCursor(TEXTURE_ATLAS_MAX_WIDTH);
 
 	// iterate through each img startin with startPos until last img into the data strcuture //
-	for (int count = 0; it != end; it++,count++)
+	for (; it != end; it++)
 	{
 		for (int i = 0; i < it->getSizeAsInt(); i++)
 		{
