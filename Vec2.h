@@ -87,7 +87,7 @@ namespace math {
 		}
 
 		/**
-		 * @brief This method overloadis the multiplication  operator.
+		 * @brief This method overloads the multiplication operator.
 		 */
 		Vec2& operator*(const float& mult)
 		{
@@ -135,6 +135,26 @@ namespace math {
 			}
 			else
 				setX(getX() - 1);
+		}
+
+		/**
+		 * @brief This method executes n times rightShiftCursor.
+		 * @see rightShiftCursor
+		 */
+		void rightShiftCursorNTimes(int x, int mod)
+		{
+			for (int i = 0; i < x; i++)
+				rightShiftCursor(mod);
+		}
+
+		/**
+		 * @brief This method executes n times leftShiftCursor.
+		 * @see leftShiftCursor
+		 */
+		void leftShiftCursorNTimes(int x, int mod)
+		{
+			for (int i = 0; i < x; i++)
+				leftShiftCursor(mod);
 		}
 	};
 }
