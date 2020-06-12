@@ -115,7 +115,7 @@ void data::TextureAtlas::delImgObj(std::vector<data::ImgObj>::iterator it, std::
 		shiftFront.rightShiftCursor(TEXTURE_ATLAS_MAX_WIDTH);
 
 	// iterate through each img startin with startPos until last img into the data strcuture //
-	for (; it != end; it++)
+	for (int count = 0; it != end; it++,count++)
 	{
 		for (int i = 0; i < it->getSizeAsInt(); i++)
 		{
@@ -125,8 +125,12 @@ void data::TextureAtlas::delImgObj(std::vector<data::ImgObj>::iterator it, std::
 				REALMZ_GRID_SIZE, REALMZ_GRID_SIZE,
 				pixelBuf,
 				startPos[AT_COL] * REALMZ_GRID_SIZE, startPos[AT_ROW] * REALMZ_GRID_SIZE);
+			
 			// sets up a new reference//
+			startPos.leftShiftCursorNTimes(countShifts, TEXTURE_ATLAS_MAX_WIDTH);
 			it->setImgRef(i, startPos);
+			startPos.rightShiftCursorNTimes(countShifts, TEXTURE_ATLAS_MAX_WIDTH);		
+
 			// readjust cursors //
 			startPos.rightShiftCursor(TEXTURE_ATLAS_MAX_WIDTH);
 			shiftFront.rightShiftCursor(TEXTURE_ATLAS_MAX_WIDTH);
