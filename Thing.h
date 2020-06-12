@@ -50,8 +50,7 @@ namespace TME {
 
 	private:
 		std::string name; 
-		std::string type;
-		std::string img;
+		std::string type;		
 		data::ImgObj* imgObj_ptr;
 	};
 }

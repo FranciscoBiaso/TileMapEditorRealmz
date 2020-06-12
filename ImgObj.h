@@ -32,6 +32,11 @@ namespace data {
 		ImgObj(std::string name, def::IMG_SIZE size, const std::vector<math::Vec2<int>> references);
 
 		/**
+		 * @brief This method gets IMG_SIZE of ImgObj as a def::IMG_SIZE.
+		 */
+		def::IMG_SIZE getSize() const;
+
+		/**
 		 * @brief This method gets IMG_SIZE of ImgObj as a std::string.
 		 */
 		std::string getSizeAsString() const;

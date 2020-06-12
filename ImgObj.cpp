@@ -6,6 +6,11 @@ data::ImgObj::ImgObj(std::string name, def::IMG_SIZE size, const std::vector<mat
 		imgs[i] = references[i];
 }
 
+def::IMG_SIZE data::ImgObj::getSize() const
+{
+	return size;
+}
+
 std::string data::ImgObj::getSizeAsString() const
 {
 	switch (size)

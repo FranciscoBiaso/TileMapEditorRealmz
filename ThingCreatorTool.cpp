@@ -79,7 +79,7 @@ void ui::ThingCreatorTool::createTreeViewThingType()
 {
     GtkCellRenderer* renderer;
     GtkTreeViewColumn* col;
-    
+
     col = gtk_tree_view_column_new(); // create col //
     gtk_tree_view_column_set_title(col, "ThingTypes"); // title //
     gtk_tree_view_append_column(GTK_TREE_VIEW(gtkTreeViewThingType), col); // append //
@@ -135,7 +135,7 @@ GtkTreeModel* ui::ThingCreatorTool::fillTreeThingType()
     GtkTreeStore* treestore;
     GtkTreeIter toplevel, child;
 
-    treestore = gtk_tree_store_new(1, G_TYPE_STRING);
+    treestore = gtk_tree_store_new(2, G_TYPE_STRING,GDK_TYPE_PIXBUF);
 
     Json::Value obj = gResources->getThingTypesJson();
     
@@ -157,7 +157,7 @@ GtkTreeModel* ui::ThingCreatorTool::fillTreeThingType()
         }
         else {
             gtk_tree_store_append(treestore, &toplevel, NULL);
-            gtk_tree_store_set(treestore, &toplevel,0, name.c_str(),-1);
+            gtk_tree_store_set(treestore, &toplevel,0, name.c_str(), -1);
         }
     }
 
@@ -220,10 +220,51 @@ gboolean ui::ThingCreatorTool::cb_draw_callback(GtkWidget* widget, cairo_t* cr, 
     return FALSE;
 }
 
-void ui::ThingCreatorTool::copyPixels(const GdkPixbuf* srcToCopy)
+void ui::ThingCreatorTool::updateImgPixelArea()
 {
+    const GdkPixbuf* atlas =  gResources->getImgPack().getTextureAtlas()->getPixelbuf();
+    const data::ImgObj* img = thing.getImgObjPtr();
     gdk_pixbuf_fill(pixelRegion, 0x22222211); // clean buffer //
-    gdk_pixbuf_copy_area(srcToCopy, 0, 0, 2 * REALMZ_GRID_SIZE, 2 * REALMZ_GRID_SIZE, pixelRegion, 0, 0);
-    
+
+    switch (img->getSize())
+    {
+    case def::IMG_SIZE::IMG_SIZE_32X32:
+    {
+        math::Vec2 ref = img->getRef(0) * REALMZ_GRID_SIZE;
+        gdk_pixbuf_copy_area(atlas, ref[0], ref[1], REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelRegion, REALMZ_GRID_SIZE/2, REALMZ_GRID_SIZE/2);
+    }
+    break;
+    case def::IMG_SIZE::IMG_SIZE_32X64:
+    {
+        math::Vec2 ref1 = img->getRef(0) * REALMZ_GRID_SIZE;
+        math::Vec2 ref2 = img->getRef(1) * REALMZ_GRID_SIZE;
+        gdk_pixbuf_copy_area(atlas, ref1[0], ref1[1], REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelRegion, REALMZ_GRID_SIZE / 2, 0);
+        gdk_pixbuf_copy_area(atlas, ref2[0], ref2[1], REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelRegion, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE);
+    }
+    break;
+    case def::IMG_SIZE::IMG_SIZE_64X32:
+    {
+        math::Vec2 ref1 = img->getRef(0) * REALMZ_GRID_SIZE;
+        math::Vec2 ref2 = img->getRef(1) * REALMZ_GRID_SIZE;
+        gdk_pixbuf_copy_area(atlas, ref1[0], ref1[1], REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelRegion, 0, REALMZ_GRID_SIZE / 2);
+        gdk_pixbuf_copy_area(atlas, ref2[0], ref2[1], REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelRegion, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE/2);
+    }
+    break;
+    case def::IMG_SIZE::IMG_SIZE_64X64:
+    {
+        math::Vec2 ref1 = img->getRef(0) * REALMZ_GRID_SIZE;
+        math::Vec2 ref2 = img->getRef(1) * REALMZ_GRID_SIZE;
+        math::Vec2 ref3 = img->getRef(2) * REALMZ_GRID_SIZE;
+        math::Vec2 ref4 = img->getRef(3) * REALMZ_GRID_SIZE;
+        gdk_pixbuf_copy_area(atlas, ref1[0], ref1[1], REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelRegion, 0, 0);
+        gdk_pixbuf_copy_area(atlas, ref2[0], ref2[1], REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelRegion, REALMZ_GRID_SIZE, 0);
+        gdk_pixbuf_copy_area(atlas, ref3[0], ref3[1], REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelRegion, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE);
+        gdk_pixbuf_copy_area(atlas, ref4[0], ref4[1], REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelRegion, 0, REALMZ_GRID_SIZE);
+    }
+    break;
+    default:
+    break;  
+    }
+
     gtk_widget_queue_draw(GTK_WIDGET(drawingArea));
 }

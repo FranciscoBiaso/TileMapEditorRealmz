@@ -87,9 +87,9 @@ namespace ui {
 		static  gboolean cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data);
 
 		/**
-		 *  @brief This method copies a GdkPixbuf into this pixel region.
+		 *  @brief This method updates ImgObj pixel area of a Thing.
 		 */
-		void copyPixels(const GdkPixbuf* srcToCopy);
+		static void updateImgPixelArea();
 	};
 }
 
