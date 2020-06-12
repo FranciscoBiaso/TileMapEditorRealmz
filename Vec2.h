@@ -87,7 +87,17 @@ namespace math {
 		}
 
 		/**
-		 * @brief This method overloadis the assignment operator.
+		 * @brief This method overloadis the multiplication  operator.
+		 */
+		Vec2& operator*(const float& mult)
+		{
+			this->x *= mult;
+			this->y *= mult;
+			return *this;
+		}
+
+		/**
+		 * @brief This method overloads the assignment operator.
 		 */
 		Vec2& operator=(const Vec2& v2)
 		{
