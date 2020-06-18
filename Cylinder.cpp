@@ -4,6 +4,8 @@
 
 extern data::MapResources* gResources;
 
+scene::Cylinder::Cylinder(){}
+
 const data::Thing& scene::Cylinder::operator[](int index)
 {
 	return items[index];

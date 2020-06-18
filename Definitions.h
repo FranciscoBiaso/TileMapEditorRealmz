@@ -7,6 +7,7 @@
 #define TEXTURE_ATLAS_MAX_WIDTH 20
 #define IMGOBJ_MAX_IMGS 4
 #define UI_THING_OBJ_LABELS_MAX_CHAR 10
+#define MAP_COUNT_LEVELS 8
 
 namespace def{
     /**

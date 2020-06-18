@@ -2,7 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <string>
-namespace data { class Thing;  }
+#include "Thing.h"
 
 namespace scene {
 	/*!
@@ -16,6 +16,12 @@ namespace scene {
 	private:
 		std::vector<data::Thing> items;
 	public:
+		
+		/**
+		 * Constructor.
+		 */
+		Cylinder();
+
 		/**
 		 * @brief This methods returns item[index].
 		 */

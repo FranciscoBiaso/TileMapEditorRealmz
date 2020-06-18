@@ -24,7 +24,7 @@ DebugTextureAtlas::DebugTextureAtlas(GdkPixbuf * pixlBuff)
 {
     p_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(p_window), "Debug window");
-    gtk_window_set_default_size(GTK_WINDOW(p_window), 640, 640);
+    gtk_window_set_default_size(GTK_WINDOW(p_window), 300, 300);
     gtk_window_set_position(GTK_WINDOW(p_window), GTK_WIN_POS_CENTER_ON_PARENT);
 
 	gtkMapFrame = gtk_builder_get_object(GtkUserInterface::builder, "gtkMapFrame"); 
@@ -38,8 +38,8 @@ DebugTextureAtlas::DebugTextureAtlas(GdkPixbuf * pixlBuff)
     const gchar* filename = "C:\\Users\\Francisco\\source\\repos\\TME\\Tile-Map-Editor---Realmz\\Release\\imgs\\texture-atlas.png";
     gGraphicsTool->setPixBufSrc(gtk_image_get_pixbuf(GTK_IMAGE(gtk_image_new_from_file(filename))));
     
-    g_timeout_add(75, push_operations,NULL);
-    g_timeout_add(75, pop_operations, NULL);
+    //g_timeout_add(75, push_operations,NULL);
+    //g_timeout_add(75, pop_operations, NULL);
 }
 
 gboolean DebugTextureAtlas::push_operations(gpointer data)

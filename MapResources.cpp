@@ -25,6 +25,7 @@ void data::MapResources::createStuffBookFromJson()
 	for (auto i = 0; i < types.size(); i++) { // iterate through them [types] // 
 		std::string name = types[i]["name"].asString(); // access name //
 		int layer = types[i]["layer"].asUInt(); // access layer //
+		layerOrder.insert(std::make_pair(name, layer));
 		const Json::Value& _class = types[i]["class"]; // access class //
 		if (_class.size() != 0) { // check if classes is bigger than 0 //
 			for (auto j = 0; j < _class.size(); j++) { // iterate through them [classes] // 
@@ -35,4 +36,10 @@ void data::MapResources::createStuffBookFromJson()
 			stuffBook.insert(std::pair<std::string, std::map<std::string, data::Thing>>(name, std::map<std::string, data::Thing >())); // fill our data //
 		}
 	}
+}
+
+
+int data::MapResources::getLayerAsInt(const std::string name)
+{
+	return layerOrder[name];
 }

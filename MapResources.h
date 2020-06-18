@@ -21,7 +21,7 @@ namespace data {
 		std::map<std::string, std::map<std::string, data::Thing>> stuffBook; // dicionary of dicionary (things) //
 		Json::Value thingTypesJson; // used to manipulate json files //
 		ImgPack imgPack;
-
+		std::map<std::string, int> layerOrder; // dicionary of layers loading json //
 		/**
 		 *  @brief This method fills stuffBook data loading from json file.
 		 */
@@ -57,6 +57,11 @@ namespace data {
 		const Json::Value getThingTypesJson() { return thingTypesJson; }
 
 		ImgPack& getImgPack() { return imgPack; }
+
+		/**
+		 *  @brief This method gets layer as integer.
+		 */
+		int getLayerAsInt(const std::string name);
 	};
 }
 

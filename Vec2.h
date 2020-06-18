@@ -89,7 +89,7 @@ namespace math {
 		/**
 		 * @brief This method overloads the multiplication operator.
 		 */
-		Vec2& operator*(const float& mult)
+		Vec2& operator*(const T& mult)
 		{
 			this->x *= mult;
 			this->y *= mult;

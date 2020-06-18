@@ -26,7 +26,7 @@ namespace data {
 		/**
 		 *  @brief This method gets type.
 		 */
-		std::string getType() { return type; }
+		const std::string getType() { return type; }
 
 		/**
 		 *  @brief This method gets imgObj_ptr (data::ImgObj*).
@@ -34,7 +34,7 @@ namespace data {
 		const data::ImgObj* getImgObjPtr() { return imgObj_ptr; }
 
 		/**
-		 *  @brief This method sets name.
+		 *  @brief This method sets name [same as layer].
 		 */
 		void setName(std::string name) { this->name = name; }
 
