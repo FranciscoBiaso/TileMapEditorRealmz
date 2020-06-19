@@ -2,7 +2,9 @@
 #include <vector>
 #include <algorithm>
 #include <string>
+#include <gdk/gdk.h>
 #include "Thing.h"
+#include "Vec3.h"
 
 namespace scene {
 	/*!
@@ -15,6 +17,7 @@ namespace scene {
 	{
 	private:
 		std::vector<data::Thing> items;
+		math::Vec3<int> coords;
 	public:
 		
 		/**
@@ -41,6 +44,22 @@ namespace scene {
 		 * @brief This methods remove a item by name.
 		 */
 		void removeItem(std::string name);
+
+		/**
+		 * @brief This methods sets cylinder coords.
+		 */
+		void setCoords(int x, int y, int z);
+
+		/**
+		 * @brief This methods gets cylinder coords.
+		 */
+		math::Vec3<int> getCoords();
+
+		/**
+		 * @brief This methods draws all things by layer.
+		 */
+		void draw(cairo_t* cr);
+
 	};
 
 }

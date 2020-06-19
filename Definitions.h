@@ -9,6 +9,9 @@
 #define UI_THING_OBJ_LABELS_MAX_CHAR 10
 #define MAP_COUNT_LEVELS 8
 
+#define MAP_SCENE_WIDTH 20
+#define MAP_SCENE_HEIGHT 20
+
 namespace def{
     /**
      * ENUM IMG SIZES.

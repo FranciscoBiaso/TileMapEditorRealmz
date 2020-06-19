@@ -1,7 +1,9 @@
 #pragma once
 #include <string>
+#include <gdk/gdk.h>
 
 namespace data { class ImgObj; }
+namespace scene { class Cylinder; }
 
 namespace data {
 	/*!
@@ -48,9 +50,26 @@ namespace data {
 		 */
 		void setImgObjPtr(data::ImgObj* imgObj_ptr) { this->imgObj_ptr = imgObj_ptr; }
 
+		/**
+		 *  @brief This method draws a Thing Obj.
+		 */
+		void draw(cairo_t * cr);
+
+		/**
+		 *  @brief This method sets Cylinder.
+		 */
+		void setCylinder(scene::Cylinder*);
+
+		/**
+		 *  @brief This method gets Cylinder.
+		 */
+		const scene::Cylinder* getCylinder();
+
 	private:
 		std::string name; 
-		std::string type;		
+		std::string type;
 		data::ImgObj* imgObj_ptr;
+		static GdkPixbuf* pixelbuf; // pixelbuff used to draw all things //
+		scene::Cylinder* parent; // parent cylinder of this Thing //
 	};
 }

@@ -5,15 +5,24 @@
 #include <gtk/gtk.h>
 
 namespace ui {
+
+	/*!
+	MapUI class
+	===========
+
+	This class represents the map view user interface.
+	*/
+
 	class MapUI: public scene::Map
 	{
 	private:
-		 GdkPixbuf* pixelbuf;
-		 GtkWidget* drawingArea;
-		 GObject* gtkMapFrame;
-		 static void static_cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data){
-			 reinterpret_cast<MapUI*>(data)->cb_draw_callback(widget,cr,data);
-		 }
+		 GtkWidget* drawingArea; // widget to draw //
+		 GObject* gtkMapFrame; // container to draw the map //
+
+		/**
+		 *  @brief Auxiliary function to avoid static members.
+		 */
+		 static void static_cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data);
 	public:
 		/**
 		 * constructor.

@@ -3,13 +3,13 @@
 #include "Definitions.h"
 #include <vector>
 #include <string>
-#include <array>
+#include "Cylinder.h"
+#include <gdk/gdk.h>
 
 namespace data { class Thing; }
 
 namespace scene {
 
-	class Cylinder;
 	/*!
 		Map class
 		=========
@@ -23,7 +23,7 @@ namespace scene {
 		int width;
 		int height;
 		int levels;
-		std::array< std::vector<Cylinder>, MAP_COUNT_LEVELS> structure;
+		std::vector<std::vector<Cylinder>> structure;
 	public:
 		/**
 		 * Constructor.
@@ -31,7 +31,7 @@ namespace scene {
 		Map(std::string name, int width, int height);
 
 		/**
-		 * @brief This method gets position from index [0,1].
+		 * @brief This method gets Cylinder from position (x,y,z).
 		 */
 		Cylinder & at(int line, int col, int level)
 		{
@@ -49,6 +49,8 @@ namespace scene {
 		 * @brief This method removes a Thing from the map position [x,y,z] by name;
 		 */
 		void removeThing(std::string name, int x, int y, int z);
+
+		void drawMap(cairo_t* cr);
 	};
 }
 

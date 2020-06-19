@@ -6,7 +6,7 @@ namespace math {
 		Vec3 class
 		==========
 
-		This class represents a Vec3(x,y) strucutre and its basic operations.
+		This class represents a Vec3(x,y,z) structure and its basic operations.
 	 */
 	template <class T = int>
 	class Vec3

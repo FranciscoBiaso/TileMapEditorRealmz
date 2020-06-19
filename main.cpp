@@ -4,6 +4,7 @@
 #include "MapResources.h"
 #include "AuxUI.h"
 #include "ImgPackUI.h"
+#include "MapUI.h"
 
 #ifdef TME_DEBUG
 #include "DebugTextureAtlas.h"
@@ -15,6 +16,7 @@ data::MapResources* gResources = nullptr;
 ui::StuffBookUI* gStuffBook = nullptr;
 ui::ImgPackUI * gImgPackUI = nullptr;
 ui::AuxUI* gAuxUI = nullptr;
+ui::MapUI* gMapUI = nullptr;
 ui::ThingCreatorTool* gThingCreatorTool = nullptr;
 ui::GraphicsTool* gGraphicsTool = nullptr;
 //-----------------------------------------//
@@ -46,6 +48,7 @@ int main(int argc, char** argv)
     gAuxUI = new ui::AuxUI();
     gThingCreatorTool = new ui::ThingCreatorTool();
     gGraphicsTool = new ui::GraphicsTool();
+    gMapUI = new ui::MapUI("map", 20, 20);
     //---------------------//
 
 
