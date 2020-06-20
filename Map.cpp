@@ -9,9 +9,9 @@ scene::Map::Map(std::string name, int width, int height) : name(name),
 	for (int level = 0; level < levels; level++)
 	{
 		this->structure[level].resize(width * height);
-		for (int row = 0; row <= height; row++)
+		for (int row = 0; row < height; row++)
 		{
-			for (int col = 0; col <= width; col++)
+			for (int col = 0; col < width; col++)
 			{
 				this->structure[level][height * row + col].setCoords(col, row, level);
 			}
