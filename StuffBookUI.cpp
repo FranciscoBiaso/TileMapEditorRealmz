@@ -1,4 +1,5 @@
 #include "StuffBookUI.h"
+#include "MapUI.h"
 
 GObject* ui::StuffBookUI::gtkTreeViewStuffBook = nullptr;
 GObject* ui::StuffBookUI::gtkScrolledWindowStuffbook = nullptr;
@@ -7,6 +8,7 @@ namespace GtkUserInterface { extern GtkBuilder* builder;}
 
 extern data::MapResources* gResources;
 extern ui::AuxUI* gAuxUI;
+extern ui::MapUI* gMapUI;
 
 ui::StuffBookUI::StuffBookUI()
 {
@@ -17,7 +19,14 @@ ui::StuffBookUI::StuffBookUI()
 
     createTreeView();
     updateTree();
+    
+    g_signal_connect(G_OBJECT(gtkTreeViewStuffBook), "row-activated", G_CALLBACK(static_cb_selectThing), this);
+}
 
+
+void ui::StuffBookUI::static_cb_selectThing(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data)
+{
+    reinterpret_cast<StuffBookUI*>(user_data)->cb_selectThing(tree_view, path, column, user_data);
 }
 
 void ui::StuffBookUI::createTreeView()
@@ -158,3 +167,34 @@ gboolean ui::StuffBookUI::cb_removeThing(GtkWidget* widget, GdkEventKey* event,g
     return true;
 }
 
+
+void ui::StuffBookUI::cb_selectThing(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data)
+{
+    GtkTreeSelection* gtkTreeSelection = gtk_tree_view_get_selection(tree_view); // grab tree selection from mouse click //
+    GtkTreeModel* model = nullptr;
+    GtkTreeIter iter, parent;
+   
+    // we found the item //
+    if (gtk_tree_selection_get_selected(gtkTreeSelection, &model, &iter)) 
+    {
+        gchar* thingName, * thingType;        
+        gtk_tree_model_get(model, &iter, 0, &thingName, -1); // get Thing name // 
+        
+        // grab parent position //
+        gtk_tree_model_iter_parent(model, &parent, &iter);
+        // grab parent data //
+        gtk_tree_model_get(model, &parent, 0, &thingType, -1); // get Thing type // 
+        
+        auto itType = gResources->getStuffBook().find(std::string(thingType));
+        auto map = itType->second;
+        if (itType != gResources->getStuffBook().end())// founded type //
+        {
+            // let's found the Thing by name //
+            auto itName = map.find(std::string(thingName));
+            if (itName != map.end())// founded //
+            {
+                gMapUI->setDrawObj(&itName->second);
+            }
+        }        
+    }
+}

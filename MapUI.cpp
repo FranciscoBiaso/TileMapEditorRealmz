@@ -24,6 +24,25 @@ gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer da
     return FALSE;
 }
 
-void ui::MapUI::static_cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data) {
+void ui::MapUI::static_cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data) 
+{
     reinterpret_cast<MapUI*>(data)->cb_draw_callback(widget, cr, data);
+}
+
+
+gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEventButton* event, gpointer   user_data)
+{
+    // double click //
+    if (event->type == GDK_DOUBLE_BUTTON_PRESS)
+    {
+        
+    }
+
+    return TRUE;
+}
+
+
+void ui::MapUI::setDrawObj(data::Thing* thing)
+{
+    drawObj = thing;
 }

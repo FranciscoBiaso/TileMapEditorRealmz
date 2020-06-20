@@ -25,6 +25,10 @@ namespace ui {
 		void createTreeView();           // create model //
 		static GtkTreeModel* fillTree(); // fill model //
 
+		/**
+		 *  @brief Auxiliary function to avoid static members.
+		 */
+		static void static_cb_selectThing(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data);
 	public:
 
 		/**
@@ -46,6 +50,12 @@ namespace ui {
 		 *  @brief This method update user interface tree view.
 		 */
 		static void updateTree();
+
+
+		/**
+		 *  @brief This method selects a Thing to be used to draw.
+		 */
+		void cb_selectThing(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data);
 	};
 }
 
