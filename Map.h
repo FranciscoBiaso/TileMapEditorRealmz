@@ -41,14 +41,24 @@ namespace scene {
 		}
 
 		/**
-		 * @brief This method adds a Thing into the map position [x,y,z];
+		 * @brief This method adds a Thing into the map position [line,col,level].
 		 */
-		void addThing(data::Thing newThing, int x, int y,int z);
+		void addThing(data::Thing newThing, int line, int col, int level);
 
 		/**
-		 * @brief This method removes a Thing from the map position [x,y,z] by name;
+		 * @brief This method removes a Thing from the map position [x,y,z] by name.
 		 */
 		void removeThing(std::string name, int x, int y, int z);
+
+		/**
+		 * @brief This method gets map width.
+		 */
+		int getWidth() const;
+
+		/**
+		 * @brief This method gets map height.
+		 */
+		int getHeight() const;
 
 		void drawMap(cairo_t* cr);
 	};

@@ -33,7 +33,7 @@ void scene::Cylinder::addItem(data::Thing thing)
 	items.push_back(thing);
 	std::sort(items.begin(), items.end(), [](data::Thing& a, data::Thing& b) -> bool
 		{			
-			return gResources->getLayerAsInt(a.getType()) > gResources->getLayerAsInt(b.getType());			
+			return gResources->getLayerAsInt(a.getType()) > gResources->getLayerAsInt(b.getType());
 		});
 }
 

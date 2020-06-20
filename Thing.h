@@ -21,6 +21,11 @@ namespace data {
 		Thing(std::string name = "-", std::string strType = "-");
 
 		/**
+		 *  copy constructor by pointer.
+		 */
+		Thing(Thing *);
+
+		/**
 		 *  @brief This method gets name.
 		 */
 		std::string getName() { return name; }

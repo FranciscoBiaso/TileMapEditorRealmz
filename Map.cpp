@@ -19,9 +19,9 @@ scene::Map::Map(std::string name, int width, int height) : name(name),
 	}	
 }
 
-void scene::Map::addThing(data::Thing newThing, int x, int y, int z)
+void scene::Map::addThing(data::Thing newThing, int line, int col, int level)
 {
-	this->structure[z][height * y + x].addItem(newThing);
+	this->structure[level][height * line + col].addItem(newThing);
 }
 
 void scene::Map::removeThing(std::string name, int x, int y, int z)
@@ -38,4 +38,14 @@ void scene::Map::drawMap(cairo_t* cr)
 			structure[0][height * y + x].draw(cr);
 		}
 	}
+}
+
+int scene::Map::getWidth() const
+{
+	return width;
+}
+
+int scene::Map::getHeight() const
+{
+	return height;
 }
