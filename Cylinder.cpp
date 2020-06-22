@@ -29,11 +29,18 @@ math::Vec3<int> scene::Cylinder::getCoords()
 
 void scene::Cylinder::addItem(data::Thing thing)
 {
+	// changing floor //
+	if (!items.empty() && gResources->getLayerAsInt(items[0].getType()) == gResources->getLayerAsInt(thing.getType()))
+	{
+		return;
+	}
+
 	thing.setCylinder(this);
 	items.push_back(thing);
+
 	std::sort(items.begin(), items.end(), [](data::Thing& a, data::Thing& b) -> bool
 		{			
-			return gResources->getLayerAsInt(a.getType()) > gResources->getLayerAsInt(b.getType());
+			return gResources->getLayerAsInt(a.getType()) < gResources->getLayerAsInt(b.getType());
 		});
 }
 

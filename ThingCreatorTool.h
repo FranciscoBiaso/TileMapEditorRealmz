@@ -25,7 +25,7 @@ namespace ui {
 			THING_NAME_IS_READY = 2,
 			THING_PIXELBUF_IS_READY = 4,
 			THING_IS_READY = 7
-	};
+		};
 
 	private:
 		static GObject* gtkEntryThingName;        /* label to enter the name of thing [creating a new name] */

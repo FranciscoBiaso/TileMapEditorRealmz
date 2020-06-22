@@ -12,6 +12,8 @@
 #define MAP_SCENE_WIDTH 20
 #define MAP_SCENE_HEIGHT 20
 
+#define MSG_VISIBLE_TIME 3000 // 1 sec (1000 millisecond) //
+
 namespace def{
     /**
      * ENUM IMG SIZES.

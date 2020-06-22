@@ -17,6 +17,10 @@ namespace ui {
 
 	class MapUI: public scene::Map
 	{
+		enum DrawingModes : int {
+			DRAWING_EMPTY = 0,
+			DRAWING_PEN_SELECTED = 1,
+		};
 	private:
 		 GtkWidget* drawingArea; // widget to draw //
 		 GObject* gtkMapViewPort; // container to draw the map //
@@ -24,6 +28,7 @@ namespace ui {
 		 data::Thing drawObj;
 		 math::Vec2<int> mousePosition;
 		 bool thingIsSelected;
+		 int drawingModes;
 
 		/**
 		 *  @brief Auxiliary function to avoid static members.
@@ -33,7 +38,7 @@ namespace ui {
 		 /**
 		  *  @brief Auxiliary function to avoid static members.
 		  */
-		 static gboolean static_cb_clickNotify(GtkWidget* widget, GdkEventButton* event, gpointer user_data);
+		 static gboolean static_cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer user_data);
 
 		 /**
 		  *  @brief Auxiliary function to avoid static members.
@@ -53,7 +58,7 @@ namespace ui {
 		/**
 		 * @brief This method add a Thing into the map where mouse is positioned, when 1x left - click.
 		 */
-		gboolean cb_clickNotify(GtkWidget* widget, GdkEventButton* event, gpointer user_data);
+		gboolean cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer user_data);
 
 		/**
 		 * @brief This method selects a Thing to be drawn into the map.
@@ -84,6 +89,8 @@ namespace ui {
 			viewHeight = allocation->height;
 			gtk_widget_queue_draw(drawingArea);
 		}
+
+		void drawThing();
 	};
 }
 

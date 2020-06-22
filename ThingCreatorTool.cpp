@@ -226,7 +226,7 @@ void ui::ThingCreatorTool::cb_createThing(GtkWidget* widget, gpointer data)
     {
         if (!(thingIsReadyToSelect & THING_NAME_IS_READY))          gAuxUI->printMsg("First you need to add name to this Thing!");
         else if(!(thingIsReadyToSelect & THING_TYPE_IS_READY))      gAuxUI->printMsg("First you need to add type to this Thing!");
-        else if (!(thingIsReadyToSelect & THING_PIXELBUF_IS_READY)) gAuxUI->printMsg("First you need to ImgObj type to this Thing!");
+        else if (!(thingIsReadyToSelect & THING_PIXELBUF_IS_READY)) gAuxUI->printMsg("First you need to add ImgObj type to this Thing!");
     }
 }
 

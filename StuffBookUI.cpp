@@ -190,10 +190,11 @@ void ui::StuffBookUI::cb_selectThing(GtkTreeView* tree_view, GtkTreePath* path, 
         if (itType != gResources->getStuffBook().end())// founded type //
         {
             // let's found the Thing by name //
-            auto itName = map.find(std::string(thingName));
-            if (itName != map.end())// founded //
+            auto mapThing = map.find(std::string(thingName));
+            if (mapThing != map.end())// founded //
             {
-                gMapUI->setDrawObj(&itName->second);
+                gAuxUI->printMsg("Thing " + mapThing->second.getName() + " selected!");
+                gMapUI->setDrawThingObj(mapThing->second);
             }
         }        
     }

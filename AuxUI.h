@@ -19,6 +19,10 @@ namespace ui {
 		static GObject* gtkEntryImgSearch;
 		static GObject* gtkStatusBar;
 
+		/**
+		 *  @brief Auxiliary function to avoid static members.
+		 */
+		static gboolean static_cb_removeMsg(gpointer data);
 	public:
 		
 		/**
@@ -91,10 +95,7 @@ namespace ui {
 		/**
 		 *  @brief This method removes the last msg from stack.
 		 */
-
 		gboolean removeMsg(gpointer data);
-
-		static gboolean static_cb_removeMsg(gpointer data);
 	};
 
 }
