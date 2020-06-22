@@ -26,6 +26,11 @@ namespace data {
 		Thing(Thing *);
 
 		/**
+		 *  copy constructor by ref.
+		 */
+		Thing(const Thing &);
+
+		/**
 		 *  @brief This method gets name.
 		 */
 		std::string getName() { return name; }
