@@ -173,3 +173,22 @@ bool ui::AuxUI::searchImgByName(std::string name)
 
     return founded;
 }
+
+
+void ui::AuxUI::printMsg(std::string msg)
+{
+    gtk_statusbar_push(GTK_STATUSBAR(gtkStatusBar), 0, msg.c_str());
+    g_timeout_add(MSG_VISIBLE_TIME, static_cb_removeMsg, this);
+}
+
+
+gboolean ui::AuxUI::static_cb_removeMsg(gpointer data)
+{
+    return reinterpret_cast<AuxUI*>(data)->removeMsg(data);
+}
+
+gboolean ui::AuxUI::removeMsg(gpointer data)
+{    
+    gtk_statusbar_pop(GTK_STATUSBAR(gtkStatusBar), 0);
+    return FALSE; // only once //
+}

@@ -82,6 +82,19 @@ namespace ui {
 		 *  If found then select.
 		 */
 		static bool searchImgByName(std::string name);
+
+		/**
+		 *  @brief This method print msg into the GtkStatusBar widget.
+		 */
+		void printMsg(std::string msg);
+
+		/**
+		 *  @brief This method removes the last msg from stack.
+		 */
+
+		gboolean removeMsg(gpointer data);
+
+		static gboolean static_cb_removeMsg(gpointer data);
 	};
 
 }
