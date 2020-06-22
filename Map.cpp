@@ -13,7 +13,7 @@ scene::Map::Map(std::string name, int width, int height) : name(name),
 		{
 			for (int col = 0; col < width; col++)
 			{
-				this->structure[level][height * row + col].setCoords(col, row, level);
+				this->structure[level][width * row + col].setCoords(col, row, level);
 			}
 		}
 	}	
@@ -21,12 +21,12 @@ scene::Map::Map(std::string name, int width, int height) : name(name),
 
 void scene::Map::addThing(data::Thing newThing, int line, int col, int level)
 {
-	this->structure[level][height * line + col].addItem(newThing);
+	this->structure[level][width * line + col].addItem(newThing);
 }
 
 void scene::Map::removeThing(std::string name, int x, int y, int z)
 {
-	this->structure[z][height * y + x].removeItem(name);
+	this->structure[z][width * y + x].removeItem(name);
 }
 
 void scene::Map::drawMap(cairo_t* cr)
@@ -35,7 +35,7 @@ void scene::Map::drawMap(cairo_t* cr)
 	{
 		for (int x = 0; x < width; x++)
 		{
-			structure[0][height * y + x].draw(cr);
+			structure[0][width * y + x].draw(cr);
 		}
 	}
 }
