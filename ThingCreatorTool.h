@@ -19,6 +19,14 @@ namespace ui {
 	 */
 	class ThingCreatorTool
 	{
+		enum ThingIsReady : int {
+			THING_EMPTY = 0,
+			THING_TYPE_IS_READY = 1,
+			THING_NAME_IS_READY = 2,
+			THING_PIXELBUF_IS_READY = 4,
+			THING_IS_READY = 7
+	};
+
 	private:
 		static GObject* gtkEntryThingName;        /* label to enter the name of thing [creating a new name] */
 		//static GObject* gtkEntryThingImg;         /* label to enter the name of img from imgBook */	
@@ -39,6 +47,15 @@ namespace ui {
 		static GtkTreeModel* fillTreeThingObj();
 		static GtkTreeModel* fillTreeThingType();
 
+		int thingIsReadyToSelect;
+		bool isThingReadyToSelect();
+
+		/**
+		 *  @brief Auxiliary function to avoid static members.
+		 */
+		static void static_cb_createThing(GtkWidget* widget, gpointer data);
+		static void static_cb_updateThingType(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data);
+		static void static_cb_updateThingName(GtkWidget* widget, gpointer data);
 	public:
 		/*
 		 * constructor
@@ -60,21 +77,21 @@ namespace ui {
 		 *  @param widget that will recieve the signal.
 		 *  @param data extra information if needed.
 		 */
-		static void cb_createThing(GtkWidget* widget, gpointer data);
+		void cb_createThing(GtkWidget* widget, gpointer data);
 
 		/**
 		 *  @brief This method change a thing name when key are pressed from user interface thing name.
 		 *  @param widget that will recieve the signal.
 		 *  @param data extra information if needed.
 		 */
-		static void cb_updateThingName(GtkWidget* widget, gpointer data);
+		void cb_updateThingName(GtkWidget* widget, gpointer data);
 
 		/**
 		 *  @brief This method change a thing type when 2x click into user interface tree view thing type.
 		 *  @param widget that will recieve the signal.
 		 *  @param data extra information if needed.
 		 */
-		static void cb_updateThingType(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data);
+		void cb_updateThingType(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data);
 
 		/**
 		 *  @brief This method sets the Thing ImgObj pointer (data::ImgObj *).
@@ -89,7 +106,7 @@ namespace ui {
 		/**
 		 *  @brief This method updates ImgObj pixel area of a Thing.
 		 */
-		static void updateImgPixelArea();
+		void updateImgPixelArea();
 	};
 }
 

@@ -32,9 +32,9 @@ ui::ThingCreatorTool::ThingCreatorTool()
     createTreeViewThingObj();
 
     // callbacks //
-    g_signal_connect(gtkButtonCreateThing, "clicked", G_CALLBACK(cb_createThing), NULL); 
-    g_signal_connect(gtkTreeViewThingType, "row-activated", G_CALLBACK(cb_updateThingType), NULL);
-    g_signal_connect(gtkEntryThingName, "changed", G_CALLBACK(cb_updateThingName), NULL);
+    g_signal_connect(gtkButtonCreateThing, "clicked", G_CALLBACK(static_cb_createThing), this);
+    g_signal_connect(gtkTreeViewThingType, "row-activated", G_CALLBACK(static_cb_updateThingType), this);
+    g_signal_connect(gtkEntryThingName, "changed", G_CALLBACK(static_cb_updateThingName), this);
     
     updateTreeThingType();
     updateTreeThingObj();
@@ -53,14 +53,23 @@ ui::ThingCreatorTool::ThingCreatorTool()
 
         g_signal_connect(G_OBJECT(drawingArea), "draw", G_CALLBACK(cb_draw_callback), NULL);
     }
+    thingIsReadyToSelect = THING_EMPTY;
+}
+
+bool ui::ThingCreatorTool::isThingReadyToSelect()
+{
+    if (thingIsReadyToSelect == THING_IS_READY)
+        return true;
+    else
+        return false;
 }
 
 void ui::ThingCreatorTool::cb_updateThingName(GtkWidget* widget, gpointer data)
 {
     thing.setName(gtk_entry_get_text(GTK_ENTRY(gtkEntryThingName))); // set name //
     updateTreeThingObj(); // update tree thing obj //
+    thingIsReadyToSelect |= THING_NAME_IS_READY;
 }
-
 
 void ui::ThingCreatorTool::cb_updateThingType(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data)
 {
@@ -72,6 +81,7 @@ void ui::ThingCreatorTool::cb_updateThingType(GtkTreeView* tree_view, GtkTreePat
         gtk_tree_model_get(model, &iter, 0, &str_data, -1); // get data thing type //
         thing.setType(str_data); // set thing obj //
         updateTreeThingObj();// update tree thing obj //
+        thingIsReadyToSelect |= THING_TYPE_IS_READY;
     }
 }
 
@@ -198,9 +208,26 @@ GtkTreeModel* ui::ThingCreatorTool::fillTreeThingObj()
 
 void ui::ThingCreatorTool::cb_createThing(GtkWidget* widget, gpointer data)
 {    
-    gResources->addThing(thing); // add thing into stuffBook //
-    gStuffBook->updateTree(); // update tree view //
-    gAuxUI->searchThingByName(thing.getName()); // select thing //
+    if (isThingReadyToSelect())
+    {
+        gResources->addThing(thing); // add thing into stuffBook //
+        gStuffBook->updateTree(); // update tree view //
+        gAuxUI->searchThingByName(thing.getName()); // select thing //
+
+        thing.setName("-");
+        thing.setType("-");
+        thing.setImgObjPtr(nullptr);
+        updateTreeThingObj();
+        gdk_pixbuf_fill(pixelRegion, 0x22222211); // clean buffer //
+        gtk_widget_queue_draw(GTK_WIDGET(drawingArea));
+        thingIsReadyToSelect = THING_EMPTY;
+    }
+    else
+    {
+        if (!(thingIsReadyToSelect & THING_NAME_IS_READY))          gAuxUI->printMsg("First you need to add name to this Thing!");
+        else if(!(thingIsReadyToSelect & THING_TYPE_IS_READY))      gAuxUI->printMsg("First you need to add type to this Thing!");
+        else if (!(thingIsReadyToSelect & THING_PIXELBUF_IS_READY)) gAuxUI->printMsg("First you need to ImgObj type to this Thing!");
+    }
 }
 
 void ui::ThingCreatorTool::setThingImgObjPtr(data::ImgObj* imgPtr)
@@ -266,6 +293,21 @@ void ui::ThingCreatorTool::updateImgPixelArea()
     default:
     break;  
     }
-
+    thingIsReadyToSelect |= THING_PIXELBUF_IS_READY;
     gtk_widget_queue_draw(GTK_WIDGET(drawingArea));
+}
+
+void ui::ThingCreatorTool::static_cb_createThing(GtkWidget* widget, gpointer data)
+{
+    reinterpret_cast<ThingCreatorTool*>(data)->cb_createThing(widget, data);
+}
+
+void ui::ThingCreatorTool::static_cb_updateThingType(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data)
+{
+    reinterpret_cast<ThingCreatorTool*>(user_data)->cb_updateThingType(tree_view, path, column, user_data);
+}
+
+void ui::ThingCreatorTool::static_cb_updateThingName(GtkWidget* widget, gpointer data)
+{
+    reinterpret_cast<ThingCreatorTool*>(data)->cb_updateThingName(widget, data);
 }
