@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Map.h"
+#include "Thing.h"
 #include "Vec2.h"
 #include <gdk/gdk.h>
 #include <gtk/gtk.h>
-namespace data { class Thing; }
+
 namespace ui {
 
 	/*!
@@ -20,8 +21,9 @@ namespace ui {
 		 GtkWidget* drawingArea; // widget to draw //
 		 GObject* gtkMapViewPort; // container to draw the map //
 		 int viewWidth, viewHeight;
-		 data::Thing* drawObj;
+		 data::Thing drawObj;
 		 math::Vec2<int> mousePosition;
+		 bool thingIsSelected;
 
 		/**
 		 *  @brief Auxiliary function to avoid static members.
@@ -56,7 +58,7 @@ namespace ui {
 		/**
 		 * @brief This method selects a Thing to be drawn into the map.
 		 */
-		void setDrawObj(data::Thing* thing);
+		void setDrawThingObj(data::Thing it);
 
 		/**
 		 * @brief This method selects a Thing to be drawn into the map.
@@ -68,13 +70,14 @@ namespace ui {
 		 */
 		void drawGrid(cairo_t* cr, int w, int h, int gridSize);
 
-
+		// w i p //
 		static void static_my_getsize(GtkWidget* widget, GtkAllocation* allocation, void* data)
 		{
 
 			return reinterpret_cast<MapUI*>(data)->my_getsize(widget, allocation, allocation);
 		}
 
+		// w i p //
 		void my_getsize(GtkWidget* widget, GtkAllocation* allocation, void* data)
 		{
 			viewWidth = allocation->width;

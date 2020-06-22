@@ -1,7 +1,9 @@
 #include "MapUI.h"
 #include "MapResources.h"
+#include "AuxUI.h"
 
 extern data::MapResources* gResources;
+extern ui::AuxUI* gAuxUI;
 
 namespace GtkUserInterface { extern GtkBuilder* builder; }
 
@@ -23,12 +25,14 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
 
     g_signal_connect(gtkMapViewPort, "size-allocate", G_CALLBACK(static_my_getsize), this);
 
-    drawObj = nullptr; // initializes //
+    thingIsSelected = false;
+   // drawObj = nullptr; // initializes //
 }
 
 gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data)
 {
     drawGrid(cr, viewWidth, viewHeight, REALMZ_GRID_SIZE);
+
     drawMap(cr);
 
     return FALSE;
@@ -53,7 +57,6 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
 {
     mousePosition.setX((int)(e->x / REALMZ_GRID_SIZE) );
     mousePosition.setY((int)(e->y / REALMZ_GRID_SIZE) );
-    
     return TRUE;
 }
 
@@ -61,18 +64,27 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEventButton* event, gpo
 {
     if (event->type == GDK_BUTTON_PRESS)
     {
-        // mouse x is col //
-        // mouse y is row //
-        this->addThing(data::Thing(drawObj), mousePosition.getY(), mousePosition.getX(), 0);
-        gtk_widget_queue_draw(GTK_WIDGET(drawingArea));
+        // mouse x is col, y is row //
+        if (thingIsSelected)
+        {
+            this->addThing(drawObj, mousePosition.getY(), mousePosition.getX(), 0);
+            gAuxUI->printMsg("Thing " + drawObj.getName() + "[" + drawObj.getType() + "]" + " added!");
+            gtk_widget_queue_draw(GTK_WIDGET(drawingArea));
+        }
+        else
+        {
+            gAuxUI->printMsg("You need To select a Thing before drawn!");
+        }
     }
 
     return TRUE;
 }
 
-void ui::MapUI::setDrawObj(data::Thing* thing)
+void ui::MapUI::setDrawThingObj(data::Thing thing)
 {
     drawObj = thing;
+
+    thingIsSelected = true;
 }
 
 void ui::MapUI::drawGrid(cairo_t* cr, int w, int h, int gridSize)
