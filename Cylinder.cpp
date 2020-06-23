@@ -27,17 +27,44 @@ math::Vec3<int> scene::Cylinder::getCoords()
 	return coords;
 }
 
+bool scene::Cylinder::ifItemByLayerAlreadyExistsSwap(data::Thing & toAdd) // specific map editor function //
+{
+	// we have at least one item //
+	if (!items.empty())
+	{	
+		// if already has this layer just swaps //
+		std::string layer = toAdd.getType();
+		std::vector<data::Thing>::iterator it = std::find_if(items.begin(), items.end(), [&, layer](data::Thing& thing) {
+			if (thing.getType() == layer)
+				return true;
+			return false;
+			});
+
+		// we already has this item //
+		if (it != items.end())
+		{
+			*it = toAdd; // swap item  //
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	return false;
+}
+
 void scene::Cylinder::addItem(data::Thing thing)
 {
-	// changing floor //
-	if (!items.empty() && gResources->getLayerAsInt(items[0].getType()) == gResources->getLayerAsInt(thing.getType()))
-	{
-		return;
-	}
-
 	thing.setCylinder(this);
+
+	// if item already exists swap them return //
+	if (ifItemByLayerAlreadyExistsSwap(thing)) return;
+
+	// we only push back if we dont have this item //
 	items.push_back(thing);
 
+	// sorting cylinder //
 	std::sort(items.begin(), items.end(), [](data::Thing& a, data::Thing& b) -> bool
 		{			
 			return gResources->getLayerAsInt(a.getType()) < gResources->getLayerAsInt(b.getType());
@@ -57,7 +84,6 @@ void scene::Cylinder::removeItem(std::string name)
 		items.erase(it);
 	}
 }
-
 
 void scene::Cylinder::draw(cairo_t* cr)
 {

@@ -60,6 +60,11 @@ namespace scene {
 		 */
 		void draw(cairo_t* cr);
 
+		/**
+		 * @brief This method checks if the new Thing to be added already exists.
+		 * @return true if already exists them swaps the vector item. false if the item doesn't exist.
+		 */
+		bool ifItemByLayerAlreadyExistsSwap(data::Thing& toAdd);
 	};
 
 }
