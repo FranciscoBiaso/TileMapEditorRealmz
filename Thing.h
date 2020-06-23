@@ -75,6 +75,10 @@ namespace data {
 		 */
 		const scene::Cylinder* getCylinder();
 
+		/**
+		 *  @brief This method overloads assigned operator.
+		 */
+		data::Thing& operator=(const data::Thing& v2);
 	private:
 		std::string name; 
 		std::string type;
