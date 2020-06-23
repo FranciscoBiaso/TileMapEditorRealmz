@@ -27,6 +27,7 @@ namespace ui {
 		 int viewWidth, viewHeight;
 		 data::Thing drawObj;
 		 math::Vec2<int> mousePosition;
+		 math::Vec2<int> mousePositionPrevious;
 		 bool thingIsSelected;
 		 int drawingModes;
 
@@ -90,7 +91,7 @@ namespace ui {
 			gtk_widget_queue_draw(drawingArea);
 		}
 
-		void drawThing();
+		void addThingMapUI();
 	};
 }
 

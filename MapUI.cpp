@@ -60,9 +60,11 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
     mousePosition.setX((int)(e->x / REALMZ_GRID_SIZE) );
     mousePosition.setY((int)(e->y / REALMZ_GRID_SIZE) );
 
-    if (drawingModes == DRAWING_PEN_SELECTED)
+    if (drawingModes == DRAWING_PEN_SELECTED &&
+        mousePositionPrevious != mousePosition) // we only add new item if mouse square changes //
     {
-        drawThing();
+        mousePositionPrevious = mousePosition;
+        addThingMapUI();
     }
     return TRUE;
 }
@@ -71,13 +73,12 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
 {
     if (event->type == GDK_BUTTON_PRESS)
     {
-        std::cout << "press" << std::endl;
+        addThingMapUI(); // starting adding //
+        mousePositionPrevious = mousePosition;
         drawingModes = DRAWING_PEN_SELECTED;
-        drawThing();
     }
     else if (event->type == GDK_BUTTON_RELEASE)
     {
-        std::cout << "release" << std::endl;
         drawingModes = DRAWING_EMPTY;
     }
 
@@ -118,12 +119,12 @@ void ui::MapUI::drawGrid(cairo_t* cr, int w, int h, int gridSize)
     cairo_fill(cr);
 }
 
-void ui::MapUI::drawThing()
+void ui::MapUI::addThingMapUI()
 {
     // mouse x is col, y is row //
     if (thingIsSelected)
     {
-        this->addThing(drawObj, mousePosition.getY(), mousePosition.getX(), 0);
+        addThing(drawObj, mousePosition.getY(), mousePosition.getX(), 0);
         gAuxUI->printMsg("Thing " + drawObj.getName() + "[" + drawObj.getType() + "]" + " added!");
         gtk_widget_queue_draw(GTK_WIDGET(drawingArea));
     }

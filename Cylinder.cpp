@@ -43,7 +43,7 @@ bool scene::Cylinder::ifItemByLayerAlreadyExistsSwap(data::Thing & toAdd) // spe
 		// we already has this item //
 		if (it != items.end())
 		{
-			*it = toAdd; // swap item  //
+			*it = toAdd; // replace item  //
 			return true;
 		}
 		else
