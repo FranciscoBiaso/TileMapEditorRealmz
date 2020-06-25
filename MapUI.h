@@ -45,6 +45,16 @@ namespace ui {
 		  *  @brief Auxiliary function to avoid static members.
 		  */
 		 static gboolean static_cb_MotionNotify(GtkWidget* widget, GdkEventMotion* event, gpointer user_data);
+
+		 /**
+		  *  @brief Auxiliary function to avoid static members.
+		  */
+		 static gboolean static_cb_onEnter(GtkWidget* widget, GdkEvent* event, gpointer user_data);
+
+		 /**
+		  *  @brief Auxiliary function to avoid static members.
+		  */
+		 static gboolean static_cb_onLeave(GtkWidget* widget, GdkEvent* event, gpointer user_data);
 	public:
 		/**
 		 * constructor.
@@ -92,6 +102,21 @@ namespace ui {
 		}
 
 		void addThingMapUI();
+
+		/**
+		 * @brief This method is active when mouse enters into this user interface.
+		 */
+		gboolean cb_onEnter(GtkWidget* widget,GdkEvent* event,gpointer user_data);
+
+		/**
+		 * @brief This method is active when mouse leaves from this user interface.
+		 */
+		gboolean cb_onLeave(GtkWidget* widget, GdkEvent* event, gpointer user_data);
+
+		/**
+		 * @brief This method selects a new cursor to represent the drawing tool.
+		 */
+		void selectCursor();
 	};
 }
 
