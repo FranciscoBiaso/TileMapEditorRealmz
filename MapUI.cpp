@@ -1,6 +1,7 @@
 #include "MapUI.h"
 #include "MapResources.h"
 #include "AuxUI.h"
+#include "DrawingFunctions.h"
 
 extern data::MapResources* gResources;
 extern ui::AuxUI* gAuxUI;
@@ -37,6 +38,9 @@ gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer da
 
     drawMap(cr);
 
+    GdkRGBA HLSColor; HLSColor.red = 0; HLSColor.green = 0; HLSColor.blue = 0.85; HLSColor.alpha = 0.25;
+    graphics::drawSquare(cr, mousePosition.getX() * REALMZ_GRID_SIZE, mousePosition.getY() * REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, HLSColor);
+
     return FALSE;
 }
 
@@ -66,6 +70,8 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
         mousePositionPrevious = mousePosition;
         addThingMapUI();
     }
+
+    gtk_widget_queue_draw(GTK_WIDGET(drawingArea));
     return TRUE;
 }
 
@@ -132,5 +138,4 @@ void ui::MapUI::addThingMapUI()
     {
         gAuxUI->printMsg("You need To select a Thing before drawn!");
     }
-
 }
