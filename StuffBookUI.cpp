@@ -181,14 +181,18 @@ void ui::StuffBookUI::cb_selectThing(GtkTreeView* tree_view, GtkTreePath* path, 
         gtk_tree_model_get(model, &iter, 0, &thingName, -1); // get Thing name // 
         
         // grab parent position //
-        gtk_tree_model_iter_parent(model, &parent, &iter);
+        if (gtk_tree_model_iter_parent(model, &parent, &iter) == FALSE) // we are tryning to select a parent //
+        {
+            gAuxUI->printMsg("You need to select an Thing Object!");
+            return;
+        }
         // grab parent data //
         gtk_tree_model_get(model, &parent, 0, &thingType, -1); // get Thing type // 
         
         auto itType = gResources->getStuffBook().find(std::string(thingType));
-        auto map = itType->second;
         if (itType != gResources->getStuffBook().end())// founded type //
         {
+            auto map = itType->second;
             // let's found the Thing by name //
             auto mapThing = map.find(std::string(thingName));
             if (mapThing != map.end())// founded //
