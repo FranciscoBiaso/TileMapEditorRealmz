@@ -7,8 +7,7 @@
 
 GtkWidget* DebugTextureAtlas::drawingArea;
 cairo_surface_t* DebugTextureAtlas::surface = nullptr;
-GObject* DebugTextureAtlas::gtkMapFrame;
-GtkWidget* DebugTextureAtlas::p_window = nullptr;
+GObject* DebugTextureAtlas::p_window = nullptr;
 
 int DebugTextureAtlas::imgNamesInt = 0;
 std::vector<std::string> DebugTextureAtlas::imgNames;
@@ -22,22 +21,20 @@ extern ui::ImgPackUI* gImgPackUI;
 
 DebugTextureAtlas::DebugTextureAtlas(GdkPixbuf * pixlBuff)
 {
-    p_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    p_window = G_OBJECT(gtk_builder_get_object(GtkUserInterface::builder, "DebugWindow"));
     gtk_window_set_title(GTK_WINDOW(p_window), "Debug window");
     gtk_window_set_default_size(GTK_WINDOW(p_window), 300, 300);
-    gtk_window_set_position(GTK_WINDOW(p_window), GTK_WIN_POS_CENTER_ON_PARENT);
-
-	gtkMapFrame = gtk_builder_get_object(GtkUserInterface::builder, "gtkMapFrame"); 
+    //gtk_window_set_position(GTK_WINDOW(p_window), GTK_WIN_POS_CENTER);
     
     drawingArea = gtk_drawing_area_new();
-    gtk_container_add(GTK_CONTAINER(gtkMapFrame), p_window);
     gtk_container_add(GTK_CONTAINER(p_window), drawingArea);
     g_signal_connect(G_OBJECT(drawingArea), "draw", G_CALLBACK(cb_draw_callback), NULL);
     surface = gdk_cairo_surface_create_from_pixbuf(pixlBuff, 0, NULL);
 
     const gchar* filename = "C:\\Users\\Francisco\\source\\repos\\TME\\Tile-Map-Editor---Realmz\\Release\\imgs\\texture-atlas.png";
     gGraphicsTool->setPixBufSrc(gtk_image_get_pixbuf(GTK_IMAGE(gtk_image_new_from_file(filename))));
-    
+
+    gtk_widget_show_all(GTK_WIDGET(p_window));
     //g_timeout_add(75, push_operations,NULL);
     //g_timeout_add(75, pop_operations, NULL);
 }

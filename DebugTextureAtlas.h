@@ -24,10 +24,10 @@ public:
 	/**
 	 * rendering function.
 	 */
-	static GtkWidget*  p_window; /**< new window where will be drawn */
+	static GObject* p_window;/**< new window where will be drawn */
 	static GtkWidget* drawingArea; /**< gtk widget drawing area*/
 	static cairo_surface_t* surface;  /**< surface of drawing surface*/
-	static GObject* gtkMapFrame;  /**< container to assist */
+	
 	static int imgNamesInt; /**< used to create unique imgs 1, 2, 3, ... */
 	static std::vector<std::string> imgNames; /**< vector to store imgs created */
 	static std::stack<std::string> operations; /**< stack operations type */

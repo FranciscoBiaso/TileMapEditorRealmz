@@ -18,7 +18,6 @@ ui::AuxUI::AuxUI()
     gtkEntryThingSearch = gtk_builder_get_object(GtkUserInterface::builder, "gtkEntryThingSearch");
     gtkEntryImgSearch = gtk_builder_get_object(GtkUserInterface::builder, "gtkEntryImgSearch");
     gtkStatusBar = gtk_builder_get_object(GtkUserInterface::builder, "gtkStatusBar");
-
     // callbacks //
     g_signal_connect(gtkEntryThingSearch, "activate", G_CALLBACK(cb_onActive), NULL);
     g_signal_connect(gtkEntryImgSearch, "activate", G_CALLBACK(cb_onActiveImgSearch), NULL);
@@ -174,13 +173,11 @@ bool ui::AuxUI::searchImgByName(std::string name)
     return founded;
 }
 
-
 void ui::AuxUI::printMsg(std::string msg)
 {
     gtk_statusbar_push(GTK_STATUSBAR(gtkStatusBar), 0, msg.c_str());
     g_timeout_add(MSG_VISIBLE_TIME, static_cb_removeMsg, this);
 }
-
 
 gboolean ui::AuxUI::static_cb_removeMsg(gpointer data)
 {

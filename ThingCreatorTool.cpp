@@ -154,15 +154,14 @@ GtkTreeModel* ui::ThingCreatorTool::fillTreeThingType()
     for (auto i = 0; i < types.size(); i++) {
         std::string name = types[i]["name"].asString();
         int layer = types[i]["layer"].asUInt();
-        const Json::Value& _class = types[i]["class"];
-        
+        const Json::Value& _class = types[i]["classes"];
         if (_class.size() != 0) {
             gtk_tree_store_append(treestore, &toplevel, NULL);
             gtk_tree_store_set(treestore, &toplevel, 0, name.c_str(), -1);
 
-            for (auto j = 0; j < _class.size(); j++) {                
+            for (auto j = 0; j < _class.size(); j++) {
                 gtk_tree_store_append(treestore, &child, &toplevel);
-                gtk_tree_store_set(treestore, &child,0, _class[j]["name"].asString().c_str(),-1);
+                gtk_tree_store_set(treestore, &child, 0, _class[j]["name"].asString().c_str(),-1);                
             }
         }
         else {
@@ -216,7 +215,6 @@ void ui::ThingCreatorTool::cb_createThing(GtkWidget* widget, gpointer data)
 
         thing.setName("-");
         thing.setType("-");
-        thing.setImgObjPtr(nullptr);
         updateTreeThingObj();
         gdk_pixbuf_fill(pixelRegion, 0x22222211); // clean buffer //
         gtk_widget_queue_draw(GTK_WIDGET(drawingArea));

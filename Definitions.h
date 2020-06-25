@@ -32,6 +32,11 @@ namespace def{
         NOT_ENOUGH_MEMORY,
         PIXELBUF_INVALID_SIZE,
         ARRAY_OUT_OF_RANGE
+    };
 
+    enum DrawingMode{
+        DRAWING_NONE,
+        DRAWING_BRUSH,
+        DRAWING_ERASE
     };
 }

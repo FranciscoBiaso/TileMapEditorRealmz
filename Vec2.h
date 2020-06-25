@@ -35,7 +35,6 @@ namespace math {
 		 */
 		Vec2(const Vec2& v) { x = v.getX(); y = v.getY(); }
 
-
 		/**
 		 * @brief This method gets x position.
 		 * \return x.

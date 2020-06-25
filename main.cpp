@@ -5,6 +5,7 @@
 #include "AuxUI.h"
 #include "ImgPackUI.h"
 #include "MapUI.h"
+#include "DrawingToolUI.h"
 
 #ifdef TME_DEBUG
 #include "DebugTextureAtlas.h"
@@ -19,6 +20,7 @@ ui::AuxUI* gAuxUI = nullptr;
 ui::MapUI* gMapUI = nullptr;
 ui::ThingCreatorTool* gThingCreatorTool = nullptr;
 ui::GraphicsTool* gGraphicsTool = nullptr;
+ui::DrawingToolUI* gDrawingToolUI = nullptr;
 //-----------------------------------------//
 
 #ifdef TME_DEBUG
@@ -28,7 +30,6 @@ DebugTextureAtlas* debugTextureAtlas = nullptr;
 int main(int argc, char** argv)
 {
     // Gtk lib initialization //---------------------//
-    GtkWidget* window;
     gtk_init(&argc, &argv);
     //---------------------//
 
@@ -49,6 +50,7 @@ int main(int argc, char** argv)
     gThingCreatorTool = new ui::ThingCreatorTool();
     gGraphicsTool = new ui::GraphicsTool();
     gMapUI = new ui::MapUI("map", 20, 20);
+    gDrawingToolUI = new ui::DrawingToolUI();
     //---------------------//
 
 
@@ -56,9 +58,18 @@ int main(int argc, char** argv)
     debugTextureAtlas = new DebugTextureAtlas(gResources->getImgPack().getTextureAtlas()->getPixelbuf());
 #endif
 
-    window = GTK_WIDGET(gtk_builder_get_object(GtkUserInterface::builder,"window"));
+
+    GtkWidget* window = GTK_WIDGET(gtk_builder_get_object(GtkUserInterface::builder, "window"));
     gtk_widget_show_all(window);
     gtk_main();
 
+    delete gResources;
+    delete gStuffBook;
+    delete gImgPackUI;
+    delete gAuxUI;
+    delete gThingCreatorTool;
+    delete gGraphicsTool;
+    delete gMapUI;
+    delete gDrawingToolUI;
     return 0;
 }
