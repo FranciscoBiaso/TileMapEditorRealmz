@@ -18,7 +18,7 @@ namespace ui {
 		static GObject* gtkEntryThingSearch;
 		static GObject* gtkEntryImgSearch;
 		static GObject* gtkStatusBar;
-
+		GObject* gtkProgressBar;
 		/**
 		 *  @brief Auxiliary function to avoid static members.
 		 */
@@ -96,6 +96,11 @@ namespace ui {
 		 *  @brief This method removes the last msg from stack.
 		 */
 		gboolean removeMsg(gpointer data);
+
+		/**
+		 *  @brief This method updates progress bar widget with value from [0,100].
+		 */
+		void updateProgressBar(double percentage);
 	};
 
 }

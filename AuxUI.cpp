@@ -18,6 +18,9 @@ ui::AuxUI::AuxUI()
     gtkEntryThingSearch = gtk_builder_get_object(GtkUserInterface::builder, "gtkEntryThingSearch");
     gtkEntryImgSearch = gtk_builder_get_object(GtkUserInterface::builder, "gtkEntryImgSearch");
     gtkStatusBar = gtk_builder_get_object(GtkUserInterface::builder, "gtkStatusBar");
+    gtkProgressBar = gtk_builder_get_object(GtkUserInterface::builder, "gtkProgressBar");
+
+    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(gtkProgressBar), 0);    
     // callbacks //
     g_signal_connect(gtkEntryThingSearch, "activate", G_CALLBACK(cb_onActive), NULL);
     g_signal_connect(gtkEntryImgSearch, "activate", G_CALLBACK(cb_onActiveImgSearch), NULL);
@@ -188,4 +191,14 @@ gboolean ui::AuxUI::removeMsg(gpointer data)
 {    
     gtk_statusbar_pop(GTK_STATUSBAR(gtkStatusBar), 0);
     return FALSE; // only once //
+}
+
+void ui::AuxUI::updateProgressBar(double percentage)
+{
+  // prevent errors //
+  if (percentage < 0)
+    percentage = 0;
+  else if (percentage > 100)
+    percentage = 100;
+  gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(gtkProgressBar), percentage/100.0);
 }
