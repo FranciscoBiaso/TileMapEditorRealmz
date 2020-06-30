@@ -122,6 +122,11 @@ namespace ui {
 		 * @brief This method delets calls internal delet all things.
 		 */
 		void deletAllThingsFromTheMap(std::string thingName);
+
+		/**
+			 * @brief This method force redraws the entire map user interface.
+			 */
+		void forceRedraw();
 	};
 }
 

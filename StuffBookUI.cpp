@@ -15,7 +15,7 @@ ui::StuffBookUI::StuffBookUI()
     gtkTreeViewStuffBook = gtk_builder_get_object(GtkUserInterface::builder, "gtkTreeViewStuffBook");
     gtkScrolledWindowStuffbook = gtk_builder_get_object(GtkUserInterface::builder, "gtkScrolledWindowStuffbook");
     
-    g_signal_connect(gtkTreeViewStuffBook, "key-press-event", G_CALLBACK(cb_removeThing), NULL);
+    g_signal_connect(gtkTreeViewStuffBook, "key-press-event", G_CALLBACK(static_cb_removeThing), this);
 
     createTreeView();
     updateTree();
@@ -27,6 +27,12 @@ ui::StuffBookUI::StuffBookUI()
 void ui::StuffBookUI::static_cb_selectThing(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data)
 {
     reinterpret_cast<StuffBookUI*>(user_data)->cb_selectThing(tree_view, path, column, user_data);
+}
+
+
+gboolean ui::StuffBookUI::static_cb_removeThing(GtkWidget* widget, GdkEventKey* event, gpointer user_data)
+{
+  return reinterpret_cast<StuffBookUI*>(user_data)->cb_removeThing(widget, event, user_data);
 }
 
 void ui::StuffBookUI::createTreeView()
@@ -123,6 +129,7 @@ gboolean ui::StuffBookUI::cb_removeThing(GtkWidget* widget, GdkEventKey* event,g
 
                 // delet all things from the mapUI //
                 gMapUI->deletAllThingsFromTheMap(std::string(name));
+                gMapUI->forceRedraw();
 
                 // has elements ? //
                 if ((*it).second.empty())
@@ -205,4 +212,31 @@ void ui::StuffBookUI::cb_selectThing(GtkTreeView* tree_view, GtkTreePath* path, 
             }
         }        
     }
+}
+
+void ui::StuffBookUI::deleteAllThings(std::string imgName)
+{
+  auto map = gResources->getStuffBook(); // get stuffbook //
+  std::vector<std::string> namesToDelete;
+  
+  for (auto it = map.begin(); it != map.end(); it++) // iterate through stuffbook //
+  {    
+    for (auto it_thing = it->second.begin(); it_thing != it->second.end(); it_thing++) // iterate through each thing into this type //
+    {
+      if (it_thing->second.getImgObjPtr()->getName() == imgName)
+      {
+        namesToDelete.push_back(it_thing->second.getName()); // grab Thing name //
+      }
+    }
+  }
+
+  // all things to delete from the stuffbook user interface //
+  for (int i = 0; i < namesToDelete.size(); i++)
+  {
+    // delete all things from the mapUI //
+    gMapUI->deletAllThingsFromTheMap(namesToDelete[i]); // clean all deleted things from the map //
+    gResources->delThing(namesToDelete[i]);
+  }
+
+  gMapUI->forceRedraw();
 }

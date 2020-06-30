@@ -13,7 +13,23 @@ void data::MapResources::addThing(data::Thing thing){
 	}
 }
 
-void  data::MapResources::delThing(std::string thingName, std::string keyThingType) {}
+void data::MapResources::delThing(std::string thingName, std::string keyThingType) {}
+
+/**
+ *  @brief This method deletes a Thing object from the stuffBook.
+ *  @param thingName object to be deleted.
+ */
+void data::MapResources::delThing(std::string thingName)
+{
+	for (auto it = stuffBook.begin(); it != stuffBook.end(); it++)
+	{
+		auto result = it->second.find(thingName);
+		if (result != it->second.end()) // we found a thing //
+		{
+			it->second.erase(thingName);
+		}
+	}
+}
 
 void data::MapResources::createStuffBookFromJson()
 {

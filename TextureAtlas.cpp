@@ -17,7 +17,7 @@ data::TextureAtlas::TextureAtlas(int width, int height)
 		throw def::ReturnMsg::NOT_ENOUGH_MEMORY;
 
 	pixelBufClean32x32 = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE + 1, REALMZ_GRID_SIZE + 1);
-	gdk_pixbuf_fill(pixelBufClean32x32, 0x22222222); // clean buffer //
+	gdk_pixbuf_fill(pixelBufClean32x32, 0x22222200); // clean buffer //
 
 	resetCursor();
 }

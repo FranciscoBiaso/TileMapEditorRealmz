@@ -44,7 +44,14 @@ namespace data {
 		 *  @param thingName object to be deleted.
 		 *  @param thingType class of this object.
 		 */
-		void delThing(std::string thingName, std::string thingType);  
+		void delThing(std::string thingName, std::string thingType); 
+
+
+		/**
+		 *  @brief This method deletes a Thing object from the stuffBook.
+		 *  @param thingName object to be deleted.
+		 */
+		void delThing(std::string thingName);
 
 		/**
 		 *  @brief This method gets the stuffBook.

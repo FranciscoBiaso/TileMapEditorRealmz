@@ -189,5 +189,9 @@ gboolean ui::MapUI::cb_onLeave(GtkWidget* widget, GdkEvent* event, gpointer user
 void ui::MapUI::deletAllThingsFromTheMap(std::string thingName)
 {
   deletAllThings(thingName);
+}
+
+void ui::MapUI::forceRedraw()
+{
   gtk_widget_queue_draw(GTK_WIDGET(drawingArea)); // force redraw map //
 }

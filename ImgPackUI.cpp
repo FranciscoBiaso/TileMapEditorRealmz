@@ -1,4 +1,5 @@
 #include "ImgPackUI.h"
+#include "MapUI.h"
 
 GObject* ui::ImgPackUI::gtkTreeViewImgPack = nullptr;
 GObject* ui::ImgPackUI::gtkScrolledWindowImgPack = nullptr;
@@ -9,6 +10,9 @@ extern data::MapResources* gResources;
 extern ui::AuxUI* gAuxUI;
 extern ui::ThingCreatorTool* gThingCreatorTool;
 extern ui::GraphicsTool* gGraphicsTool;
+extern ui::MapUI* gMapUI;
+extern ui::StuffBookUI* gStuffBook;
+extern ui::MapUI* gMapUI;
 
 #ifdef TME_DEBUG
 extern DebugTextureAtlas* debugTextureAtlas;
@@ -88,15 +92,23 @@ gboolean ui::ImgPackUI::cb_removeImgObj(GtkWidget* widget, GdkEventKey* event, g
     {
         gchar* name;
         gtk_tree_model_get(model, &iter, 0, &name, -1);
+
+        // * IMPORTANT * WE DELET ALL THINGS WITH THIS IMG POINTER BEFORE DELETE THIS IMG //
+        // delete all things with this image from the stuffbook //
+        gStuffBook->deleteAllThings(std::string(name));
+        // update view //
+        gStuffBook->updateTree();
+
         gResources->getImgPack().delImgObj(std::string(name));
-        // update view
-        updateTree();
+        // update view //
+        updateTree();        
 
 #ifdef TME_DEBUG
         debugTextureAtlas->surface = gdk_cairo_surface_create_from_pixbuf(gResources->getImgPack().getTextureAtlas()->getPixelbuf(), 0, NULL);
         gtk_widget_queue_draw(GTK_WIDGET(debugTextureAtlas->drawingArea));
 #endif // TME_DEBUG
     }
+
 
     return TRUE;
 }

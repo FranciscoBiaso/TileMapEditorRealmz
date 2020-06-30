@@ -29,6 +29,11 @@ namespace ui {
 		 *  @brief Auxiliary function to avoid static members.
 		 */
 		static void static_cb_selectThing(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data);
+
+		/**
+		 *  @brief Auxiliary function to avoid static members.
+		 */
+		static gboolean static_cb_removeThing(GtkWidget* widget, GdkEventKey* event, gpointer   user_data);
 	public:
 
 		/**
@@ -39,7 +44,7 @@ namespace ui {
 		/**
 		 *  @brief This removes a Thing from stuffbook dicionary.
 		 */
-		static gboolean cb_removeThing(GtkWidget* widget, GdkEventKey* event, gpointer   user_data);
+		gboolean cb_removeThing(GtkWidget* widget, GdkEventKey* event, gpointer   user_data);
 
 		/**
 		 *  @brief This method gets gtkTreeViewStuffBook.
@@ -51,11 +56,15 @@ namespace ui {
 		 */
 		static void updateTree();
 
-
 		/**
 		 *  @brief This method selects a Thing to be used to draw.
 		 */
 		void cb_selectThing(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data);
+
+		/**
+		 *  @brief This method delets all things from stuffbook with images with names = imgName.
+	   */
+		void deleteAllThings(std::string imgName);
 	};
 }
 
