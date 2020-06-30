@@ -185,3 +185,9 @@ gboolean ui::MapUI::cb_onLeave(GtkWidget* widget, GdkEvent* event, gpointer user
     gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(drawingArea)), gdk_cursor_new_for_display(gdk_display_get_default(), GDK_ARROW));
     return TRUE;
 }
+
+void ui::MapUI::deletAllThingsFromTheMap(std::string thingName)
+{
+  deletAllThings(thingName);
+  gtk_widget_queue_draw(GTK_WIDGET(drawingArea)); // force redraw map //
+}

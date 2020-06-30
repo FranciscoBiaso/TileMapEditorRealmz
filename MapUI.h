@@ -117,6 +117,11 @@ namespace ui {
 		 * @brief This method selects a new cursor to represent the drawing tool.
 		 */
 		void selectCursor();
+
+		/**
+		 * @brief This method delets calls internal delet all things.
+		 */
+		void deletAllThingsFromTheMap(std::string thingName);
 	};
 }
 

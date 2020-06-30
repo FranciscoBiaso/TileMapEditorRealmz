@@ -1,5 +1,6 @@
 #include "Map.h"
 #include "Cylinder.h"
+#include <gtk/gtk.h>
 
 scene::Map::Map(std::string name, int width, int height) : name(name),
 	width(width), height(height)
@@ -48,4 +49,15 @@ int scene::Map::getWidth() const
 int scene::Map::getHeight() const
 {
 	return height;
+}
+
+void scene::Map::deletAllThings(std::string thingName)
+{
+	for (int y = 0; y < height; y++)
+	{
+		for (int x = 0; x < width; x++)
+		{
+			structure[0][width * y + x].removeItem(thingName);
+		}
+	}
 }

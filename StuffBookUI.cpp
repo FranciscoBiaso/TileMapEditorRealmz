@@ -121,6 +121,9 @@ gboolean ui::StuffBookUI::cb_removeThing(GtkWidget* widget, GdkEventKey* event,g
                 // update view
                 updateTree();
 
+                // delet all things from the mapUI //
+                gMapUI->deletAllThingsFromTheMap(std::string(name));
+
                 // has elements ? //
                 if ((*it).second.empty())
                 {
