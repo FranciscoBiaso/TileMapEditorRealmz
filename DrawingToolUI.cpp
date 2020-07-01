@@ -9,13 +9,13 @@ ui::DrawingToolUI::DrawingToolUI()
     brush = gtk_builder_get_object(GtkUserInterface::builder, "gtkToggleButtonBrush");
     eraser = gtk_builder_get_object(GtkUserInterface::builder, "gtkToggleButtonEraser");
 
-    drawingMode = def::DrawingMode::DRAWING_NONE;
+    drawingMode = def::DrawingToolMode::DRAWING_NONE;
 
     g_signal_connect(brush, "toggled", G_CALLBACK(static_cb_signalGtkToggleButtonBrush), this);
     g_signal_connect(eraser, "toggled", G_CALLBACK(static_cb_signalGtkToggleButtonEraser), this);
 }
 
-def::DrawingMode ui::DrawingToolUI::getDrawingMode() const
+def::DrawingToolMode ui::DrawingToolUI::getDrawingMode() const
 {
     return drawingMode;
 }
@@ -34,12 +34,12 @@ void ui::DrawingToolUI::cb_signalGtkToggleButtonBrush(GtkToggleButton* togglebut
 {
     if (gtk_toggle_button_get_active(togglebutton) == TRUE)
     {
-        drawingMode = def::DrawingMode::DRAWING_BRUSH;
+        drawingMode = def::DrawingToolMode::DRAWING_BRUSH;
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(eraser), FALSE);
     }
     else if (areAllToogleFalse())
     {
-        drawingMode = def::DrawingMode::DRAWING_NONE;
+        drawingMode = def::DrawingToolMode::DRAWING_NONE;
     }
 }
 
@@ -47,12 +47,12 @@ void ui::DrawingToolUI::cb_signalGtkToggleButtonEraser(GtkToggleButton* togglebu
 {
     if (gtk_toggle_button_get_active(togglebutton) == TRUE)
     {
-        drawingMode = def::DrawingMode::DRAWING_ERASE;
+        drawingMode = def::DrawingToolMode::DRAWING_ERASE;
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(brush), FALSE);
     }
     else if(areAllToogleFalse())
     {
-        drawingMode = def::DrawingMode::DRAWING_NONE;
+        drawingMode = def::DrawingToolMode::DRAWING_NONE;
     }
 }
 

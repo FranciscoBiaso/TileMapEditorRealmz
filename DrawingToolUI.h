@@ -15,7 +15,7 @@ namespace ui {
 	private:
 		GObject* brush;
 		GObject* eraser;
-		def::DrawingMode drawingMode;
+		def::DrawingToolMode drawingMode;
 
 		/**
 		 *  @brief Auxiliary function to avoid static members.
@@ -40,7 +40,7 @@ namespace ui {
 		/**
 		 * @brief This methods gets the drawing mode.
 		 */
-		def::DrawingMode getDrawingMode() const;
+		def::DrawingToolMode getDrawingMode() const;
 
 		/**
 		 * @brief This method occurs when the toggle button brush is triggered.

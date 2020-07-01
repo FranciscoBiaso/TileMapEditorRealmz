@@ -96,9 +96,16 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
 {
     if (event->type == GDK_BUTTON_PRESS)
     {
+      if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_BRUSH)
+      {
         addThingMapUI(); // starting adding //
         mousePositionPrevious = mousePosition;
         drawingModes = DRAWING_PEN_SELECTED;
+      }
+      else if(gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_NONE)
+      {
+        gAuxUI->printMsg("First selects a drawing tool!");
+      }
     }
     else if (event->type == GDK_BUTTON_RELEASE)
     {
@@ -161,13 +168,13 @@ void ui::MapUI::selectCursor()
 {
     switch(gDrawingToolUI->getDrawingMode())
     {
-    case def::DrawingMode::DRAWING_NONE:
+    case def::DrawingToolMode::DRAWING_NONE:
         gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(drawingArea)), gdk_cursor_new_for_display(gdk_display_get_default(), GDK_ARROW));
         break;
-    case def::DrawingMode::DRAWING_BRUSH:
+    case def::DrawingToolMode::DRAWING_BRUSH:
         gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(drawingArea)), gdk_cursor_new_for_display(gdk_display_get_default(), GDK_PENCIL));
         break;
-    case def::DrawingMode::DRAWING_ERASE:
+    case def::DrawingToolMode::DRAWING_ERASE:
         gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(drawingArea)), gdk_cursor_new_for_display(gdk_display_get_default(), GDK_SPRAYCAN));
         break;
     }

@@ -34,7 +34,7 @@ namespace def{
         ARRAY_OUT_OF_RANGE
     };
 
-    enum DrawingMode{
+    enum DrawingToolMode{
         DRAWING_NONE,
         DRAWING_BRUSH,
         DRAWING_ERASE
