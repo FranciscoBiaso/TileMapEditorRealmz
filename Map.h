@@ -51,6 +51,11 @@ namespace scene {
 		void addThing(data::Thing newThing, int line, int col, int level);
 
 		/**
+		 * @brief This method remove all things from mouse position.
+		 */
+		void cleansCylinder(int line, int col, int level);
+
+		/**
 		 * @brief This method removes a Thing from the map position [x,y,z] by name.
 		 */
 		void removeThing(std::string name, int x, int y, int z);

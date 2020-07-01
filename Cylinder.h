@@ -46,6 +46,11 @@ namespace scene {
 		void removeItem(std::string name);
 
 		/**
+		 * @brief This methods cleans the cylinder.
+	   */
+		void cleans();
+
+		/**
 		 * @brief This methods sets cylinder coords.
 		 */
 		void setCoords(int x, int y, int z);

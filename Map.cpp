@@ -25,6 +25,12 @@ void scene::Map::addThing(data::Thing newThing, int line, int col, int level)
 	this->structure[level][width * line + col].addItem(newThing);
 }
 
+void scene::Map::cleansCylinder( int line, int col, int level)
+{
+	this->structure[level][width * line + col].cleans();
+}
+
+
 void scene::Map::removeThing(std::string name, int x, int y, int z)
 {
 	this->structure[z][width * y + x].removeItem(name);

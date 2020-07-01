@@ -102,6 +102,7 @@ namespace ui {
 		}
 
 		void addThingMapUI();
+		void delThingMapUI();
 
 		/**
 		 * @brief This method is active when mouse enters into this user interface.

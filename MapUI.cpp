@@ -102,6 +102,10 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
         mousePositionPrevious = mousePosition;
         drawingModes = DRAWING_PEN_SELECTED;
       }
+      else if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_ERASE)
+      {
+        delThingMapUI();
+      }
       else if(gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_NONE)
       {
         gAuxUI->printMsg("First selects a drawing tool!");
@@ -156,12 +160,19 @@ void ui::MapUI::addThingMapUI()
     {
         addThing(drawObj, mousePosition.getY(), mousePosition.getX(), 0);
         gAuxUI->printMsg("Thing " + drawObj.getName() + "[" + drawObj.getType() + "]" + " added!");
-        gtk_widget_queue_draw(GTK_WIDGET(drawingArea));
+        forceRedraw();
     }
     else
     {
         gAuxUI->printMsg("You need To select a Thing before drawn!");
     }
+}
+
+
+void ui::MapUI::delThingMapUI()
+{
+  this->cleansCylinder(mousePosition.getY(), mousePosition.getX(), 0);
+  forceRedraw();
 }
 
 void ui::MapUI::selectCursor()

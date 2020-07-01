@@ -92,3 +92,11 @@ void scene::Cylinder::draw(cairo_t* cr)
 		(*it).draw(cr);
 	}
 }
+
+void scene::Cylinder::cleans()
+{
+	while(!items.empty())
+	{
+		items.erase(items.begin());
+	}
+}
