@@ -47,7 +47,7 @@ namespace scene {
 
 		/**
 		 * @brief This methods cleans the cylinder.
-	   */
+		 */
 		void cleans();
 
 		/**

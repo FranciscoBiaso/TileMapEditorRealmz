@@ -20,6 +20,7 @@ namespace ui {
 		enum DrawingModes : int {
 			DRAWING_EMPTY = 0,
 			DRAWING_PEN_SELECTED = 1,
+			DRAWING_ERASER_SELECTED,
 		};
 	private:
 		 GtkWidget* drawingArea; // widget to draw //

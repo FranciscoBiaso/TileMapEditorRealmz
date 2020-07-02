@@ -88,6 +88,13 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
         addThingMapUI();
     }
 
+    if (drawingModes == DRAWING_ERASER_SELECTED &&
+      mousePositionPrevious != mousePosition) // we only add new item if mouse square changes //
+    {
+        mousePositionPrevious = mousePosition;
+        delThingMapUI();
+    }
+
     gtk_widget_queue_draw(GTK_WIDGET(drawingArea));
     return TRUE;
 }
@@ -105,6 +112,8 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
       else if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_ERASE)
       {
         delThingMapUI();
+        mousePositionPrevious = mousePosition;
+        drawingModes = DRAWING_ERASER_SELECTED;
       }
       else if(gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_NONE)
       {
