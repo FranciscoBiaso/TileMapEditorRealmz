@@ -20,6 +20,13 @@ ui::AuxUI::AuxUI()
     gtkStatusBar = gtk_builder_get_object(GtkUserInterface::builder, "gtkStatusBar");
     gtkProgressBar = gtk_builder_get_object(GtkUserInterface::builder, "gtkProgressBar");
 
+    GtkCssProvider* provider = gtk_css_provider_new();
+    GdkDisplay* display = gdk_display_get_default();
+    GdkScreen* screen = gdk_display_get_default_screen(display);
+    gtk_style_context_add_provider_for_screen(screen, GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_USER);
+    context = gtk_widget_get_style_context(GTK_WIDGET(gtkStatusBar));
+    gtk_css_provider_load_from_path(GTK_CSS_PROVIDER(provider), "css/statusbar.css", NULL);
+
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(gtkProgressBar), 0);    
     // callbacks //
     g_signal_connect(gtkEntryThingSearch, "activate", G_CALLBACK(cb_onActive), NULL);
@@ -178,6 +185,8 @@ bool ui::AuxUI::searchImgByName(std::string name)
 
 void ui::AuxUI::printMsg(std::string msg)
 {
+    gtk_style_context_add_class(context, "statusbar");
+
     gtk_statusbar_push(GTK_STATUSBAR(gtkStatusBar), 0, msg.c_str());
     g_timeout_add(MSG_VISIBLE_TIME, static_cb_removeMsg, this);
 }
@@ -188,7 +197,8 @@ gboolean ui::AuxUI::static_cb_removeMsg(gpointer data)
 }
 
 gboolean ui::AuxUI::removeMsg(gpointer data)
-{    
+{
+    gtk_style_context_remove_class(context, "statusbar");
     gtk_statusbar_pop(GTK_STATUSBAR(gtkStatusBar), 0);
     return FALSE; // only once //
 }

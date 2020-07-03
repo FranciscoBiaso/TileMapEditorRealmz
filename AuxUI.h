@@ -19,6 +19,12 @@ namespace ui {
 		static GObject* gtkEntryImgSearch;
 		static GObject* gtkStatusBar;
 		GObject* gtkProgressBar;
+
+		GtkCssProvider* provider;
+		GdkDisplay* display;
+		GdkScreen* screen;
+		GtkStyleContext* context;
+
 		/**
 		 *  @brief Auxiliary function to avoid static members.
 		 */
