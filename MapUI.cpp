@@ -36,6 +36,8 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
 
     thingIsSelected = false;
     drawingModes = DRAWING_EMPTY;
+
+    cursorPixelbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE);
 }
 
 gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data)
@@ -192,7 +194,12 @@ void ui::MapUI::selectCursor()
         gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(drawingArea)), gdk_cursor_new_for_display(gdk_display_get_default(), GDK_ARROW));
         break;
     case def::DrawingToolMode::DRAWING_BRUSH:
-        gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(drawingArea)), gdk_cursor_new_for_display(gdk_display_get_default(), GDK_PENCIL));
+    {
+      math::Vec2<int> textureAtlasReference = drawObj.getImgObjPtr()->getRef(0);
+      gdk_pixbuf_copy_area(gResources->getImgPack().getTextureAtlas()->getPixelbuf(), textureAtlasReference.getX(), textureAtlasReference.getY(), REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, cursorPixelbuf, 0, 0);
+      gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(drawingArea)), gdk_cursor_new_from_pixbuf(gdk_display_get_default(), cursorPixelbuf, REALMZ_GRID_SIZE/2, REALMZ_GRID_SIZE/2));
+      //gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(drawingArea)), gdk_cursor_new_for_display(gdk_display_get_default(), GDK_PENCIL));
+    }
         break;
     case def::DrawingToolMode::DRAWING_ERASE:
         gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(drawingArea)), gdk_cursor_new_for_display(gdk_display_get_default(), GDK_SPRAYCAN));

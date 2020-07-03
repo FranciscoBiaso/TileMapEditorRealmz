@@ -31,6 +31,7 @@ namespace ui {
 		 math::Vec2<int> mousePositionPrevious;
 		 bool thingIsSelected;
 		 int drawingModes;
+		 GdkPixbuf* cursorPixelbuf;
 
 		/**
 		 *  @brief Auxiliary function to avoid static members.

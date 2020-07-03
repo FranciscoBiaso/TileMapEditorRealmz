@@ -170,7 +170,7 @@ bool ui::AuxUI::searchImgByName(std::string name)
             founded = true;
         }
         valid = gtk_tree_model_iter_next(model, &iter); // jump to next data //
-        row_count++; // increment row //       
+        row_count++; // increment row //
     }
 
     // print msg //
