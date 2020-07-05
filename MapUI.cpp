@@ -13,12 +13,15 @@ namespace GtkUserInterface { extern GtkBuilder* builder; }
 ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,height)
 {
     gtkMapViewPort = gtk_builder_get_object(GtkUserInterface::builder, "gtkMapViewPort");
+    gtkMapFrame = gtk_builder_get_object(GtkUserInterface::builder, "gtkMapFrame");
 
     drawingArea = gtk_drawing_area_new();
+    gtk_widget_set_can_focus(drawingArea, true);
 
     gtk_widget_add_events(drawingArea, GDK_POINTER_MOTION_MASK);
     gtk_widget_add_events(drawingArea, GDK_BUTTON_PRESS_MASK);
     gtk_widget_add_events(drawingArea, GDK_BUTTON_RELEASE_MASK);
+    gtk_widget_add_events(drawingArea, GDK_KEY_PRESS_MASK);
     gtk_widget_add_events(drawingArea, GDK_LEAVE_NOTIFY_MASK);
     gtk_widget_add_events(drawingArea, GDK_ENTER_NOTIFY_MASK);
 
@@ -28,6 +31,7 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
     g_signal_connect(G_OBJECT(drawingArea), "draw", G_CALLBACK(static_cb_draw_callback), this);
     g_signal_connect(G_OBJECT(drawingArea), "button-press-event", G_CALLBACK(static_cb_clickNotify), this);
     g_signal_connect(G_OBJECT(drawingArea), "button-release-event", G_CALLBACK(static_cb_clickNotify), this);
+    g_signal_connect(G_OBJECT(drawingArea), "key-press-event", G_CALLBACK(static_cb_clickNotify), this);
     g_signal_connect(G_OBJECT(drawingArea), "motion-notify-event", G_CALLBACK(static_cb_MotionNotify), this);
     g_signal_connect(G_OBJECT(drawingArea), "enter-notify-event", G_CALLBACK(static_cb_onEnter), this);
     g_signal_connect(G_OBJECT(drawingArea), "leave-notify-event", G_CALLBACK(static_cb_onLeave), this);
@@ -127,6 +131,14 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
         drawingModes = DRAWING_EMPTY;
     }
 
+    if (event->type == GDK_KEY_PRESS)
+    {
+      if(event->key.keyval == GDK_KEY_space)
+      {
+      }
+
+    }
+
     return TRUE;
 }
 
@@ -209,6 +221,7 @@ void ui::MapUI::selectCursor()
 
 gboolean ui::MapUI::cb_onEnter(GtkWidget* widget, GdkEvent* event, gpointer user_data)
 {
+    gtk_widget_grab_focus(drawingArea);
     selectCursor();
     return TRUE;
 }

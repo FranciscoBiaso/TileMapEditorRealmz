@@ -25,6 +25,7 @@ namespace ui {
 	private:
 		 GtkWidget* drawingArea; // widget to draw //
 		 GObject* gtkMapViewPort; // container to draw the map //
+		 GObject* gtkMapFrame; 
 		 int viewWidth, viewHeight;
 		 data::Thing drawObj;
 		 math::Vec2<int> mousePosition;
