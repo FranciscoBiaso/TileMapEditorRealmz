@@ -171,6 +171,7 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
         ctrlModesPrevious = ctrlModes;
         ctrlModes = MOVING_VIEW_OF_MAP;
         mouseStartPositionToMoveMapView = mousePosition;
+        selectCursor();
       }
     }
     else if (event->type == GDK_KEY_RELEASE)
@@ -179,6 +180,7 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
       {
         ctrlModes = ctrlModesPrevious;
         updateMapView();
+        selectCursor();
       }
     }
 
@@ -244,6 +246,16 @@ void ui::MapUI::delThingMapUI()
 
 void ui::MapUI::selectCursor()
 {
+    // has priority  //
+    switch (ctrlModes)
+    {
+    case MOVING_VIEW_OF_MAP:
+        gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(drawingArea)), gdk_cursor_new_for_display(gdk_display_get_default(), GDK_FLEUR));
+        return;
+    default:
+        break;
+    }
+
     switch(gDrawingToolUI->getDrawingMode())
     {
     case def::DrawingToolMode::DRAWING_NONE:
@@ -260,7 +272,7 @@ void ui::MapUI::selectCursor()
         break;
     case def::DrawingToolMode::DRAWING_ERASE:
         gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(drawingArea)), gdk_cursor_new_for_display(gdk_display_get_default(), GDK_SPRAYCAN));
-        break;
+        break;    
     }
 }
 
