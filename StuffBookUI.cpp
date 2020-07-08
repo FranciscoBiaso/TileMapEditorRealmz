@@ -1,5 +1,6 @@
 #include "StuffBookUI.h"
 #include "MapUI.h"
+#include "DrawingToolUI.h"
 
 GObject* ui::StuffBookUI::gtkTreeViewStuffBook = nullptr;
 GObject* ui::StuffBookUI::gtkScrolledWindowStuffbook = nullptr;
@@ -9,6 +10,7 @@ namespace GtkUserInterface { extern GtkBuilder* builder;}
 extern data::MapResources* gResources;
 extern ui::AuxUI* gAuxUI;
 extern ui::MapUI* gMapUI;
+extern ui::DrawingToolUI* gDrawingToolUI;
 
 ui::StuffBookUI::StuffBookUI()
 {
@@ -209,6 +211,7 @@ void ui::StuffBookUI::cb_selectThing(GtkTreeView* tree_view, GtkTreePath* path, 
             {
                 gAuxUI->printMsg("Thing " + mapThing->second.getName() + " selected!");
                 gMapUI->setDrawThingObj(mapThing->second);
+                gDrawingToolUI->setDrawingMode(def::DrawingToolMode::DRAWING_BRUSH);
             }
         }        
     }

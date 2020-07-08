@@ -34,6 +34,8 @@ namespace ui {
 		 math::Vec2<int> mousePositionPrevious;
 		 math::Vec2<int> mouseStartPositionToMoveMapView;
 		 math::Vec2<int> mapDetachment;
+		 math::Vec3<float> gridColor;
+		 bool canDrawMouseShadowSquare;
 		 bool thingIsSelected;
 		 int ctrlModes;
 		 int ctrlModesPrevious;

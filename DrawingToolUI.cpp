@@ -62,3 +62,8 @@ bool ui::DrawingToolUI::areAllToogleFalse()
            !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(brush))
            ? true : false;
 }
+
+void ui::DrawingToolUI::setDrawingMode(def::DrawingToolMode drawingMode)
+{
+    this->drawingMode = drawingMode;
+}

@@ -45,6 +45,9 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
     ctrlModes = DRAWING_EMPTY;
 
     cursorPixelbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE);
+
+    gridColor.setXYZ(0.95f, 0.95f, 0.1f);
+    canDrawMouseShadowSquare = false;
 }
 
 gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data)
@@ -53,8 +56,13 @@ gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer da
 
     drawMap(cr);
 
-    GdkRGBA HLSColor; HLSColor.red = 0; HLSColor.green = 0; HLSColor.blue = 0.85; HLSColor.alpha = 0.25;
-    graphics::drawSquare(cr, mousePosition.getX() * REALMZ_GRID_SIZE, mousePosition.getY() * REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, HLSColor);
+
+    // mouse square - shadow //
+    if (canDrawMouseShadowSquare)
+    {
+        GdkRGBA HLSColor; HLSColor.red = 0; HLSColor.green = 0; HLSColor.blue = 0.85; HLSColor.alpha = 0.25;
+        graphics::drawSquare(cr, mousePosition.getX() * REALMZ_GRID_SIZE, mousePosition.getY() * REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, HLSColor);
+    }
 
     return FALSE;
 }
@@ -111,7 +119,7 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
         mapDetachment.setY((mousePosition.getY() - mouseStartPositionToMoveMapView.getY()) * REALMZ_GRID_SIZE);
         
         updateMapView();
-        mouseStartPositionToMoveMapView = mousePosition;
+        mouseStartPositionToMoveMapView = mousePosition; // reset the position
     }
 
     gtk_widget_queue_draw(GTK_WIDGET(drawingArea));
@@ -151,6 +159,10 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
         gAuxUI->printMsg("First selects a drawing tool!");
       }
     }
+    else if (event->type == GDK_BUTTON_RELEASE)
+    {
+        ctrlModes = DRAWING_EMPTY;
+    }
 
     if (event->type == GDK_KEY_PRESS)
     {
@@ -188,7 +200,8 @@ void ui::MapUI::drawGrid(cairo_t* cr, int w, int h, int gridSize)
     //double dashs[2] = { 1.0, 1.0 };
     //cairo_set_dash(cr, dashs, 1, 0);
     cairo_set_line_cap(cr, CAIRO_LINE_CAP_BUTT);
-    cairo_set_source_rgba(cr, 0.95, 0.95, 0.1, 1);
+    cairo_set_source_rgba(cr, gridColor.getX(), gridColor.getY(), gridColor.getZ(), 1);
+    
 
     for (int l = 0; l <= h; l+=REALMZ_GRID_SIZE)
     {
@@ -213,7 +226,7 @@ void ui::MapUI::addThingMapUI()
     if (thingIsSelected)
     {
         addThing(drawObj, mousePosition.getY(), mousePosition.getX(), 0);
-        gAuxUI->printMsg("Thing " + drawObj.getName() + "[" + drawObj.getType() + "]" + " added!");
+        gAuxUI->printMsg("Thing " + drawObj.getName() + " added as ["+ drawObj.getType() + "]!");
         forceRedraw();
     }
     else
@@ -239,7 +252,8 @@ void ui::MapUI::selectCursor()
     case def::DrawingToolMode::DRAWING_BRUSH:
     {
       math::Vec2<int> textureAtlasReference = drawObj.getImgObjPtr()->getRef(0);
-      gdk_pixbuf_copy_area(gResources->getImgPack().getTextureAtlas()->getPixelbuf(), textureAtlasReference.getX(), textureAtlasReference.getY(), REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, cursorPixelbuf, 0, 0);
+      gdk_pixbuf_copy_area(gResources->getImgPack().getTextureAtlas()->getPixelbuf(), textureAtlasReference.getX() * REALMZ_GRID_SIZE, textureAtlasReference.getY() * REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, cursorPixelbuf, 0, 0);
+          
       gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(drawingArea)), gdk_cursor_new_from_pixbuf(gdk_display_get_default(), cursorPixelbuf, REALMZ_GRID_SIZE/2, REALMZ_GRID_SIZE/2));
       //gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(drawingArea)), gdk_cursor_new_for_display(gdk_display_get_default(), GDK_PENCIL));
     }
@@ -252,8 +266,13 @@ void ui::MapUI::selectCursor()
 
 gboolean ui::MapUI::cb_onEnter(GtkWidget* widget, GdkEvent* event, gpointer user_data)
 {
+    // grab focus, we can detect keyboard keys //
     gtk_widget_grab_focus(drawingArea);
+    // changes the cursor pixelbuf //
     selectCursor();
+    // change grid color //
+    gridColor.setXYZ(0.95f, 0.95f, 0.1f);
+    canDrawMouseShadowSquare = true;
     return TRUE;
 }
 
@@ -261,6 +280,12 @@ gboolean ui::MapUI::cb_onLeave(GtkWidget* widget, GdkEvent* event, gpointer user
 {
     // outside mapUI we use the default cursor //
     gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(drawingArea)), gdk_cursor_new_for_display(gdk_display_get_default(), GDK_ARROW));
+    // reset ctrls //
+    ctrlModes = DRAWING_EMPTY;
+    // change grid color //
+    gridColor.setXYZ(0.5f,0.5f,0.5f);
+    canDrawMouseShadowSquare = false;
+    forceRedraw();
     return TRUE;
 }
 

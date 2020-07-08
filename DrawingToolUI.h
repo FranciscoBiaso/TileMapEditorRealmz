@@ -43,6 +43,11 @@ namespace ui {
 		def::DrawingToolMode getDrawingMode() const;
 
 		/**
+		 * @brief This methods set the drawing mode.
+		 */
+		void setDrawingMode(def::DrawingToolMode);
+
+		/**
 		 * @brief This method occurs when the toggle button brush is triggered.
 		 */
 		void cb_signalGtkToggleButtonBrush(GtkToggleButton* togglebutton, gpointer user_data);
