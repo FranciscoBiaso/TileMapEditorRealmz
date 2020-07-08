@@ -106,6 +106,16 @@ namespace math {
 		}
 
 		/**
+		 * @brief This method overloads the - operator.
+		 */
+		Vec2& operator-(const Vec2& v2)
+		{
+			this->x -= v2.getX();
+			this->y -= v2.getY();
+			return *this;
+		}
+
+		/**
 		 * @brief This method increments the x and y position as a matrix of width mod.
 		 */
 		void rightShiftCursor(int mod)

@@ -23,7 +23,7 @@ namespace scene {
 		int width;
 		int height;
 		int levels;
-		std::vector<std::vector<Cylinder>> structure;
+		std::vector<std::vector<Cylinder>> structure;		
 	protected:
 		/**
 		 * @brief This method delets all thing with name = thingName from the map.

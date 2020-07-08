@@ -14,6 +14,7 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
 {
     gtkMapViewPort = gtk_builder_get_object(GtkUserInterface::builder, "gtkMapViewPort");
     gtkMapFrame = gtk_builder_get_object(GtkUserInterface::builder, "gtkMapFrame");
+    scrolledwindowMapUI = gtk_builder_get_object(GtkUserInterface::builder, "scrolledwindowMapUI");
 
     drawingArea = gtk_drawing_area_new();
     gtk_widget_set_can_focus(drawingArea, true);
@@ -22,6 +23,7 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
     gtk_widget_add_events(drawingArea, GDK_BUTTON_PRESS_MASK);
     gtk_widget_add_events(drawingArea, GDK_BUTTON_RELEASE_MASK);
     gtk_widget_add_events(drawingArea, GDK_KEY_PRESS_MASK);
+    gtk_widget_add_events(drawingArea, GDK_KEY_RELEASE_MASK);
     gtk_widget_add_events(drawingArea, GDK_LEAVE_NOTIFY_MASK);
     gtk_widget_add_events(drawingArea, GDK_ENTER_NOTIFY_MASK);
 
@@ -32,6 +34,7 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
     g_signal_connect(G_OBJECT(drawingArea), "button-press-event", G_CALLBACK(static_cb_clickNotify), this);
     g_signal_connect(G_OBJECT(drawingArea), "button-release-event", G_CALLBACK(static_cb_clickNotify), this);
     g_signal_connect(G_OBJECT(drawingArea), "key-press-event", G_CALLBACK(static_cb_clickNotify), this);
+    g_signal_connect(G_OBJECT(drawingArea), "key-release-event", G_CALLBACK(static_cb_clickNotify), this);
     g_signal_connect(G_OBJECT(drawingArea), "motion-notify-event", G_CALLBACK(static_cb_MotionNotify), this);
     g_signal_connect(G_OBJECT(drawingArea), "enter-notify-event", G_CALLBACK(static_cb_onEnter), this);
     g_signal_connect(G_OBJECT(drawingArea), "leave-notify-event", G_CALLBACK(static_cb_onLeave), this);
@@ -39,7 +42,7 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
     g_signal_connect(gtkMapViewPort, "size-allocate", G_CALLBACK(static_my_getsize), this);
 
     thingIsSelected = false;
-    drawingModes = DRAWING_EMPTY;
+    ctrlModes = DRAWING_EMPTY;
 
     cursorPixelbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE);
 }
@@ -87,22 +90,44 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
     mousePosition.setX((int)(e->x / REALMZ_GRID_SIZE) );
     mousePosition.setY((int)(e->y / REALMZ_GRID_SIZE) );
 
-    if (drawingModes == DRAWING_PEN_SELECTED &&
+    if (ctrlModes == DRAWING_PEN_SELECTED &&
         mousePositionPrevious != mousePosition) // we only add new item if mouse square changes //
     {
         mousePositionPrevious = mousePosition;
         addThingMapUI();
     }
 
-    if (drawingModes == DRAWING_ERASER_SELECTED &&
+    if (ctrlModes == DRAWING_ERASER_SELECTED &&
       mousePositionPrevious != mousePosition) // we only add new item if mouse square changes //
     {
         mousePositionPrevious = mousePosition;
         delThingMapUI();
     }
 
+    if (ctrlModes == MOVING_VIEW_OF_MAP)
+    {
+        // mouse distance vector
+        mapDetachment.setX((mousePosition.getX() - mouseStartPositionToMoveMapView.getX()) * REALMZ_GRID_SIZE);
+        mapDetachment.setY((mousePosition.getY() - mouseStartPositionToMoveMapView.getY()) * REALMZ_GRID_SIZE);
+        
+        updateMapView();
+        mouseStartPositionToMoveMapView = mousePosition;
+    }
+
     gtk_widget_queue_draw(GTK_WIDGET(drawingArea));
     return TRUE;
+}
+
+void ui::MapUI::updateMapView()
+{
+    GtkScrolledWindow* scrolledWindow = GTK_SCROLLED_WINDOW(scrolledwindowMapUI);
+    GtkAdjustment* h_adjustment = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scrolledwindowMapUI));
+    GtkAdjustment* v_adjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolledwindowMapUI));
+    double h_value = gtk_adjustment_get_value(h_adjustment);
+    double v_value = gtk_adjustment_get_value(v_adjustment);
+
+    gtk_adjustment_set_value(h_adjustment, h_value + mapDetachment.getX());
+    gtk_adjustment_set_value(v_adjustment, v_value + mapDetachment.getY());
 }
 
 gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer user_data)
@@ -113,30 +138,36 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
       {
         addThingMapUI(); // starting adding //
         mousePositionPrevious = mousePosition;
-        drawingModes = DRAWING_PEN_SELECTED;
+        ctrlModes = DRAWING_PEN_SELECTED;
       }
       else if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_ERASE)
       {
         delThingMapUI();
         mousePositionPrevious = mousePosition;
-        drawingModes = DRAWING_ERASER_SELECTED;
+        ctrlModes = DRAWING_ERASER_SELECTED;
       }
       else if(gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_NONE)
       {
         gAuxUI->printMsg("First selects a drawing tool!");
       }
     }
-    else if (event->type == GDK_BUTTON_RELEASE)
-    {
-        drawingModes = DRAWING_EMPTY;
-    }
 
     if (event->type == GDK_KEY_PRESS)
     {
-      if(event->key.keyval == GDK_KEY_space)
+      if(event->key.keyval == GDK_KEY_space && ctrlModes != MOVING_VIEW_OF_MAP)
       {
+        ctrlModesPrevious = ctrlModes;
+        ctrlModes = MOVING_VIEW_OF_MAP;
+        mouseStartPositionToMoveMapView = mousePosition;
       }
-
+    }
+    else if (event->type == GDK_KEY_RELEASE)
+    {
+      if (event->key.keyval == GDK_KEY_space)
+      {
+        ctrlModes = ctrlModesPrevious;
+        updateMapView();
+      }
     }
 
     return TRUE;

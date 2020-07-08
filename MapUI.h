@@ -17,21 +17,26 @@ namespace ui {
 
 	class MapUI: public scene::Map
 	{
-		enum DrawingModes : int {
+		enum ctrlModes : int {
 			DRAWING_EMPTY = 0,
 			DRAWING_PEN_SELECTED = 1,
 			DRAWING_ERASER_SELECTED,
+			MOVING_VIEW_OF_MAP
 		};
 	private:
 		 GtkWidget* drawingArea; // widget to draw //
 		 GObject* gtkMapViewPort; // container to draw the map //
 		 GObject* gtkMapFrame; 
+		 GObject* scrolledwindowMapUI;		
 		 int viewWidth, viewHeight;
 		 data::Thing drawObj;
 		 math::Vec2<int> mousePosition;
 		 math::Vec2<int> mousePositionPrevious;
+		 math::Vec2<int> mouseStartPositionToMoveMapView;
+		 math::Vec2<int> mapDetachment;
 		 bool thingIsSelected;
-		 int drawingModes;
+		 int ctrlModes;
+		 int ctrlModesPrevious;
 		 GdkPixbuf* cursorPixelbuf;
 
 		/**
@@ -128,9 +133,14 @@ namespace ui {
 		void deletAllThingsFromTheMap(std::string thingName);
 
 		/**
-			 * @brief This method force redraws the entire map user interface.
-			 */
+		 * @brief This method force redraws the entire map user interface.
+		 */
 		void forceRedraw();
+
+		/**
+		 * @brief This method move map view.
+		 */
+		void updateMapView();
 	};
 }
 
