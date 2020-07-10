@@ -61,5 +61,10 @@ namespace data {
 		 */
 		std::vector<data::ImgObj>::iterator find(std::string imgName);
 
+		/**
+		 *  @brief This method
+		 */
+		std::vector<data::ImgObj>& getImgVec();
+
 	};
 }

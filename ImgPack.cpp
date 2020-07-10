@@ -12,6 +12,12 @@ void data::ImgPack::addImgObj(std::string name,const GdkPixbuf* srcImg,const def
 	imgVec.push_back(ImgObj(name,size,refs)); // add img to the end of the vector //
 }
 
+
+std::vector<data::ImgObj>& data::ImgPack::getImgVec()
+{
+	return imgVec;
+}
+
 void data::ImgPack::delImgObj(std::string name)
 {
 	// try to find ImgObj by name // O(n)
