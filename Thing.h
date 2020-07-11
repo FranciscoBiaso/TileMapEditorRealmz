@@ -15,10 +15,12 @@ namespace data {
 	class Thing
 	{
 	public:
+		Thing();
+		
 		/**
 		 *  constructor
 		 */
-		Thing(std::string name = "-", std::string strType = "-");
+		Thing(std::string name, std::string strType);
 
 		/**
 		 *  copy constructor by pointer.

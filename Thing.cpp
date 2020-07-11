@@ -6,6 +6,16 @@
 extern data::MapResources* gResources;
 GdkPixbuf* data::Thing::pixelbuf = nullptr;
 
+data::Thing::Thing() : name(""), type(""), imgObj_ptr(nullptr)
+{
+	parent = nullptr;
+	if (pixelbuf == nullptr)
+	{
+		pixelbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE);
+		gdk_pixbuf_fill(pixelbuf, 0x01010101); // clean buffer //
+	}
+}
+
 data::Thing::Thing(std::string name, std::string type) :
 	name(name), type(type), imgObj_ptr(nullptr) 
 {
