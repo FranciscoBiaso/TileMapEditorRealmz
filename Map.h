@@ -19,12 +19,12 @@ namespace scene {
 	class Map
 	{
 	private:
-		std::string name;
-		int width;
-		int height;
-		int levels;
-		std::vector<std::vector<Cylinder>> structure;
-		int _count_things;
+		std::string name;/**< name of the map */
+		int width;/**< width */
+		int height;/**< height */
+		int levels;/**< total levels or floors */
+		std::vector<std::vector<Cylinder>> structure; /**< internal structure (unity = cylinder) */
+		int _count_things;/**< count things placed into the map - starts empty */
 	protected:
 		/**
 		 * @brief This method delets all thing with name = thingName from the map.
@@ -71,7 +71,14 @@ namespace scene {
 		 */
 		int getHeight() const;
 
+		/**
+		 * @brief Draw map strcuture.
+		 */
 		void drawMap(cairo_t* cr);
+
+		/**
+		 * @brief Get count things placed into the map.
+		 */
 		int getCountThings();
 	};
 }
