@@ -75,7 +75,7 @@ namespace data {
 		/**
 		 *  @brief This method gets Cylinder.
 		 */
-		const scene::Cylinder* getCylinder();
+		scene::Cylinder* getCylinder();
 
 		/**
 		 *  @brief This method overloads assigned operator.

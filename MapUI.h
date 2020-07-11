@@ -3,6 +3,7 @@
 #include "Map.h"
 #include "Thing.h"
 #include "Vec2.h"
+#include "CtrlMap.h"
 #include <gdk/gdk.h>
 #include <gtk/gtk.h>
 
@@ -29,6 +30,7 @@ namespace ui {
 		 GObject* gtkMapFrame; 
 		 GObject* scrolledwindowMapUI;		
 		 int viewWidth, viewHeight;
+		 int _map_layer;
 		 data::Thing drawObj;
 		 math::Vec2<int> mousePosition;
 		 math::Vec2<int> mousePositionPrevious;
@@ -113,6 +115,7 @@ namespace ui {
 
 		void addThingMapUI();
 		void delThingMapUI();
+		void delThingMapUI(std::string thing_name,math::Vec3<int> thing_position);
 
 		/**
 		 * @brief This method is active when mouse enters into this user interface.
@@ -143,6 +146,8 @@ namespace ui {
 		 * @brief This method move map view.
 		 */
 		void updateMapView();
+
+		void do_reverse_operation(ctrl::sOperation operation);
 	};
 }
 

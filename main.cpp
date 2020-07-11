@@ -6,6 +6,7 @@
 #include "ImgPackUI.h"
 #include "MapUI.h"
 #include "DrawingToolUI.h"
+#include "CtrlMap.h"
 
 #ifdef TME_DEBUG
 #include "DebugTextureAtlas.h"
@@ -21,6 +22,7 @@ ui::MapUI* gMapUI = nullptr;
 ui::ThingCreatorTool* gThingCreatorTool = nullptr;
 ui::GraphicsTool* gGraphicsTool = nullptr;
 ui::DrawingToolUI* gDrawingToolUI = nullptr;
+ctrl::CtrlMap* ctrlMap = nullptr;
 //-----------------------------------------//
 
 #ifdef TME_DEBUG
@@ -53,6 +55,10 @@ int main(int argc, char** argv)
     gDrawingToolUI = new ui::DrawingToolUI();
     //---------------------//
 
+    // Controller // ---------------------//
+    ctrlMap = new ctrl::CtrlMap();
+    //---------------------//
+
 
 #ifdef TME_DEBUG
     debugTextureAtlas = new DebugTextureAtlas(gResources->getImgPack().getTextureAtlas()->getPixelbuf());
@@ -71,5 +77,6 @@ int main(int argc, char** argv)
     delete gGraphicsTool;
     delete gMapUI;
     delete gDrawingToolUI;
+    delete ctrlMap;
     return 0;
 }

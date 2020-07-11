@@ -23,7 +23,8 @@ namespace scene {
 		int width;
 		int height;
 		int levels;
-		std::vector<std::vector<Cylinder>> structure;		
+		std::vector<std::vector<Cylinder>> structure;
+		int _count_things;
 	protected:
 		/**
 		 * @brief This method delets all thing with name = thingName from the map.
@@ -71,6 +72,7 @@ namespace scene {
 		int getHeight() const;
 
 		void drawMap(cairo_t* cr);
+		int getCountThings();
 	};
 }
 

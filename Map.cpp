@@ -5,6 +5,7 @@
 scene::Map::Map(std::string name, int width, int height) : name(name),
 	width(width), height(height)
 {
+	_count_things = 0;
 	levels = MAP_COUNT_LEVELS;
 	structure.resize(levels);
 	for (int level = 0; level < levels; level++)
@@ -22,7 +23,10 @@ scene::Map::Map(std::string name, int width, int height) : name(name),
 
 void scene::Map::addThing(data::Thing newThing, int line, int col, int level)
 {
+	
+	newThing.setName(std::to_string(_count_things));
 	this->structure[level][width * line + col].addItem(newThing);
+	_count_things++;
 }
 
 void scene::Map::cleansCylinder( int line, int col, int level)
@@ -30,10 +34,10 @@ void scene::Map::cleansCylinder( int line, int col, int level)
 	this->structure[level][width * line + col].cleans();
 }
 
-
-void scene::Map::removeThing(std::string name, int x, int y, int z)
+void scene::Map::removeThing(std::string name, int line, int col, int level)
 {
-	this->structure[z][width * y + x].removeItem(name);
+	this->structure[level][width * line + col].removeItem(name);
+	_count_things--;
 }
 
 void scene::Map::drawMap(cairo_t* cr)
@@ -66,4 +70,9 @@ void scene::Map::deletAllThings(std::string thingName)
 			structure[0][width * y + x].removeItem(thingName);
 		}
 	}
+}
+
+int scene::Map::getCountThings()
+{
+	return _count_things;
 }

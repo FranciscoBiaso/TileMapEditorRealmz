@@ -3,10 +3,12 @@
 #include "AuxUI.h"
 #include "DrawingFunctions.h"
 #include "DrawingToolUI.h"
+#include "CtrlMap.h"
 
 extern data::MapResources* gResources;
 extern ui::AuxUI* gAuxUI;
 extern ui::DrawingToolUI* gDrawingToolUI;
+extern ctrl::CtrlMap* ctrlMap;
 
 namespace GtkUserInterface { extern GtkBuilder* builder; }
 
@@ -48,6 +50,7 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
 
     gridColor.setXYZ(0.95f, 0.95f, 0.1f);
     canDrawMouseShadowSquare = false;
+    _map_layer = 0;
 }
 
 gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data)
@@ -92,7 +95,6 @@ gboolean ui::MapUI::static_cb_onLeave(GtkWidget* widget, GdkEvent* event, gpoint
     return reinterpret_cast<MapUI*>(user_data)->cb_onLeave(widget, event, user_data);
 }
 
-
 gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpointer user_data)
 {
     mousePosition.setX((int)(e->x / REALMZ_GRID_SIZE) );
@@ -102,6 +104,8 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
         mousePositionPrevious != mousePosition) // we only add new item if mouse square changes //
     {
         mousePositionPrevious = mousePosition;
+        // ctrl add operation to the stack //
+        ctrlMap->push_operation(ctrl::sOperation(ctrl::eOperation::ADD_THING, std::to_string(this->getCountThings()), math::Vec3(mousePosition.getY(), mousePosition.getX(), _map_layer)));
         addThingMapUI();
     }
 
@@ -144,6 +148,8 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
     {
       if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_BRUSH)
       {
+        // ctrl add operation to the stack //
+        ctrlMap->push_operation(ctrl::sOperation(ctrl::eOperation::ADD_THING, std::to_string(this->getCountThings()), math::Vec3(mousePosition.getY(), mousePosition.getX(), _map_layer)));
         addThingMapUI(); // starting adding //
         mousePositionPrevious = mousePosition;
         ctrlModes = DRAWING_PEN_SELECTED;
@@ -172,6 +178,17 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
         ctrlModes = MOVING_VIEW_OF_MAP;
         mouseStartPositionToMoveMapView = mousePosition;
         selectCursor();
+      }
+
+      if ((event->key.keyval == GDK_KEY_z || event->key.keyval == GDK_KEY_Z) &&
+          event->key.state == GDK_CONTROL_MASK)
+      {          
+          if (!ctrlMap->empty())
+          {
+              ctrl::sOperation operation = ctrlMap->pop_operation();
+              do_reverse_operation(operation);
+              forceRedraw();
+          }
       }
     }
     else if (event->type == GDK_KEY_RELEASE)
@@ -244,6 +261,11 @@ void ui::MapUI::delThingMapUI()
   forceRedraw();
 }
 
+void ui::MapUI::delThingMapUI(std::string thing_name, math::Vec3<int> thing_position)
+{
+    this->removeThing(thing_name, thing_position.getX(), thing_position.getY(), thing_position.getZ());
+}
+
 void ui::MapUI::selectCursor()
 {
     // has priority  //
@@ -313,4 +335,17 @@ void ui::MapUI::deletAllThingsFromTheMap(std::string thingName)
 void ui::MapUI::forceRedraw()
 {
   gtk_widget_queue_draw(GTK_WIDGET(drawingArea)); // force redraw map //
+}
+
+void ui::MapUI::do_reverse_operation(ctrl::sOperation operation)
+{
+    switch (operation._operation)
+    {
+    case ctrl::eOperation::ADD_THING:
+    {
+        delThingMapUI(operation._thing_name, operation._thing_position);
+    }
+    default:
+        break;
+    }
 }

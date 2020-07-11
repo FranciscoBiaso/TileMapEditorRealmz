@@ -70,7 +70,7 @@ void data::Thing::setCylinder(scene::Cylinder* cylinder)
 	parent = cylinder;
 }
 
-const scene::Cylinder* data::Thing::getCylinder()
+scene::Cylinder* data::Thing::getCylinder()
 {
 	return parent;
 }
