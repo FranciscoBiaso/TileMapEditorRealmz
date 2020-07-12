@@ -38,7 +38,7 @@ namespace scene {
 		/**
 		 * @brief This methods add a new item into the structure then sort by layer.
 		 */
-		void addItem(data::Thing);
+		data::Thing addItem(data::Thing);
 
 		/**
 		 * @brief This methods remove a item by name.

@@ -113,9 +113,10 @@ namespace ui {
 			gtk_widget_queue_draw(drawingArea);
 		}
 
-		void addThingMapUI();
+		data::Thing  addThingMapUI();
 		void delThingMapUI();
 		void delThingMapUI(std::string thing_name,math::Vec3<int> thing_position);
+		void delThingMapUI(data::Thing*);
 
 		/**
 		 * @brief This method is active when mouse enters into this user interface.

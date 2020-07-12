@@ -2,6 +2,7 @@
 #include <stack>
 #include <string>
 #include "Vec3.h"
+#include "Thing.h"
 
 namespace ctrl {
     /**
@@ -12,16 +13,27 @@ namespace ctrl {
         ADD_THING /**< enum add thing operation */
     };
 
+    enum eManipulator{
+        NONE= 0,
+        CTRL_Z = 1,
+        OPERATION,
+        CTRL_Y
+    };
+
     typedef struct sOperation
     {
         /**
          *  @brief constructor.
          */
-        sOperation(eOperation, std::string, math::Vec3<int>);
+        sOperation(eOperation, data::Thing);
 
         eOperation _operation; /**< enum operation */
-        std::string _thing_name; /**< thing name used into the map */
-        math::Vec3<int> _thing_position; /**< thing position - cylinder coords */
+        data::Thing _thing;
+        /**
+         *  @brief Swaps the current operation with your reflection.
+         */
+        void swap_operation();
+
     }sOperation;
     
     /*!
@@ -34,19 +46,31 @@ namespace ctrl {
     {
     private:
         std::stack<sOperation> _operations; /**< stack  */
+        std::stack<sOperation> _inverse_operations; /**< stack  */
+        int _manipulator[2]; // sequence of last 2 operations //
+        int _manipulator_cursor;
     public:
+        CtrlMap();
         /**
          *  @brief Add the last operation into the stack.
          */
         void push_operation(sOperation operation);
+        void push_inv_operation(sOperation operation);
         /**
          *  @brief Remove the last operation from stack.
          */
         sOperation pop_operation();
+        sOperation pop_inv_operation();
         /**
          *  @brief Checks if stack is empty.
          */
         bool empty();
+        bool inv_empty();
+        int get_size();
+        int inv_get_size();
+        void inv_clean_stack();
+
+        void update_manipulator(ctrl::eManipulator);
     };
 
 };

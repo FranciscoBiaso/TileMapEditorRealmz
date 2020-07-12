@@ -4,6 +4,7 @@
 #include "DrawingFunctions.h"
 #include "DrawingToolUI.h"
 #include "CtrlMap.h"
+#include "Thing.h"
 
 extern data::MapResources* gResources;
 extern ui::AuxUI* gAuxUI;
@@ -105,8 +106,8 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
     {
         mousePositionPrevious = mousePosition;
         // ctrl add operation to the stack //
-        ctrlMap->push_operation(ctrl::sOperation(ctrl::eOperation::ADD_THING, std::to_string(this->getCountThings()), math::Vec3(mousePosition.getY(), mousePosition.getX(), _map_layer)));
-        addThingMapUI();
+        ctrlMap->push_operation(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI()));
+        ctrlMap->update_manipulator(ctrl::eManipulator::OPERATION);
     }
 
     if (ctrlModes == DRAWING_ERASER_SELECTED &&
@@ -114,6 +115,7 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
     {
         mousePositionPrevious = mousePosition;
         delThingMapUI();
+        ctrlMap->update_manipulator(ctrl::eManipulator::OPERATION);
     }
 
     if (ctrlModes == MOVING_VIEW_OF_MAP)
@@ -149,8 +151,9 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
       if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_BRUSH)
       {
         // ctrl add operation to the stack //
-        ctrlMap->push_operation(ctrl::sOperation(ctrl::eOperation::ADD_THING, std::to_string(this->getCountThings()), math::Vec3(mousePosition.getY(), mousePosition.getX(), _map_layer)));
-        addThingMapUI(); // starting adding //
+        ctrlMap->push_operation(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI()));
+        ctrlMap->update_manipulator(ctrl::eManipulator::OPERATION);
+
         mousePositionPrevious = mousePosition;
         ctrlModes = DRAWING_PEN_SELECTED;
       }
@@ -180,13 +183,32 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
         selectCursor();
       }
 
+      // CTRL + Z //
       if ((event->key.keyval == GDK_KEY_z || event->key.keyval == GDK_KEY_Z) &&
           event->key.state == GDK_CONTROL_MASK)
       {          
           if (!ctrlMap->empty())
           {
+              ctrlMap->update_manipulator(ctrl::eManipulator::CTRL_Z);
               ctrl::sOperation operation = ctrlMap->pop_operation();
               do_reverse_operation(operation);
+              operation.swap_operation();
+              ctrlMap->push_inv_operation(operation); // add this op into the another stack //
+              forceRedraw();
+          }
+      }
+
+      // CTRL + Y //
+      if ((event->key.keyval == GDK_KEY_y || event->key.keyval == GDK_KEY_Y) &&
+          event->key.state == GDK_CONTROL_MASK)
+      {
+          if (!ctrlMap->inv_empty())
+          {
+              ctrlMap->update_manipulator(ctrl::eManipulator::CTRL_Y);
+              ctrl::sOperation operation = ctrlMap->pop_inv_operation();
+              do_reverse_operation(operation);
+              operation.swap_operation();
+              ctrlMap->push_operation(operation); // add this op into the another stack //
               forceRedraw();
           }
       }
@@ -239,12 +261,13 @@ void ui::MapUI::drawGrid(cairo_t* cr, int w, int h, int gridSize)
     cairo_fill(cr);
 }
 
-void ui::MapUI::addThingMapUI()
+data::Thing ui::MapUI::addThingMapUI()
 {
+    data::Thing ret;
     // mouse x is col, y is row //
     if (thingIsSelected)
     {
-        addThing(drawObj, mousePosition.getY(), mousePosition.getX(), 0);
+        ret = addThing(drawObj, mousePosition.getY(), mousePosition.getX(), 0);
         gAuxUI->printMsg("Thing " + drawObj.getName() + " added as ["+ drawObj.getType() + "]!");
         forceRedraw();
     }
@@ -252,6 +275,8 @@ void ui::MapUI::addThingMapUI()
     {
         gAuxUI->printMsg("You need To select a Thing before drawn!");
     }
+    forceRedraw();
+    return ret;
 }
 
 
@@ -263,7 +288,15 @@ void ui::MapUI::delThingMapUI()
 
 void ui::MapUI::delThingMapUI(std::string thing_name, math::Vec3<int> thing_position)
 {
-    this->removeThing(thing_name, thing_position.getX(), thing_position.getY(), thing_position.getZ());
+    this->removeThing(thing_name, thing_position.getY(), thing_position.getX(), thing_position.getZ());
+    forceRedraw();
+}
+
+void ui::MapUI::delThingMapUI(data::Thing* ptr)
+{
+    math::Vec3 coords = ptr->getCylinder()->getCoords();
+    this->removeThing(ptr->getName(), coords.getY(), coords.getX(), coords.getZ());
+    forceRedraw();
 }
 
 void ui::MapUI::selectCursor()
@@ -343,8 +376,15 @@ void ui::MapUI::do_reverse_operation(ctrl::sOperation operation)
     {
     case ctrl::eOperation::ADD_THING:
     {
-        delThingMapUI(operation._thing_name, operation._thing_position);
+        delThingMapUI(&operation._thing);
     }
+    break;
+    case ctrl::eOperation::REMOVE_THING:
+    {
+        math::Vec3 position = operation._thing.getCylinder()->getCoords();
+        addThing(operation._thing, position.getY(), position.getX(), position.getZ());
+    }
+    break;
     default:
         break;
     }

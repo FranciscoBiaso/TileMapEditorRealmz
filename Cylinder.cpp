@@ -54,12 +54,12 @@ bool scene::Cylinder::ifItemByLayerAlreadyExistsSwap(data::Thing & toAdd) // spe
 	return false;
 }
 
-void scene::Cylinder::addItem(data::Thing thing)
+data::Thing scene::Cylinder::addItem(data::Thing thing)
 {
 	thing.setCylinder(this);
 
 	// if item already exists swap them return //
-	if (ifItemByLayerAlreadyExistsSwap(thing)) return;
+	if (ifItemByLayerAlreadyExistsSwap(thing)) return thing;
 
 	// we only push back if we dont have this item //
 	items.push_back(thing);
@@ -69,6 +69,7 @@ void scene::Cylinder::addItem(data::Thing thing)
 		{			
 			return gResources->getLayerAsInt(a.getType()) < gResources->getLayerAsInt(b.getType());
 		});
+	return thing;
 }
 
 void scene::Cylinder::removeItem(std::string name)

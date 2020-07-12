@@ -49,7 +49,7 @@ namespace scene {
 		/**
 		 * @brief This method adds a Thing into the map position [line,col,level].
 		 */
-		void addThing(data::Thing newThing, int line, int col, int level);
+		data::Thing addThing(data::Thing newThing, int line, int col, int level);
 
 		/**
 		 * @brief This method remove all things from mouse position.
