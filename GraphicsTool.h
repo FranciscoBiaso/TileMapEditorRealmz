@@ -47,10 +47,12 @@ namespace ui {
 		static GtkWidget* drawingAreaImgSrc; // region to display uploaded img //
 		static GtkWidget* drawingAreaImgDst; // region to display selected img from uploaded img //
 		static GdkPixbuf* pixelBufImgSrc;    // buffer of upload img //
+		static GdkPixbuf* pixelBufImgDest_background;   // buffer of selected img //
 		static GdkPixbuf* pixelBufImgDest;   // buffer of selected img //
 		static GdkPixbuf* dragIcon32x32;     // drag icon //
 		static cairo_surface_t* surfaceScr;
 		static cairo_surface_t* surfaceDst;
+		static cairo_surface_t* surfaceDst_background;
 
 		static int xPosHighlightSquare;  // position x of mouse into selected img region multiple by GRID_SIZE //
 		static int yPosHighlightSquare;  // position y of mouse into selected img region multiple by GRID_SIZE //
@@ -91,6 +93,10 @@ namespace ui {
 		 */
 		static void setDstSurfaceFromDstPixelbuf();
 
+		/**
+		 *  @brief This method set dst background surface for drawing from dst GdkPixbuf backgrounf;
+		 */
+		static void setDstSurfaceBGFromDstPixelbufBG();
 		/**
 		 *  @brief This method sets widget drawingArea for src image.
 		 *  @param widget is a container where drawing area will be stored.

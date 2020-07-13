@@ -21,6 +21,7 @@ GtkWidget* ui::GraphicsTool::drawingAreaImgSrc = nullptr;
 GtkWidget* ui::GraphicsTool::drawingAreaImgDst = nullptr;
 GdkPixbuf* ui::GraphicsTool::pixelBufImgSrc = nullptr;
 GdkPixbuf* ui::GraphicsTool::pixelBufImgDest = nullptr;
+GdkPixbuf* ui::GraphicsTool::pixelBufImgDest_background = nullptr;
 GdkPixbuf* ui::GraphicsTool::dragIcon32x32 = nullptr;
 
 int ui::GraphicsTool::xPosHighlightSquare = 0;
@@ -37,6 +38,7 @@ def::IMG_SIZE ui::GraphicsTool::imgFormat = def::IMG_SIZE::IMG_SIZE_32X32;
 
 cairo_surface_t*  ui::GraphicsTool::surfaceScr = nullptr;
 cairo_surface_t* ui::GraphicsTool::surfaceDst = nullptr;
+cairo_surface_t* ui::GraphicsTool::surfaceDst_background = nullptr;
 
 GtkTargetEntry ui::GraphicsTool::dragTarget = { (gchar*)"targetImg",0, 0 };
 
@@ -79,9 +81,12 @@ ui::GraphicsTool::GraphicsTool()
     g_signal_connect(gtkToggleButton64x32, "toggled", G_CALLBACK(cb_signalGtkToggleButton64x32), gtkToggleButton64x32);
     g_signal_connect(gtkToggleButton64x64, "toggled", G_CALLBACK(cb_signalGtkToggleButton64x64), gtkToggleButton64x64);
 
-    // alocate memory for img pixel buf
     pixelBufImgDest = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE * 2, REALMZ_GRID_SIZE * 2);
     gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //   
+
+    GError* err = NULL;
+    pixelBufImgDest_background = gdk_pixbuf_new_from_file("ui_imgs//surface32x32.png", &err);
+    
     dragIcon32x32 = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE);
 
     setDrawingAreaImgDst(GTK_WIDGET(gtkFrameImgView));
@@ -99,8 +104,12 @@ ui::GraphicsTool::GraphicsTool()
     g_signal_connect(gtkFileChooserButtonImg, "file-set", G_CALLBACK(cb_onFileSet), gtkViewportImgSrc);
     g_signal_connect(gtkEntryImgName, "changed", G_CALLBACK(cb_updateImgObjName), NULL);
 
+
     createTreeViewImgObj();
     updateTreeImgObj();
+
+    // update the surface //
+    setDstSurfaceBGFromDstPixelbufBG();
 }
 
 gboolean ui::GraphicsTool::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpointer   user_data)
@@ -186,8 +195,8 @@ gboolean ui::GraphicsTool::cb_draw_callback_img_src(GtkWidget* widget, cairo_t* 
     GdkRGBA bgColor; bgColor.red = 0.5; bgColor.green = 0.5; bgColor.blue = 0.5; bgColor.alpha = 0.5;
 
     // draw background //
-    cairo_set_source_rgba(cr, bgColor.red, bgColor.green,bgColor.blue,bgColor.alpha);
-    cairo_paint(cr);
+     cairo_set_source_rgba(cr, bgColor.red, bgColor.green,bgColor.blue,bgColor.alpha);
+     cairo_paint(cr);
 
     guint width = gtk_widget_get_allocated_width(widget);
     guint height = gtk_widget_get_allocated_height(widget);
@@ -222,6 +231,8 @@ gboolean ui::GraphicsTool::cb_draw_callback_img_dst(GtkWidget* widget, cairo_t* 
     GdkRGBA sColor; sColor.red = 0.35; sColor.green = 0.35; sColor.blue = 0.35; sColor.alpha = 0.12;
 
     // draw background //
+    
+    /*
     cairo_pattern_t* pattern;
     pattern = cairo_pattern_create_linear(0.0, 0.0, 2 * REALMZ_GRID_SIZE, 2 * REALMZ_GRID_SIZE);
     cairo_pattern_add_color_stop_rgba(pattern, 0, 1, 0, 0, 0.15);
@@ -229,7 +240,13 @@ gboolean ui::GraphicsTool::cb_draw_callback_img_dst(GtkWidget* widget, cairo_t* 
     cairo_set_source_rgba(cr, bgColor.red, bgColor.green, bgColor.blue, bgColor.alpha);
     cairo_set_source(cr, pattern);
     cairo_paint(cr);
+    */
 
+    if (surfaceDst_background != nullptr)
+    {
+        cairo_set_source_surface(cr, surfaceDst_background, 0, 0);
+        cairo_paint(cr);
+    }
     // draw background square (32x32,32x64,64x32 or 64x64)
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x32)) == TRUE)       drawImg32x32(cr, sColor);
     else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x64)) == TRUE)  drawImg32x64(cr, sColor);
@@ -290,8 +307,14 @@ void ui::GraphicsTool::setSrcSurfaceFromScrPixelbuf()
 void ui::GraphicsTool::setDstSurfaceFromDstPixelbuf()
 {
     surfaceDst = gdk_cairo_surface_create_from_pixbuf(pixelBufImgDest, 0, NULL);
-
 }
+
+void ui::GraphicsTool::setDstSurfaceBGFromDstPixelbufBG()
+{
+    surfaceDst_background = gdk_cairo_surface_create_from_pixbuf(pixelBufImgDest_background, 0, NULL);
+}
+
+
 
 void ui::GraphicsTool::setDrawingAreaImgDst(GtkWidget* widget)
 {
@@ -366,6 +389,12 @@ void ui::GraphicsTool::cb_signalGtkToggleButton32x32(GtkToggleButton* togglebutt
     updateTreeImgObj(); // update tree view //
     gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
     setDstSurfaceFromDstPixelbuf();
+
+    GError* err = NULL;
+    g_object_unref(pixelBufImgDest_background);
+    pixelBufImgDest_background = gdk_pixbuf_new_from_file("ui_imgs//surface32x32.png", &err);
+
+    setDstSurfaceBGFromDstPixelbufBG();
     resetCursor();
     gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgDst));
 }
@@ -382,6 +411,12 @@ void ui::GraphicsTool::cb_signalGtkToggleButton32x64(GtkToggleButton* togglebutt
     updateTreeImgObj(); // update tree view //
     gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
     setDstSurfaceFromDstPixelbuf();
+
+    GError* err = NULL;
+    g_object_unref(pixelBufImgDest_background);
+    pixelBufImgDest_background = gdk_pixbuf_new_from_file("ui_imgs//surface32x64.png", &err);
+    setDstSurfaceBGFromDstPixelbufBG();
+
     resetCursor();
     gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgDst));
 }
@@ -398,6 +433,10 @@ void ui::GraphicsTool::cb_signalGtkToggleButton64x32(GtkToggleButton* togglebutt
     updateTreeImgObj(); // update tree view //
     gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
     setDstSurfaceFromDstPixelbuf();
+    GError* err = NULL;
+    g_object_unref(pixelBufImgDest_background);
+    pixelBufImgDest_background = gdk_pixbuf_new_from_file("ui_imgs//surface64x32.png", &err);
+    setDstSurfaceBGFromDstPixelbufBG();
     resetCursor();
     gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgDst));
 }
@@ -413,7 +452,11 @@ void ui::GraphicsTool::cb_signalGtkToggleButton64x64(GtkToggleButton* togglebutt
     imgFormat = def::IMG_SIZE::IMG_SIZE_64X64;
     updateTreeImgObj(); // update tree view //
     gdk_pixbuf_fill(pixelBufImgDest, 0x00000000); // clean buffer //
-    setDstSurfaceFromDstPixelbuf();
+    setDstSurfaceFromDstPixelbuf();    
+    GError* err = NULL;
+    g_object_unref(pixelBufImgDest_background);
+    pixelBufImgDest_background = gdk_pixbuf_new_from_file("ui_imgs//surface64x64.png", &err);
+    setDstSurfaceBGFromDstPixelbufBG();
     resetCursor();
     gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgDst));
 }
@@ -591,6 +634,7 @@ gboolean  ui::GraphicsTool::cb_dragDrop(GtkWidget* widget, GdkDragContext* conte
     }
 
     setDstSurfaceFromDstPixelbuf();
+    setDstSurfaceBGFromDstPixelbufBG();
     gtk_widget_queue_draw(GTK_WIDGET(drawingAreaImgDst));
     return TRUE;
 }
