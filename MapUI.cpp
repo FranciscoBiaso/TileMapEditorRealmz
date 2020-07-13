@@ -52,6 +52,7 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
     gridColor.setXYZ(0.95f, 0.95f, 0.1f);
     canDrawMouseShadowSquare = false;
     _map_layer = 0;
+    updateMapView();
 }
 
 gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data)
@@ -106,8 +107,8 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
     {
         mousePositionPrevious = mousePosition;
         // ctrl add operation to the stack //
-        ctrlMap->push_operation(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI()));
-        ctrlMap->update_manipulator(ctrl::eManipulator::OPERATION);
+        ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI()));
+        ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
     }
 
     if (ctrlModes == DRAWING_ERASER_SELECTED &&
@@ -115,7 +116,7 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
     {
         mousePositionPrevious = mousePosition;
         delThingMapUI();
-        ctrlMap->update_manipulator(ctrl::eManipulator::OPERATION);
+        ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
     }
 
     if (ctrlModes == MOVING_VIEW_OF_MAP)
@@ -126,6 +127,7 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
         
         updateMapView();
         mouseStartPositionToMoveMapView = mousePosition; // reset the position
+        forceRedraw();
     }
 
     gtk_widget_queue_draw(GTK_WIDGET(drawingArea));
@@ -139,9 +141,10 @@ void ui::MapUI::updateMapView()
     GtkAdjustment* v_adjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolledwindowMapUI));
     double h_value = gtk_adjustment_get_value(h_adjustment);
     double v_value = gtk_adjustment_get_value(v_adjustment);
-
     gtk_adjustment_set_value(h_adjustment, h_value + mapDetachment.getX());
     gtk_adjustment_set_value(v_adjustment, v_value + mapDetachment.getY());
+
+    _view_center.setXY(gtk_adjustment_get_value(h_adjustment), gtk_adjustment_get_value(v_adjustment));
 }
 
 gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer user_data)
@@ -151,8 +154,8 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
       if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_BRUSH)
       {
         // ctrl add operation to the stack //
-        ctrlMap->push_operation(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI()));
-        ctrlMap->update_manipulator(ctrl::eManipulator::OPERATION);
+        ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI()));
+        ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
 
         mousePositionPrevious = mousePosition;
         ctrlModes = DRAWING_PEN_SELECTED;
@@ -189,11 +192,10 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
       {          
           if (!ctrlMap->empty())
           {
-              ctrlMap->update_manipulator(ctrl::eManipulator::CTRL_Z);
-              ctrl::sOperation operation = ctrlMap->pop_operation();
+              ctrlMap->add_last_operation(ctrl::eManipulator::CTRL_Z);
+              ctrl::sOperation operation = ctrlMap->rem_ctrlz();
               do_reverse_operation(operation);
-              operation.swap_operation();
-              ctrlMap->push_inv_operation(operation); // add this op into the another stack //
+              ctrlMap->add_ctrly(operation.swap_operation()); // add this op into the another stack //
               forceRedraw();
           }
       }
@@ -204,11 +206,10 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
       {
           if (!ctrlMap->inv_empty())
           {
-              ctrlMap->update_manipulator(ctrl::eManipulator::CTRL_Y);
-              ctrl::sOperation operation = ctrlMap->pop_inv_operation();
+              ctrlMap->add_last_operation(ctrl::eManipulator::CTRL_Y);
+              ctrl::sOperation operation = ctrlMap->rem_ctrly();
               do_reverse_operation(operation);
-              operation.swap_operation();
-              ctrlMap->push_operation(operation); // add this op into the another stack //
+              ctrlMap->add_ctrlz(operation.swap_operation()); // add this op into the another stack //
               forceRedraw();
           }
       }
@@ -244,16 +245,16 @@ void ui::MapUI::drawGrid(cairo_t* cr, int w, int h, int gridSize)
     cairo_set_source_rgba(cr, gridColor.getX(), gridColor.getY(), gridColor.getZ(), 1);
     
 
-    for (int l = 0; l <= h; l+=REALMZ_GRID_SIZE)
+    for (int l = _view_center.getY() - h/2; l <= _view_center.getY() + h/2; l+=REALMZ_GRID_SIZE)
     {
         // draw vertical line //
-        cairo_move_to(cr, 0, l);
-        cairo_line_to(cr, w, l);
+        cairo_move_to(cr, _view_center.getX() - w / 2, l);
+        cairo_line_to(cr, _view_center.getX() + w / 2, l);
 
-        for (int c = 0; c <= w; c+=REALMZ_GRID_SIZE)
+        for (int c = _view_center.getX() - w/2; c <= _view_center.getX() + w / 2; c+=REALMZ_GRID_SIZE)
         {
-            cairo_move_to(cr, c, 0);
-            cairo_line_to(cr, c, h);
+            cairo_move_to(cr, c, _view_center.getY() - h / 2);
+            cairo_line_to(cr, c, _view_center.getY() + h / 2);
         }
 
     }
