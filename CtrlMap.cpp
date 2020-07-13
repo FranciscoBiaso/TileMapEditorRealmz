@@ -72,11 +72,16 @@ void ctrl::CtrlMap::inv_clean_stack()
 }
 
 void ctrl::CtrlMap::update_manipulator(ctrl::eManipulator operation)
-{
-    _manipulator[_manipulator_cursor] = operation;
+{ 
+    // 2º operation -> 1º operation
+    // 3º operation -> 2º operation
+    _manipulator[1] = _manipulator[0];
+    _manipulator[0] = operation;
     _manipulator_cursor = (_manipulator_cursor+1) % 2;
 
-    if (_manipulator[0] == ctrl::eManipulator::CTRL_Z &&
-        _manipulator[1] == ctrl::eManipulator::OPERATION)
+    if (_manipulator[1] == ctrl::eManipulator::CTRL_Z &&
+        _manipulator[0] == ctrl::eManipulator::OPERATION)
+    {
         inv_clean_stack();
+    }
 }
