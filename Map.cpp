@@ -40,15 +40,18 @@ void scene::Map::removeThing(std::string name, int line, int col, int level)
 	_count_things--; 
 }
 
-void scene::Map::drawMap(cairo_t* cr)
+void scene::Map::drawMap(cairo_t* cr, math::Vec2<int> start_position, math::Vec2<int> end_position)
 {
-	for (int y = 0; y < height; y++)
+	for (int line = start_position.getY(); line < end_position.getY(); line++)
 	{
-		for (int x = 0; x < width; x++)
+		for (int col = start_position.getX(); col < end_position.getY(); col++)		
 		{
-			structure[0][width * y + x].draw(cr);
+			cairo_rectangle(cr, col * REALMZ_GRID_SIZE, line * REALMZ_GRID_SIZE, 32, 32);
+			//cairo_stroke(cr);
+			//structure[0][width * line + col].draw(cr);
 		}
 	}
+	cairo_fill(cr);
 }
 
 int scene::Map::getWidth() const

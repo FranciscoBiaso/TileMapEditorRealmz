@@ -5,6 +5,7 @@
 #include <string>
 #include "Cylinder.h"
 #include <gdk/gdk.h>
+#include "Vec2.h"
 
 namespace data { class Thing; }
 
@@ -25,6 +26,7 @@ namespace scene {
 		int levels;/**< total levels or floors */
 		std::vector<std::vector<Cylinder>> structure; /**< internal structure (unity = cylinder) */
 		int _count_things;/**< count things placed into the map - starts empty */
+
 	protected:
 		/**
 		 * @brief This method delets all thing with name = thingName from the map.
@@ -74,7 +76,7 @@ namespace scene {
 		/**
 		 * @brief Draw map strcuture.
 		 */
-		void drawMap(cairo_t* cr);
+		void drawMap(cairo_t* cr, math::Vec2<int> start_position, math::Vec2<int> end_position);
 
 		/**
 		 * @brief Get count things placed into the map.

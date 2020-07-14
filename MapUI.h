@@ -6,7 +6,7 @@
 #include "CtrlMap.h"
 #include <gdk/gdk.h>
 #include <gtk/gtk.h>
-
+#include <iostream>
 namespace ui {
 
 	/*!
@@ -28,7 +28,7 @@ namespace ui {
 		 GtkWidget* drawingArea; // widget to draw //
 		 GObject* gtkMapViewPort; // container to draw the map //
 		 GObject* gtkMapFrame; 
-		 GObject* scrolledwindowMapUI;		
+		 GObject* scrolledwindowMapUI;
 		 int viewWidth, viewHeight;
 		 int _map_layer;
 		 data::Thing drawObj;
@@ -43,6 +43,12 @@ namespace ui {
 		 int ctrlModes;
 		 int ctrlModesPrevious;
 		 GdkPixbuf* cursorPixelbuf;
+		 GdkPixbuf* _pixelbuf_unity_grid;
+		 static GdkPixbuf* _pixelbuf_full_Grid;  // pixelbuff used to draw grid //
+		 cairo_surface_t* _surface_grid;
+		 bool _grid_enable;
+		 int _scroll_x_position;
+		 int _scroll_y_position;
 
 		/**
 		 *  @brief Auxiliary function to avoid static members.
@@ -68,6 +74,14 @@ namespace ui {
 		  *  @brief Auxiliary function to avoid static members.
 		  */
 		 static gboolean static_cb_onLeave(GtkWidget* widget, GdkEvent* event, gpointer user_data);
+
+		 /**
+		  *  @brief Auxiliary function to avoid static members.
+		  */
+		 static gboolean static_cb_scroll_child(GtkScrolledWindow* scrolled_window,
+			 GtkScrollType      scroll,
+			 gboolean           horizontal,
+			 gpointer           user_data);
 	public:
 		/**
 		 * constructor.
@@ -94,25 +108,11 @@ namespace ui {
 		 */
 		gboolean cb_MotionNotify(GtkWidget* widget, GdkEventMotion* event, gpointer user_data);
 
-		/**
-		 * @brief This method draws the map grid.
-		 */
-		void drawGrid(cairo_t* cr, int w, int h, int gridSize);
+		// w i p //
+		static void static_my_getsize(GtkWidget* widget, GtkAllocation* allocation, void* data);
 
 		// w i p //
-		static void static_my_getsize(GtkWidget* widget, GtkAllocation* allocation, void* data)
-		{
-
-			return reinterpret_cast<MapUI*>(data)->my_getsize(widget, allocation, allocation);
-		}
-
-		// w i p //
-		void my_getsize(GtkWidget* widget, GtkAllocation* allocation, void* data)
-		{
-			viewWidth = allocation->width;
-			viewHeight = allocation->height;
-			gtk_widget_queue_draw(drawingArea);
-		}
+		void map_resize(GtkWidget* widget, GtkAllocation* allocation, void* data);
 
 		data::Thing  addThingMapUI();
 		void delThingMapUI();
@@ -150,6 +150,13 @@ namespace ui {
 		void updateMapView();
 
 		void do_reverse_operation(ctrl::sOperation operation);
+
+		void value_change(GtkAdjustment* adjustment,gpointer user_data);
+
+		gboolean scroll_child(GtkScrolledWindow* scrolled_window,
+			GtkScrollType      scroll,
+			gboolean           horizontal,
+			gpointer           user_data);
 	};
 }
 

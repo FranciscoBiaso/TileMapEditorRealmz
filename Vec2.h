@@ -1,6 +1,6 @@
 #pragma once
 #include "Definitions.h"
-
+#include <ostream>
 namespace math {
 	/*!
 		Vec2 class 
@@ -116,6 +116,16 @@ namespace math {
 		}
 
 		/**
+		 * @brief This method overloads the + operator.
+		 */
+		Vec2& operator+(const Vec2& v2)
+		{
+			this->x += v2.getX();
+			this->y += v2.getY();
+			return *this;
+		}
+
+		/**
 		 * @brief This method increments the x and y position as a matrix of width mod.
 		 */
 		void rightShiftCursor(int mod)
@@ -165,6 +175,7 @@ namespace math {
 			for (int i = 0; i < x; i++)
 				leftShiftCursor(mod);
 		}
-	};
-}
 
+		//friend std::ostream& operator<<(std::ostream& os, const Vec2& dt);
+	};	
+}

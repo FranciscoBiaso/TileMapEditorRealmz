@@ -5,6 +5,9 @@
 #include "DrawingToolUI.h"
 #include "CtrlMap.h"
 #include "Thing.h"
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
 extern data::MapResources* gResources;
 extern ui::AuxUI* gAuxUI;
@@ -12,6 +15,8 @@ extern ui::DrawingToolUI* gDrawingToolUI;
 extern ctrl::CtrlMap* ctrlMap;
 
 namespace GtkUserInterface { extern GtkBuilder* builder; }
+
+GdkPixbuf* ui::MapUI::_pixelbuf_full_Grid = NULL;
 
 ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,height)
 {
@@ -29,10 +34,12 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
     gtk_widget_add_events(drawingArea, GDK_KEY_RELEASE_MASK);
     gtk_widget_add_events(drawingArea, GDK_LEAVE_NOTIFY_MASK);
     gtk_widget_add_events(drawingArea, GDK_ENTER_NOTIFY_MASK);
+    gtk_widget_add_events(drawingArea, GDK_ENTER_NOTIFY_MASK);
+    
 
-    gtk_widget_set_size_request(GTK_WIDGET(drawingArea), REALMZ_GRID_SIZE * MAP_SCENE_WIDTH , REALMZ_GRID_SIZE * MAP_SCENE_HEIGHT );
+    gtk_widget_set_size_request(GTK_WIDGET(drawingArea), getWidth() * REALMZ_GRID_SIZE + 6 * REALMZ_GRID_SIZE, getHeight() * REALMZ_GRID_SIZE + 6 * REALMZ_GRID_SIZE);
     gtk_container_add(GTK_CONTAINER(gtkMapViewPort), drawingArea);
-        
+
     g_signal_connect(G_OBJECT(drawingArea), "draw", G_CALLBACK(static_cb_draw_callback), this);
     g_signal_connect(G_OBJECT(drawingArea), "button-press-event", G_CALLBACK(static_cb_clickNotify), this);
     g_signal_connect(G_OBJECT(drawingArea), "button-release-event", G_CALLBACK(static_cb_clickNotify), this);
@@ -43,6 +50,7 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
     g_signal_connect(G_OBJECT(drawingArea), "leave-notify-event", G_CALLBACK(static_cb_onLeave), this);
 
     g_signal_connect(gtkMapViewPort, "size-allocate", G_CALLBACK(static_my_getsize), this);
+    g_signal_connect(G_OBJECT(scrolledwindowMapUI), "scroll-child", G_CALLBACK(static_cb_scroll_child), this);
 
     thingIsSelected = false;
     ctrlModes = DRAWING_EMPTY;
@@ -53,14 +61,35 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
     canDrawMouseShadowSquare = false;
     _map_layer = 0;
     updateMapView();
+
+    if (_pixelbuf_unity_grid == nullptr)
+	{
+		GError* err = NULL;
+		_pixelbuf_unity_grid = gdk_pixbuf_new_from_file("ui_imgs//grid_unity.png", &err);
+	}
+    _grid_enable = true;
+}
+
+void ui::MapUI::static_my_getsize(GtkWidget* widget, GtkAllocation* allocation, void* data)
+{
+    return reinterpret_cast<MapUI*>(data)->map_resize(widget, allocation, allocation);
 }
 
 gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data)
 {
-    drawGrid(cr, viewWidth, viewHeight, REALMZ_GRID_SIZE);
+    // draw grid //
+   // if (_grid_enable)
+    {
+        //cairo_set_source_surface(cr, _surface_grid, 0, 0);
+        //cairo_paint(cr);
+    }
 
-    drawMap(cr);
+    //if (_scroll_x_position < 3 * REALMZ_GRID_SIZE)
+        ///_scroll_x_position = ;
 
+    cairo_set_source_surface(cr, _surface_grid, 3 * REALMZ_GRID_SIZE + _scroll_x_position, 3 * REALMZ_GRID_SIZE + _scroll_y_position);
+    cairo_paint(cr);
+    //drawMap(cr, math::Vec2(3, 3), math::Vec2(getWidth(), getHeight()));
 
     // mouse square - shadow //
     if (canDrawMouseShadowSquare)
@@ -68,7 +97,7 @@ gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer da
         GdkRGBA HLSColor; HLSColor.red = 0; HLSColor.green = 0; HLSColor.blue = 0.85; HLSColor.alpha = 0.25;
         graphics::drawSquare(cr, mousePosition.getX() * REALMZ_GRID_SIZE, mousePosition.getY() * REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, HLSColor);
     }
-
+    
     return FALSE;
 }
 
@@ -95,6 +124,14 @@ gboolean ui::MapUI::static_cb_onEnter(GtkWidget* widget, GdkEvent* event, gpoint
 gboolean ui::MapUI::static_cb_onLeave(GtkWidget* widget, GdkEvent* event, gpointer user_data)
 {
     return reinterpret_cast<MapUI*>(user_data)->cb_onLeave(widget, event, user_data);
+}
+
+gboolean ui::MapUI::static_cb_scroll_child(GtkScrolledWindow* scrolled_window,
+    GtkScrollType      scroll,
+    gboolean           horizontal,
+    gpointer           user_data)
+{
+    return reinterpret_cast<MapUI*>(user_data)->scroll_child(scrolled_window, scroll, horizontal, user_data);
 }
 
 gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpointer user_data)
@@ -145,6 +182,11 @@ void ui::MapUI::updateMapView()
     gtk_adjustment_set_value(v_adjustment, v_value + mapDetachment.getY());
 
     _view_center.setXY(gtk_adjustment_get_value(h_adjustment), gtk_adjustment_get_value(v_adjustment));
+
+    _scroll_x_position = gtk_adjustment_get_value(h_adjustment);
+    _scroll_y_position = gtk_adjustment_get_value(v_adjustment);
+    std::cout << "?" << gtk_adjustment_get_value(h_adjustment) << "," << gtk_adjustment_get_value(v_adjustment) << std::endl;
+    forceRedraw();
 }
 
 gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer user_data)
@@ -232,34 +274,6 @@ void ui::MapUI::setDrawThingObj(data::Thing thing)
     drawObj = thing;
 
     thingIsSelected = true;
-}
-
-void ui::MapUI::drawGrid(cairo_t* cr, int w, int h, int gridSize)
-{
-    if (w == -1 || h == -1) return;
-
-    cairo_set_line_width(cr, 1.2);
-    //double dashs[2] = { 1.0, 1.0 };
-    //cairo_set_dash(cr, dashs, 1, 0);
-    cairo_set_line_cap(cr, CAIRO_LINE_CAP_BUTT);
-    cairo_set_source_rgba(cr, gridColor.getX(), gridColor.getY(), gridColor.getZ(), 1);
-    
-
-    for (int l = _view_center.getY() - h/2; l <= _view_center.getY() + h/2; l+=REALMZ_GRID_SIZE)
-    {
-        // draw vertical line //
-        cairo_move_to(cr, _view_center.getX() - w / 2, l);
-        cairo_line_to(cr, _view_center.getX() + w / 2, l);
-
-        for (int c = _view_center.getX() - w/2; c <= _view_center.getX() + w / 2; c+=REALMZ_GRID_SIZE)
-        {
-            cairo_move_to(cr, c, _view_center.getY() - h / 2);
-            cairo_line_to(cr, c, _view_center.getY() + h / 2);
-        }
-
-    }
-    cairo_stroke(cr);
-    cairo_fill(cr);
 }
 
 data::Thing ui::MapUI::addThingMapUI()
@@ -389,4 +403,47 @@ void ui::MapUI::do_reverse_operation(ctrl::sOperation operation)
     default:
         break;
     }
+}
+
+void ui::MapUI::map_resize(GtkWidget* widget, GtkAllocation* allocation, void* data)
+{        
+    viewWidth = allocation->width;
+    viewHeight = allocation->height;
+
+    std::cout << "viewWidth:" << viewWidth << "," << "viewHeight:" << viewHeight << std::endl;
+    if (_pixelbuf_full_Grid == NULL)
+        _pixelbuf_full_Grid = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, viewWidth + REALMZ_GRID_SIZE, viewHeight + REALMZ_GRID_SIZE);
+
+    
+    if (_pixelbuf_full_Grid != NULL)
+    {
+        GError* err = NULL;
+        for (int l = 0; l < viewHeight; l+= REALMZ_GRID_SIZE)
+            for (int c = 0; c < viewWidth; c+= REALMZ_GRID_SIZE)
+                gdk_pixbuf_copy_area(_pixelbuf_unity_grid, 0, 0, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, _pixelbuf_full_Grid, c, l );
+
+        _surface_grid = gdk_cairo_surface_create_from_pixbuf(_pixelbuf_full_Grid, 0, NULL);
+        g_object_unref(_pixelbuf_full_Grid);
+        _pixelbuf_full_Grid = NULL;
+    }
+}
+
+
+gboolean ui::MapUI::scroll_child(GtkScrolledWindow* scrolled_window,
+    GtkScrollType      scroll,
+    gboolean           horizontal,
+    gpointer           user_data)
+{
+     GtkAdjustment* h_adjustment = gtk_scrolled_window_get_hadjustment(scrolled_window);
+     GtkAdjustment* v_adjustment = gtk_scrolled_window_get_vadjustment(scrolled_window);
+     double h_value = gtk_adjustment_get_value(h_adjustment);
+     double v_value = gtk_adjustment_get_value(v_adjustment);
+     gtk_adjustment_set_value(h_adjustment, h_value + mapDetachment.getX());
+     gtk_adjustment_set_value(v_adjustment, v_value + mapDetachment.getY());
+
+     _scroll_x_position = gtk_adjustment_get_value(h_adjustment);
+     _scroll_y_position = gtk_adjustment_get_value(v_adjustment);
+     std::cout <<"?"<< gtk_adjustment_get_value(h_adjustment) << "," << gtk_adjustment_get_value(v_adjustment) << std::endl;
+     forceRedraw();
+     return TRUE;
 }
