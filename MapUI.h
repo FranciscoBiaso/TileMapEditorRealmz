@@ -38,6 +38,7 @@ namespace ui {
 		 math::Vec2<int> mapDetachment;
 		 math::Vec3<float> gridColor;
 		 math::Vec2<int> _view_center;
+		 math::Vec2<int> _camera_position;
 		 bool canDrawMouseShadowSquare;
 		 bool thingIsSelected;
 		 int ctrlModes;
@@ -75,13 +76,6 @@ namespace ui {
 		  */
 		 static gboolean static_cb_onLeave(GtkWidget* widget, GdkEvent* event, gpointer user_data);
 
-		 /**
-		  *  @brief Auxiliary function to avoid static members.
-		  */
-		 static gboolean static_cb_scroll_child(GtkScrolledWindow* scrolled_window,
-			 GtkScrollType      scroll,
-			 gboolean           horizontal,
-			 gpointer           user_data);
 	public:
 		/**
 		 * constructor.
@@ -153,10 +147,7 @@ namespace ui {
 
 		void value_change(GtkAdjustment* adjustment,gpointer user_data);
 
-		gboolean scroll_child(GtkScrolledWindow* scrolled_window,
-			GtkScrollType      scroll,
-			gboolean           horizontal,
-			gpointer           user_data);
+		void move_camera(math::Vec2<int> position);
 	};
 }
 
