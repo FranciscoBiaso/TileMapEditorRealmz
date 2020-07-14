@@ -64,12 +64,15 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
 	{
 		GError* err = NULL;
 		_pixelbuf_unity_grid = gdk_pixbuf_new_from_file("ui_imgs//grid_unity.png", &err);
+        _surface_grid = gdk_cairo_surface_create_from_pixbuf(_pixelbuf_unity_grid, 0, NULL);
 	}
     _grid_enable = true;
 
     camera_at(math::Vec2(0, 0));
     _camera_move_speed = REALMZ_GRID_SIZE;
     camera_set_delta(REALMZ_GRID_SIZE);
+
+    enable_draw_map_borders();
 }
 
 void ui::MapUI::static_my_getsize(GtkWidget* widget, GtkAllocation* allocation, void* data)
@@ -110,7 +113,8 @@ gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer da
     double f = 1 / (REALMZ_GRID_SIZE * 1.0);
     position_center_to_draw.setXY(_camera_position.getX() * f , _camera_position.getY() * f);
     //cairo_paint(cr);
-     drawMap(cr, position_center_to_draw, viewWidth/REALMZ_GRID_SIZE, viewHeight/ REALMZ_GRID_SIZE);
+     //drawMap(cr, position_center_to_draw, viewWidth/REALMZ_GRID_SIZE, viewHeight/ REALMZ_GRID_SIZE, can_draw_map_borders());
+    draw_map_ui(cr);
     //cairo_restore(cr);
 
     // mouse square - shadow //
@@ -428,10 +432,9 @@ void ui::MapUI::map_resize(GtkWidget* widget, GtkAllocation* allocation, void* d
 {        
     viewWidth = allocation->width;
     viewHeight = allocation->height;
-    
+    /*
     if (_pixelbuf_full_Grid == NULL)
         _pixelbuf_full_Grid = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, viewWidth + REALMZ_GRID_SIZE, viewHeight + REALMZ_GRID_SIZE);
-
     
     if (_pixelbuf_full_Grid != NULL)
     {
@@ -444,6 +447,7 @@ void ui::MapUI::map_resize(GtkWidget* widget, GtkAllocation* allocation, void* d
         g_object_unref(_pixelbuf_full_Grid);
         _pixelbuf_full_Grid = NULL;
     }
+    */
     forceRedraw();
 }
 
@@ -510,4 +514,69 @@ void ui::MapUI::camera_block()
         _camera_position.setX(getWidth() * REALMZ_GRID_SIZE);
     if (camera_get_position().getY() > getHeight() * REALMZ_GRID_SIZE)
         _camera_position.setY(getHeight() * REALMZ_GRID_SIZE);
+}
+
+
+void ui::MapUI::enable_draw_map_borders()
+{
+    _draw_map_borders = true;
+}
+
+void ui::MapUI::disable_draw_map_borders()
+{
+    _draw_map_borders = false;
+}
+
+bool ui::MapUI::can_draw_map_borders()
+{
+    return _draw_map_borders;
+}
+
+void ui::MapUI::draw_map_ui(cairo_t * cr)
+{
+    int widthTiles = viewWidth / REALMZ_GRID_SIZE;
+    int heightTiles = viewHeight / REALMZ_GRID_SIZE;
+
+    math::Vec2<int> position_center_to_draw;
+    double f = 1 / (REALMZ_GRID_SIZE * 1.0);
+    position_center_to_draw.setXY(camera_get_position().getX() * f, camera_get_position().getY() * f);
+    int x_start_position = position_center_to_draw.getX() - widthTiles / 2;
+    if (x_start_position < 0)
+        x_start_position = 0;    
+    int x_end_position = position_center_to_draw.getX() + widthTiles / 2;
+    if (x_end_position > getWidth())
+        x_end_position = getWidth();
+
+    int y_start_position = position_center_to_draw.getY() - heightTiles / 2;
+    if (y_start_position < 0)
+        y_start_position = 0;
+    int y_end_position = position_center_to_draw.getY() + heightTiles / 2;
+    if (y_end_position > getHeight())
+        y_end_position = getHeight();
+
+
+    if (can_draw_map_borders()) // DRAW BORDER LEFT //
+    {
+        if (x_start_position == 0)
+        {
+            //for (int line = y_start_position; line < y_end_position; line++)
+        }
+    }
+
+    scene::Cylinder * cylinder = nullptr;
+    for (int line = y_start_position; line < y_end_position; line++)
+    {
+        for (int col = x_start_position; col < x_end_position; col++)
+        {
+            cylinder = &this->structure[0][width * line + col];
+            if (_grid_enable)
+            {
+                cairo_set_source_surface(cr, _surface_grid, cylinder->getCoords().getX() * REALMZ_GRID_SIZE, cylinder->getCoords().getY() * REALMZ_GRID_SIZE);
+                cairo_paint(cr);
+            }
+            //cylinder->draw(cr);
+        }
+    }
+
+
 }

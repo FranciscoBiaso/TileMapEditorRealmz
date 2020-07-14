@@ -19,7 +19,7 @@ namespace scene {
 	*/
 	class Map
 	{
-	private:
+	protected:
 		std::string name;/**< name of the map */
 		int width;/**< width */
 		int height;/**< height */
@@ -27,7 +27,6 @@ namespace scene {
 		std::vector<std::vector<Cylinder>> structure; /**< internal structure (unity = cylinder) */
 		int _count_things;/**< count things placed into the map - starts empty */
 
-	protected:
 		/**
 		 * @brief This method delets all thing with name = thingName from the map.
 		 */
@@ -76,7 +75,7 @@ namespace scene {
 		/**
 		 * @brief Draw map strcuture.
 		 */
-		void drawMap(cairo_t* cr, math::Vec2<int> camera_position, int width, int height);
+		void drawMap(cairo_t* cr, math::Vec2<int> camera_position, int width, int height,bool draw_borders);
 
 		/**
 		 * @brief Get count things placed into the map.

@@ -40,11 +40,18 @@ void scene::Map::removeThing(std::string name, int line, int col, int level)
 	_count_things--; 
 }
 
-void scene::Map::drawMap(cairo_t* cr, math::Vec2<int> camera_position, int widthTiles, int heightTiles)
+void scene::Map::drawMap(cairo_t* cr, math::Vec2<int> camera_position, int widthTiles, int heightTiles, bool draw_borders)
 {
+	/*
 	int x_start_position = camera_position.getX() - widthTiles /2;
 	if (x_start_position < 0)
+	{
 		x_start_position = 0;
+		if (draw_borders) // DRAW BORDER LEFT //
+		{
+			cairo_rectangle(cr, coords.getX() * REALMZ_GRID_SIZE, coords.getY() * REALMZ_GRID_SIZE, 32, 32);
+		}
+	}
 	int x_end_position = camera_position.getX() + widthTiles / 2;
 	if (x_end_position > width)
 		x_end_position = width;
@@ -65,6 +72,7 @@ void scene::Map::drawMap(cairo_t* cr, math::Vec2<int> camera_position, int width
 	}
 
 	cairo_stroke(cr);
+	*/
 }
 
 int scene::Map::getWidth() const

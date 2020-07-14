@@ -16,7 +16,7 @@ namespace ui {
 	This class represents the map view user interface.
 	*/
 
-	class MapUI: public scene::Map
+	class MapUI: protected scene::Map
 	{
 		enum ctrlModes : int {
 			DRAWING_EMPTY = 0,
@@ -44,6 +44,7 @@ namespace ui {
 		double _camera_move_speed; /**< camera speed when moving with space key */
 		bool canDrawMouseShadowSquare;
 		bool thingIsSelected;
+		bool _draw_map_borders;
 		int ctrlModes;
 		int ctrlModesPrevious;
 		GdkPixbuf* cursorPixelbuf;
@@ -53,6 +54,8 @@ namespace ui {
 		bool _grid_enable;
 		int _scroll_x_position;
 		int _scroll_y_position;
+
+		void draw_map_ui(cairo_t* cr);
 
 		void hide_shadow_square();
 		void show_shadow_square();
@@ -64,6 +67,11 @@ namespace ui {
 		 *  This function is created to be used with ctrl+z/ctrl+y functionalities.
 		 */
 		void do_reverse_operation(ctrl::sOperation operation);
+
+		/**
+		 *  @brief gets variable map borders.
+		 */
+		bool can_draw_map_borders();
 
 		/**
 		 *  @brief block the limite of camera.
@@ -197,6 +205,16 @@ namespace ui {
 		 * @brief This method moves the camera center positon by (dx,dy).
 		 */
 		void camera_move(int dx, int dy);
+
+		/**
+		 * @brief This method enable draw map borders.
+		 */
+		void enable_draw_map_borders();
+		/**
+		 * @brief This method disable draw map borders.
+		 */
+		void disable_draw_map_borders();
+
 	};
 }
 
