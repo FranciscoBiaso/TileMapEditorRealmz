@@ -79,21 +79,19 @@ void ui::MapUI::static_my_getsize(GtkWidget* widget, GtkAllocation* allocation, 
 
 gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data)
 {
-    int x_position = 100;
-    int y_position = 100;
-
     // TransformedVector = TranslationMatrix * RotationMatrix * ScaleMatrix * OriginalVector;
+    
     cairo_matrix_t matrix;
     cairo_matrix_init_identity(&matrix);
     cairo_set_matrix(cr, &matrix);
-    cairo_save(cr);
     //cairo_scale(cr, 0.2, 0.2);
     
     // view matrix -> camera // 
     cairo_translate(cr, +viewWidth/2 - _camera_position.getX(),+viewHeight/2 - _camera_position.getY());
 
     // model
-    cairo_translate(cr, x_position, y_position);
+
+    //draw_grid();
 
     GdkRGBA color; color.red = 0; color.green = 0; color.blue = 0.85; color.alpha = 0.25;
     gdk_cairo_set_source_rgba(cr, &color);
@@ -108,10 +106,12 @@ gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer da
     cairo_rectangle(cr, 0, 0, 200, -200);
     cairo_rectangle(cr, 0, 0, 200, 200);
     cairo_stroke(cr);
-    cairo_restore(cr);
-
+    math::Vec2<int> position_center_to_draw;
+    double f = 1 / (REALMZ_GRID_SIZE * 1.0);
+    position_center_to_draw.setXY(_camera_position.getX() * f , _camera_position.getY() * f);
     //cairo_paint(cr);
-    //drawMap(cr, math::Vec2(3, 3), math::Vec2(getWidth(), getHeight()));
+     drawMap(cr, position_center_to_draw, viewWidth/REALMZ_GRID_SIZE, viewHeight/ REALMZ_GRID_SIZE);
+    //cairo_restore(cr);
 
     // mouse square - shadow //
     if (canDrawMouseShadowSquare)
@@ -152,38 +152,34 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
 {
     mousePosition.setX((int)(e->x / REALMZ_GRID_SIZE) );
     mousePosition.setY((int)(e->y / REALMZ_GRID_SIZE) );
-
-    if (ctrlModes == DRAWING_PEN_SELECTED &&
-        mousePositionPrevious != mousePosition) // we only add new item if mouse square changes //
+    bool mousePositionHasChanged = (mousePositionPrevious != mousePosition);
+    
+    if (ctrlModes == DRAWING_PEN_SELECTED && mousePositionHasChanged) // we only add new item if mouse square changes //
     {
-        mousePositionPrevious = mousePosition;
         // ctrl add operation to the stack //
         ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI()));
         ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
     }
 
-    if (ctrlModes == DRAWING_ERASER_SELECTED &&
-      mousePositionPrevious != mousePosition) // we only add new item if mouse square changes //
+    if (ctrlModes == DRAWING_ERASER_SELECTED && mousePositionHasChanged) // we only add new item if mouse square changes //
     {
-        mousePositionPrevious = mousePosition;
         delThingMapUI();
         ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
     }
 
     if (ctrlModes == MOVING_VIEW_OF_MAP)
     {
+        if (mousePosition == mouseStartPositionToMoveMapView)
+            return TRUE;
         // mouse distance vector //
-        mapDetachment.setX((mouseStartPositionToMoveMapView.getX() - mousePosition.getX()));
-        mapDetachment.setY((mouseStartPositionToMoveMapView.getY() - mousePosition.getY()));
-        
-        mouseStartPositionToMoveMapView = mousePosition;
-        mapDetachment.normalize() * _camera_move_speed;
-        
-        camera_move(mapDetachment.getX(), mapDetachment.getY());
-
-        forceRedraw();
+        mapDetachment.setX(mousePosition.getX() - mouseStartPositionToMoveMapView.getX());
+        mapDetachment.setY(mousePosition.getY() - mouseStartPositionToMoveMapView.getY());
+        mapDetachment = mapDetachment * -(REALMZ_GRID_SIZE/4.0);
+        camera_at(_camera_position_when_user_press_space + mapDetachment);
+        camera_block();        
     }
 
+    mousePositionPrevious = mousePosition;
     gtk_widget_queue_draw(GTK_WIDGET(drawingArea));
     return TRUE;
 }
@@ -224,6 +220,7 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
         ctrlModesPrevious = ctrlModes;
         ctrlModes = MOVING_VIEW_OF_MAP;
         mouseStartPositionToMoveMapView = mousePosition;
+        _camera_position_when_user_press_space = camera_get_position();
         hide_shadow_square();
         selectCursor();
       }
@@ -284,6 +281,7 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
         ctrlModes = ctrlModesPrevious;  
         show_shadow_square();
         selectCursor();
+        forceRedraw();
       }
     }
 
@@ -446,6 +444,7 @@ void ui::MapUI::map_resize(GtkWidget* widget, GtkAllocation* allocation, void* d
         g_object_unref(_pixelbuf_full_Grid);
         _pixelbuf_full_Grid = NULL;
     }
+    forceRedraw();
 }
 
 void ui::MapUI::camera_at(math::Vec2<int> position)
@@ -493,4 +492,22 @@ void ui::MapUI::hide_shadow_square()
 void ui::MapUI::show_shadow_square()
 {
     canDrawMouseShadowSquare = true;
+}
+
+math::Vec2<int> ui::MapUI::camera_get_position()
+{
+    return _camera_position;
+}
+
+void ui::MapUI::camera_block()
+{
+    if (camera_get_position().getX() < 0)
+        _camera_position.setX(0);
+    if(camera_get_position().getY() < 0)
+        _camera_position.setY(0);
+
+    if (camera_get_position().getX() > getWidth() * REALMZ_GRID_SIZE)
+        _camera_position.setX(getWidth() * REALMZ_GRID_SIZE);
+    if (camera_get_position().getY() > getHeight() * REALMZ_GRID_SIZE)
+        _camera_position.setY(getHeight() * REALMZ_GRID_SIZE);
 }

@@ -89,9 +89,11 @@ void scene::Cylinder::removeItem(std::string name)
 
 void scene::Cylinder::draw(cairo_t* cr)
 {
+	cairo_rectangle(cr, coords.getX() * REALMZ_GRID_SIZE, coords.getY() * REALMZ_GRID_SIZE, 32, 32);
+
 	for (auto it = items.begin(); it != items.end(); it++)
 	{
-		(*it).draw(cr);
+		//(*it).draw(cr);
 	}
 }
 

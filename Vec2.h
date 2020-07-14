@@ -8,7 +8,7 @@ namespace math {
 
 		This class represents a vec2(x,y) strucutre and its basic operations.
 	 */
-	template <class T=int>
+	template <class T>
 	class Vec2
 	{
 	private:
@@ -33,7 +33,7 @@ namespace math {
 		 *
 		 * @param v Vec2 to copy.
 		 */
-		Vec2(const Vec2& v) { x = v.getX(); y = v.getY(); }
+		Vec2(const Vec2<T>& v) { x = v.getX(); y = v.getY(); }
 
 		/**
 		 * @brief This method gets x position.
@@ -87,7 +87,7 @@ namespace math {
 		/**
 		 * @brief This method normalizes vec.
 		 */
-		Vec2& normalize()
+		Vec2<T>& normalize()
 		{
 			this->x = this->x / length();
 			this->y = this->y / length();
@@ -98,15 +98,24 @@ namespace math {
 		 * @brief This method checks if Vec2 is diferent from another Vec2.
 		 * It compares x and y data.
 		 */
-		bool operator!=(const Vec2& v2)
+		bool operator!=(const Vec2<T>& v2)
 		{
 			return x != v2.getX() || y != v2.getY() ? true : false;
 		}
 
 		/**
+		 * @brief This method checks if Vec2A is equal to Vec2B.
+		 * Do not make sense with double type.
+		 */
+		bool operator==(const Vec2<T>& v2)
+		{
+			return x == v2.getX() && y == v2.getY() ? true : false;
+		}
+
+		/**
 		 * @brief This method overloads the multiplication operator.
 		 */
-		Vec2& operator*(const T& mult)
+		Vec2<T>& operator*(const T& mult)
 		{
 			this->x *= mult;
 			this->y *= mult;
@@ -116,7 +125,7 @@ namespace math {
 		/**
 		 * @brief This method overloads the assignment operator.
 		 */
-		Vec2& operator=(const Vec2& v2)
+		Vec2<T>& operator=(const Vec2<T>& v2)
 		{
 			this->x = v2.getX();
 			this->y = v2.getY();
@@ -126,7 +135,7 @@ namespace math {
 		/**
 		 * @brief This method overloads the - operator.
 		 */
-		Vec2& operator-(const Vec2& v2)
+		Vec2<T>& operator-(const Vec2<T>& v2)
 		{
 			this->x -= v2.getX();
 			this->y -= v2.getY();
@@ -136,7 +145,7 @@ namespace math {
 		/**
 		 * @brief This method overloads the + operator.
 		 */
-		Vec2& operator+(const Vec2& v2)
+		Vec2<T>& operator+(const Vec2<T>& v2)
 		{
 			this->x += v2.getX();
 			this->y += v2.getY();

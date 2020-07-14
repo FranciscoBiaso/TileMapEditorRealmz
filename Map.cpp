@@ -40,18 +40,31 @@ void scene::Map::removeThing(std::string name, int line, int col, int level)
 	_count_things--; 
 }
 
-void scene::Map::drawMap(cairo_t* cr, math::Vec2<int> start_position, math::Vec2<int> end_position)
+void scene::Map::drawMap(cairo_t* cr, math::Vec2<int> camera_position, int widthTiles, int heightTiles)
 {
-	for (int line = start_position.getY(); line < end_position.getY(); line++)
+	int x_start_position = camera_position.getX() - widthTiles /2;
+	if (x_start_position < 0)
+		x_start_position = 0;
+	int x_end_position = camera_position.getX() + widthTiles / 2;
+	if (x_end_position > width)
+		x_end_position = width;
+	
+	int y_start_position = camera_position.getY() - height / 2;
+	if (y_start_position < 0)
+		y_start_position = 0;
+	int y_end_position = camera_position.getY() + height / 2;
+	if (y_end_position > height)
+		y_end_position = height;
+
+	for (int line = y_start_position; line < y_end_position; line++)
 	{
-		for (int col = start_position.getX(); col < end_position.getY(); col++)		
+		for (int col = x_start_position; col < x_end_position; col++)
 		{
-			cairo_rectangle(cr, col * REALMZ_GRID_SIZE, line * REALMZ_GRID_SIZE, 32, 32);
-			//cairo_stroke(cr);
-			//structure[0][width * line + col].draw(cr);
+			structure[0][width * line + col].draw(cr);	
 		}
 	}
-	cairo_fill(cr);
+
+	cairo_stroke(cr);
 }
 
 int scene::Map::getWidth() const

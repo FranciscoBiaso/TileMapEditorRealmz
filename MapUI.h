@@ -35,10 +35,11 @@ namespace ui {
 		math::Vec2<int> mousePosition;
 		math::Vec2<int> mousePositionPrevious;
 		math::Vec2<int> mouseStartPositionToMoveMapView; /**< position of mouse when keyboard space was pressed */
-		math::Vec2<double> mapDetachment; /**< displace of mouseStartPositionToMoveMapView and new mouse position */
+		math::Vec2<int> mapDetachment; /**< displace of mouseStartPositionToMoveMapView and new mouse position */
 		math::Vec3<float> gridColor;
 		math::Vec2<int> _view_center;
 		math::Vec2<int> _camera_position;  /**< center of camera */
+		math::Vec2<int> _camera_position_when_user_press_space;  /**<  */
 		int _camera_delta; /**< camera displacement (x,y) */
 		double _camera_move_speed; /**< camera speed when moving with space key */
 		bool canDrawMouseShadowSquare;
@@ -64,6 +65,14 @@ namespace ui {
 		 */
 		void do_reverse_operation(ctrl::sOperation operation);
 
+		/**
+		 *  @brief block the limite of camera.
+		 */
+		void camera_block();
+		/**
+		 *  @brief Get camera position.
+		 */
+		math::Vec2<int> camera_get_position();
 		/**
 		 *  @brief Change the value of delta variable.
 		 */

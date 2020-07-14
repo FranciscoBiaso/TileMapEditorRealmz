@@ -76,7 +76,7 @@ namespace scene {
 		/**
 		 * @brief Draw map strcuture.
 		 */
-		void drawMap(cairo_t* cr, math::Vec2<int> start_position, math::Vec2<int> end_position);
+		void drawMap(cairo_t* cr, math::Vec2<int> camera_position, int width, int height);
 
 		/**
 		 * @brief Get count things placed into the map.
