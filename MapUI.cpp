@@ -59,7 +59,6 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
     gridColor.setXYZ(0.95f, 0.95f, 0.1f);
     canDrawMouseShadowSquare = false;
     _map_layer = 0;
-    updateMapView();
 
     if (_pixelbuf_unity_grid == nullptr)
 	{
@@ -68,7 +67,9 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
 	}
     _grid_enable = true;
 
-    _camera_position.setXY(0, 0);
+    camera_at(math::Vec2(0, 0));
+    _camera_move_speed = REALMZ_GRID_SIZE;
+    camera_set_delta(REALMZ_GRID_SIZE);
 }
 
 void ui::MapUI::static_my_getsize(GtkWidget* widget, GtkAllocation* allocation, void* data)
@@ -78,8 +79,8 @@ void ui::MapUI::static_my_getsize(GtkWidget* widget, GtkAllocation* allocation, 
 
 gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data)
 {
-    int x_position = 250;
-    int y_position = 250;
+    int x_position = 100;
+    int y_position = 100;
 
     // TransformedVector = TranslationMatrix * RotationMatrix * ScaleMatrix * OriginalVector;
     cairo_matrix_t matrix;
@@ -102,7 +103,11 @@ gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer da
     cairo_rectangle(cr, 0, 0, 1, 200);
     cairo_rectangle(cr, 0, 0, 1, -200);
     cairo_fill(cr);
-
+    cairo_rectangle(cr, 0, 0, -200, -200);
+    cairo_rectangle(cr, 0, 0, -200, 200);
+    cairo_rectangle(cr, 0, 0, 200, -200);
+    cairo_rectangle(cr, 0, 0, 200, 200);
+    cairo_stroke(cr);
     cairo_restore(cr);
 
     //cairo_paint(cr);
@@ -167,35 +172,20 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
 
     if (ctrlModes == MOVING_VIEW_OF_MAP)
     {
-        // mouse distance vector
-        mapDetachment.setX((mousePosition.getX() - mouseStartPositionToMoveMapView.getX()) * REALMZ_GRID_SIZE);
-        mapDetachment.setY((mousePosition.getY() - mouseStartPositionToMoveMapView.getY()) * REALMZ_GRID_SIZE);
+        // mouse distance vector //
+        mapDetachment.setX((mouseStartPositionToMoveMapView.getX() - mousePosition.getX()));
+        mapDetachment.setY((mouseStartPositionToMoveMapView.getY() - mousePosition.getY()));
         
-        updateMapView();
-        mouseStartPositionToMoveMapView = mousePosition; // reset the position
+        mouseStartPositionToMoveMapView = mousePosition;
+        mapDetachment.normalize() * _camera_move_speed;
+        
+        camera_move(mapDetachment.getX(), mapDetachment.getY());
+
         forceRedraw();
     }
 
     gtk_widget_queue_draw(GTK_WIDGET(drawingArea));
     return TRUE;
-}
-
-void ui::MapUI::updateMapView()
-{
-    GtkScrolledWindow* scrolledWindow = GTK_SCROLLED_WINDOW(scrolledwindowMapUI);
-    GtkAdjustment* h_adjustment = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scrolledwindowMapUI));
-    GtkAdjustment* v_adjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolledwindowMapUI));
-    double h_value = gtk_adjustment_get_value(h_adjustment);
-    double v_value = gtk_adjustment_get_value(v_adjustment);
-    gtk_adjustment_set_value(h_adjustment, h_value + mapDetachment.getX());
-    gtk_adjustment_set_value(v_adjustment, v_value + mapDetachment.getY());
-
-    _view_center.setXY(gtk_adjustment_get_value(h_adjustment), gtk_adjustment_get_value(v_adjustment));
-
-    _scroll_x_position = gtk_adjustment_get_value(h_adjustment);
-    _scroll_y_position = gtk_adjustment_get_value(v_adjustment);
-    
-    forceRedraw();
 }
 
 gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer user_data)
@@ -234,6 +224,7 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
         ctrlModesPrevious = ctrlModes;
         ctrlModes = MOVING_VIEW_OF_MAP;
         mouseStartPositionToMoveMapView = mousePosition;
+        hide_shadow_square();
         selectCursor();
       }
 
@@ -264,13 +255,34 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
               forceRedraw();
           }
       }
+      // MOVING CAMERA //
+      if (event->key.keyval == GDK_KEY_w || event->key.keyval == GDK_KEY_W)
+      {
+          camera_move_top();
+          forceRedraw();
+      }
+      else if (event->key.keyval == GDK_KEY_d || event->key.keyval == GDK_KEY_D)
+      {
+          camera_move_right();
+          forceRedraw();
+      }
+      else if (event->key.keyval == GDK_KEY_s || event->key.keyval == GDK_KEY_S)
+      {
+          camera_move_bottom();
+          forceRedraw();
+      }
+      else if (event->key.keyval == GDK_KEY_a || event->key.keyval == GDK_KEY_A)
+      {
+          camera_move_left();
+          forceRedraw();
+      }
     }
     else if (event->type == GDK_KEY_RELEASE)
     {
       if (event->key.keyval == GDK_KEY_space)
       {
-        ctrlModes = ctrlModesPrevious;
-        updateMapView();
+        ctrlModes = ctrlModesPrevious;  
+        show_shadow_square();
         selectCursor();
       }
     }
@@ -329,7 +341,7 @@ void ui::MapUI::selectCursor()
     switch (ctrlModes)
     {
     case MOVING_VIEW_OF_MAP:
-        gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(drawingArea)), gdk_cursor_new_for_display(gdk_display_get_default(), GDK_FLEUR));
+        gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(drawingArea)), gdk_cursor_new_for_display(gdk_display_get_default(), GDK_DIAMOND_CROSS));
         return;
     default:
         break;
@@ -436,7 +448,49 @@ void ui::MapUI::map_resize(GtkWidget* widget, GtkAllocation* allocation, void* d
     }
 }
 
-void ui::MapUI::move_camera(math::Vec2<int> position)
+void ui::MapUI::camera_at(math::Vec2<int> position)
 {
     _camera_position.setXY(position.getX(), position.getY());
+}
+void ui::MapUI::camera_set_delta(int delta)
+{
+    _camera_delta = delta;
+}
+void ui::MapUI::camera_increment_delta(int step)
+{
+    _camera_delta += step;
+}
+void ui::MapUI::camera_decrement_delta(int step)
+{
+    _camera_delta -= step;
+}
+void ui::MapUI::camera_move_right()
+{
+    _camera_position.setX(_camera_position.getX() + _camera_delta);
+}
+void ui::MapUI::camera_move_top()
+{
+    _camera_position.setY(_camera_position.getY() - _camera_delta);
+}
+void ui::MapUI::camera_move_bottom()
+{
+    _camera_position.setY(_camera_position.getY() + _camera_delta);
+}
+void ui::MapUI::camera_move_left()
+{
+    _camera_position.setX(_camera_position.getX() - _camera_delta);
+}
+void ui::MapUI::camera_move(int dx, int dy)
+{
+    _camera_position.setXY(_camera_position.getX() + dx, _camera_position.getY() + dy);
+}
+
+void ui::MapUI::hide_shadow_square()
+{
+    canDrawMouseShadowSquare = false;
+}
+
+void ui::MapUI::show_shadow_square()
+{
+    canDrawMouseShadowSquare = true;
 }

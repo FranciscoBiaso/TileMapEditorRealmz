@@ -77,6 +77,24 @@ namespace math {
 		}
 
 		/**
+		 * @brief This method gets vector distance.
+		 */
+		double length()
+		{
+			return std::sqrt(getX() * getX() + getY() * getY());
+		}
+
+		/**
+		 * @brief This method normalizes vec.
+		 */
+		Vec2& normalize()
+		{
+			this->x = this->x / length();
+			this->y = this->y / length();
+			return *this;
+		}
+
+		/**
 		 * @brief This method checks if Vec2 is diferent from another Vec2.
 		 * It compares x and y data.
 		 */
