@@ -95,6 +95,17 @@ namespace math {
 		}
 
 		/**
+		 * @brief This method swaps x and y.
+		 */
+		Vec2<T>& swap()
+		{
+			T tmp = x;
+			x = y;
+			y = tmp;
+			return *this;
+		}
+
+		/**
 		 * @brief This method checks if Vec2 is diferent from another Vec2.
 		 * It compares x and y data.
 		 */

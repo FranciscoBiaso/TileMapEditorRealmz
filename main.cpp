@@ -51,7 +51,7 @@ int main(int argc, char** argv)
     gAuxUI = new ui::AuxUI();
     gThingCreatorTool = new ui::ThingCreatorTool();
     gGraphicsTool = new ui::GraphicsTool();
-    gMapUI = new ui::MapUI("map", 35, 35);
+    gMapUI = new ui::MapUI("map", 350, 350);
     gDrawingToolUI = new ui::DrawingToolUI();
     //---------------------//
 

@@ -80,6 +80,18 @@ void ui::MapUI::static_my_getsize(GtkWidget* widget, GtkAllocation* allocation, 
     return reinterpret_cast<MapUI*>(data)->map_resize(widget, allocation, allocation);
 }
 
+math::Vec2<int> ui::MapUI::screen_coords_to_world_coords(math::Vec2<int> screen)
+{
+    int coords_x = (screen.getX() - (viewWidth/2)/REALMZ_GRID_SIZE)  + _camera_position.getX()/ REALMZ_GRID_SIZE;
+    int coords_y = (screen.getY() - (viewHeight/2)/ REALMZ_GRID_SIZE) + _camera_position.getY() / REALMZ_GRID_SIZE;
+    if (coords_x < 0 || coords_x > getWidth())
+        coords_x = -1;
+    if (coords_y < 0 || coords_y > getHeight())
+        coords_y = -1;
+    return math::Vec2<int>(coords_y, coords_x);
+}
+
+
 gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data)
 {
     // TransformedVector = TranslationMatrix * RotationMatrix * ScaleMatrix * OriginalVector;
@@ -87,14 +99,12 @@ gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer da
     cairo_matrix_t matrix;
     cairo_matrix_init_identity(&matrix);
     cairo_set_matrix(cr, &matrix);
-    //cairo_scale(cr, 0.2, 0.2);
     
     // view matrix -> camera // 
-    cairo_translate(cr, +viewWidth/2 - _camera_position.getX(),+viewHeight/2 - _camera_position.getY());
+    cairo_save(cr);
+    cairo_translate(cr, (+viewWidth / 2 - _camera_position.getX()) / REALMZ_GRID_SIZE * REALMZ_GRID_SIZE, (+viewHeight / 2 - _camera_position.getY())/ REALMZ_GRID_SIZE * REALMZ_GRID_SIZE);
 
     // model
-
-    //draw_grid();
 
     GdkRGBA color; color.red = 0; color.green = 0; color.blue = 0.85; color.alpha = 0.25;
     gdk_cairo_set_source_rgba(cr, &color);
@@ -109,14 +119,10 @@ gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer da
     cairo_rectangle(cr, 0, 0, 200, -200);
     cairo_rectangle(cr, 0, 0, 200, 200);
     cairo_stroke(cr);
-    math::Vec2<int> position_center_to_draw;
-    double f = 1 / (REALMZ_GRID_SIZE * 1.0);
-    position_center_to_draw.setXY(_camera_position.getX() * f , _camera_position.getY() * f);
-    //cairo_paint(cr);
-     //drawMap(cr, position_center_to_draw, viewWidth/REALMZ_GRID_SIZE, viewHeight/ REALMZ_GRID_SIZE, can_draw_map_borders());
-    draw_map_ui(cr);
-    //cairo_restore(cr);
 
+    draw_map_ui(cr);
+    
+    cairo_restore(cr);
     // mouse square - shadow //
     if (canDrawMouseShadowSquare)
     {
@@ -160,8 +166,12 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
     
     if (ctrlModes == DRAWING_PEN_SELECTED && mousePositionHasChanged) // we only add new item if mouse square changes //
     {
+        math::Vec2<int> world_coords = screen_coords_to_world_coords(mousePosition);
+        if (world_coords.getX() == -1 || world_coords.getY() == -1) // check if is possible to add //
+            return TRUE;
+
         // ctrl add operation to the stack //
-        ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI()));
+        ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI(world_coords)));
         ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
     }
 
@@ -194,8 +204,13 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
     {
       if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_BRUSH)
       {
+        math::Vec2<int> world_coords = screen_coords_to_world_coords(mousePosition);
+        if (world_coords.getX() == -1 || world_coords.getY() == -1) // check if is possible to add //
+            return TRUE;
+        
+
         // ctrl add operation to the stack //
-        ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI()));
+        ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI(world_coords)));
         ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
 
         mousePositionPrevious = mousePosition;
@@ -299,13 +314,13 @@ void ui::MapUI::setDrawThingObj(data::Thing thing)
     thingIsSelected = true;
 }
 
-data::Thing ui::MapUI::addThingMapUI()
+data::Thing ui::MapUI::addThingMapUI(math::Vec2<int> worl_coords)
 {
     data::Thing ret;
     // mouse x is col, y is row //
     if (thingIsSelected)
     {
-        ret = addThing(drawObj, mousePosition.getY(), mousePosition.getX(), 0);
+        ret = addThing(drawObj, worl_coords.getX(), worl_coords.getY(), 0);
         gAuxUI->printMsg("Thing " + drawObj.getName() + " added as ["+ drawObj.getType() + "]!");
         forceRedraw();
     }
@@ -534,8 +549,8 @@ bool ui::MapUI::can_draw_map_borders()
 
 void ui::MapUI::draw_map_ui(cairo_t * cr)
 {
-    int widthTiles = viewWidth / REALMZ_GRID_SIZE;
-    int heightTiles = viewHeight / REALMZ_GRID_SIZE;
+    int widthTiles = viewWidth / REALMZ_GRID_SIZE + 2;
+    int heightTiles = viewHeight / REALMZ_GRID_SIZE + 2;
 
     math::Vec2<int> position_center_to_draw;
     double f = 1 / (REALMZ_GRID_SIZE * 1.0);
@@ -574,7 +589,8 @@ void ui::MapUI::draw_map_ui(cairo_t * cr)
                 cairo_set_source_surface(cr, _surface_grid, cylinder->getCoords().getX() * REALMZ_GRID_SIZE, cylinder->getCoords().getY() * REALMZ_GRID_SIZE);
                 cairo_paint(cr);
             }
-            //cylinder->draw(cr);
+            // draw things //
+            cylinder->draw(cr);
         }
     }
 

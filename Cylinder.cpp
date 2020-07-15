@@ -89,10 +89,9 @@ void scene::Cylinder::removeItem(std::string name)
 
 void scene::Cylinder::draw(cairo_t* cr)
 {
-
 	for (auto it = items.begin(); it != items.end(); it++)
 	{
-		//(*it).draw(cr);
+		(*it).draw(cr);
 	}
 }
 

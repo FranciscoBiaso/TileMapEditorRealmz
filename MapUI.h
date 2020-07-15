@@ -55,6 +55,8 @@ namespace ui {
 		int _scroll_x_position;
 		int _scroll_y_position;
 
+		math::Vec2<int> screen_coords_to_world_coords(math::Vec2<int>);
+
 		void draw_map_ui(cairo_t* cr);
 
 		void hide_shadow_square();
@@ -167,7 +169,7 @@ namespace ui {
 		// w i p //
 		void map_resize(GtkWidget* widget, GtkAllocation* allocation, void* data);
 
-		data::Thing  addThingMapUI();
+		data::Thing  addThingMapUI(math::Vec2<int> world_coords);
 		void delThingMapUI();
 		void delThingMapUI(std::string thing_name,math::Vec3<int> thing_position);
 		void delThingMapUI(data::Thing*);
