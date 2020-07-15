@@ -2,8 +2,10 @@
 
 #include "ImgObj.h"
 #include "TextureAtlas.h"
-#include <string>
+
 #include <gdk/gdk.h>
+#include <string>
+#include <list>
 
 
 namespace data {
@@ -16,7 +18,7 @@ namespace data {
 	class ImgPack
 	{
 	private:
-		std::vector<data::ImgObj> imgVec;
+		std::list<data::ImgObj> _imgs;
 		data::TextureAtlas* textureAtlas;
 		/**
 		 * @brief This method is used to increase memory when needed.		 
@@ -49,22 +51,22 @@ namespace data {
 		/**
 		 *  @brief This method gets vector<data::ImgObj>&.
 		 */
-		std::vector<data::ImgObj>& getStrucutre() { return imgVec; }
+		std::list<data::ImgObj>& getStrucutre() { return _imgs; }
 
 		/**
 		 *  @brief This method gets count of ImgObj.
 		 */
-		int getCountImgs() { return imgVec.size(); }
+		int getCountImgs() { return _imgs.size(); }
 
 		/**
 		 *  @brief This method find img by name. If dont exists return nullpointer.
 		 */
-		std::vector<data::ImgObj>::iterator find(std::string imgName);
+		std::list<data::ImgObj>::iterator find(std::string imgName);
 
 		/**
 		 *  @brief This method
 		 */
-		std::vector<data::ImgObj>& getImgVec();
+		std::list<data::ImgObj>& getImgVec();
 
 	};
 }
