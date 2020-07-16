@@ -25,6 +25,5 @@ html/*
 include/*
 Debug/*
 x64/*
-Release/etc/*
 Release/Share/*
 latex/
