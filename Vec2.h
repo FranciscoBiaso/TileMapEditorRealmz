@@ -126,11 +126,11 @@ namespace math {
 		/**
 		 * @brief This method overloads the multiplication operator.
 		 */
-		Vec2<T>& operator*(const T& mult)
+		Vec2<T> operator*(const double & mult)
 		{
-			this->x *= mult;
-			this->y *= mult;
-			return *this;
+			//Vec2<T> result = *this;     // Make a copy of myself.  Same as MyClass result(*this);
+			//result.setXY(result.getX() * mult, result.getY() * mult);			
+			return Vec2(this->getX() * mult, this->getY() * mult);
 		}
 
 		/**

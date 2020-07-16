@@ -24,7 +24,6 @@ namespace data {
 		 */
 		ImgObj(std::string name, def::IMG_SIZE size): name(name), size(size){}
 
-
 		/**
 		 * constructor. 
 		 * @param size internal img size (32x32, 32x64, 64x32 or 64x64).

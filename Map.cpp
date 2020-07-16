@@ -22,8 +22,7 @@ scene::Map::Map(std::string name, int width, int height) : name(name),
 }
 
 data::Thing scene::Map::addThing(data::Thing newThing, int line, int col, int level)
-{
-	
+{	
 	newThing.setName(std::to_string(_count_things));
 	_count_things++;
 	return this->structure[level][width * line + col].addItem(newThing);	

@@ -126,8 +126,7 @@ void ui::ImgPackUI::cb_selectImg(GtkTreeView* tree_view,GtkTreePath* path,GtkTre
         auto it = gResources->getImgPack().find(std::string(imgObjName));
         if (it != gResources->getImgPack().getImgVec().end())
         {
-            gThingCreatorTool->setThingImgObjPtr(&*it);
-            gThingCreatorTool->updateImgPixelArea();
+            gThingCreatorTool->updateImgPixelArea(&(*it));
         }
     }        
 }

@@ -215,6 +215,7 @@ void ui::ThingCreatorTool::cb_createThing(GtkWidget* widget, gpointer data)
 
         thing.setName("-");
         thing.setType("-");
+        thing.setImgObjPtr(nullptr);
         updateTreeThingObj();
         gdk_pixbuf_fill(pixelRegion, 0x22222211); // clean buffer //
         gtk_widget_queue_draw(GTK_WIDGET(drawingArea));
@@ -228,12 +229,6 @@ void ui::ThingCreatorTool::cb_createThing(GtkWidget* widget, gpointer data)
     }
 }
 
-void ui::ThingCreatorTool::setThingImgObjPtr(data::ImgObj* imgPtr)
-{
-    thing.setImgObjPtr(imgPtr);
-    updateTreeThingObj(); // update tree thing obj //
-}
-
 gboolean ui::ThingCreatorTool::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data)
 {
     gdk_cairo_set_source_pixbuf(cr, pixelRegionBackground, 0, 0);
@@ -245,17 +240,18 @@ gboolean ui::ThingCreatorTool::cb_draw_callback(GtkWidget* widget, cairo_t* cr, 
     return FALSE;
 }
 
-void ui::ThingCreatorTool::updateImgPixelArea()
+void ui::ThingCreatorTool::updateImgPixelArea(data::ImgObj * img)
 {
+    thing.setImgObjPtr(img);
     const GdkPixbuf* atlas =  gResources->getImgPack().getTextureAtlas()->getPixelbuf();
-    const data::ImgObj* img = thing.getImgObjPtr();
     gdk_pixbuf_fill(pixelRegion, 0x22222211); // clean buffer //
+
 
     switch (img->getSize())
     {
     case def::IMG_SIZE::IMG_SIZE_32X32:
     {
-        math::Vec2 ref = img->getRef(0) * REALMZ_GRID_SIZE;
+       math::Vec2 ref(img->getRef(0).getX() * REALMZ_GRID_SIZE, img->getRef(0).getY() * REALMZ_GRID_SIZE);
 
         gdk_pixbuf_copy_area(atlas, ref[0], ref[1], REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelRegion, REALMZ_GRID_SIZE/2, REALMZ_GRID_SIZE/2);
     }

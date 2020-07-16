@@ -94,11 +94,6 @@ namespace ui {
 		void cb_updateThingType(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data);
 
 		/**
-		 *  @brief This method sets the Thing ImgObj pointer (data::ImgObj *).
-		 */
-		static void setThingImgObjPtr(data::ImgObj *);
-
-		/**
 		 *  @brief This method represents a redenring callback of Thing ImgObj.
 		 */
 		static  gboolean cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data);
@@ -106,7 +101,7 @@ namespace ui {
 		/**
 		 *  @brief This method updates ImgObj pixel area of a Thing.
 		 */
-		void updateImgPixelArea();
+		void updateImgPixelArea(data::ImgObj*);
 	};
 }
 

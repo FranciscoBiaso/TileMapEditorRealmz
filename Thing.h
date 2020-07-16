@@ -85,7 +85,7 @@ namespace data {
 		std::string name; 
 		std::string type;
 		data::ImgObj* imgObj_ptr;
-		static GdkPixbuf* pixelbuf; // pixelbuff used to draw all things //
+		static GdkPixbuf* _pixelbuf_unity; // pixelbuff used to draw all things //
 		scene::Cylinder* parent; // parent cylinder of this Thing //		
 	};
 }

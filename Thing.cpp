@@ -4,15 +4,15 @@
 #include "Cylinder.h"
 
 extern data::MapResources* gResources;
-GdkPixbuf* data::Thing::pixelbuf = nullptr;
+GdkPixbuf* data::Thing::_pixelbuf_unity = nullptr;
 
 data::Thing::Thing() : name(""), type(""), imgObj_ptr(nullptr)
 {
 	parent = nullptr;
-	if (pixelbuf == nullptr)
+	if (_pixelbuf_unity == nullptr)
 	{
-		pixelbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE);
-		gdk_pixbuf_fill(pixelbuf, 0x01010101); // clean buffer //
+		_pixelbuf_unity = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE);
+		gdk_pixbuf_fill(_pixelbuf_unity, 0x01010101); // clean buffer //
 	}
 }
 
@@ -20,10 +20,10 @@ data::Thing::Thing(std::string name, std::string type) :
 	name(name), type(type), imgObj_ptr(nullptr) 
 {
 	parent = nullptr;
-	if (pixelbuf == nullptr)
+	if (_pixelbuf_unity == nullptr)
 	{
-		pixelbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE);
-		gdk_pixbuf_fill(pixelbuf, 0x01010101); // clean buffer //
+		_pixelbuf_unity = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE);
+		gdk_pixbuf_fill(_pixelbuf_unity, 0x01010101); // clean buffer //
 	}
 
 }
@@ -55,13 +55,18 @@ data::Thing& data::Thing::operator=(const data::Thing& v2)
 
 void data::Thing::draw(cairo_t* cr)
 {
-	if (parent != nullptr && pixelbuf != nullptr && imgObj_ptr != nullptr)
+	if (parent != nullptr && _pixelbuf_unity != nullptr && imgObj_ptr != nullptr)
 	{
-		gdk_pixbuf_fill(pixelbuf, 0xffffff00); // clean buffer //
+	/*	std::cout << "imgObj_ptr->getName():"<<imgObj_ptr->getName()<<
+			"imgObj_ptr->getRef(0).getX():" << imgObj_ptr->getRef(0).getX() << "," <<
+			"imgObj_ptr->getRef(0).getY():" << imgObj_ptr->getRef(0).getY() << std::endl;*/
+		//gdk_pixbuf_fill(pixelbuf, 0xffffff00); // clean buffer //
 		gdk_pixbuf_copy_area(gResources->getImgPack().getTextureAtlas()->getPixelbuf(),
-			imgObj_ptr->getRef(0).getX() * REALMZ_GRID_SIZE, imgObj_ptr->getRef(0).getY() * REALMZ_GRID_SIZE,
-			REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelbuf, 0, 0);
-		gdk_cairo_set_source_pixbuf(cr, pixelbuf, parent->getCoords().getX() * REALMZ_GRID_SIZE, parent->getCoords().getY() * REALMZ_GRID_SIZE);
+							imgObj_ptr->getRef(0).getX() * REALMZ_GRID_SIZE, imgObj_ptr->getRef(0).getY() * REALMZ_GRID_SIZE,
+							REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, 
+							_pixelbuf_unity,
+							0, 0);
+		gdk_cairo_set_source_pixbuf(cr, _pixelbuf_unity, parent->getCoords().getX() * REALMZ_GRID_SIZE, parent->getCoords().getY() * REALMZ_GRID_SIZE);
 		cairo_paint(cr);
 	}
 }

@@ -170,7 +170,7 @@ namespace ui {
 		void map_resize(GtkWidget* widget, GtkAllocation* allocation, void* data);
 
 		data::Thing  addThingMapUI(math::Vec2<int> world_coords);
-		void delThingMapUI();
+		void delThingMapUI(math::Vec2<int> world_coords);
 		void delThingMapUI(std::string thing_name,math::Vec3<int> thing_position);
 		void delThingMapUI(data::Thing*);
 

@@ -82,12 +82,13 @@ void ui::MapUI::static_my_getsize(GtkWidget* widget, GtkAllocation* allocation, 
 
 math::Vec2<int> ui::MapUI::screen_coords_to_world_coords(math::Vec2<int> screen)
 {
-    int coords_x = (screen.getX() - (viewWidth/2)/REALMZ_GRID_SIZE)  + _camera_position.getX()/ REALMZ_GRID_SIZE;
-    int coords_y = (screen.getY() - (viewHeight/2)/ REALMZ_GRID_SIZE) + _camera_position.getY() / REALMZ_GRID_SIZE;
+    int coords_x = _camera_position.getX() / REALMZ_GRID_SIZE + screen.getX() - viewWidth / 2 / REALMZ_GRID_SIZE;
+    int coords_y = _camera_position.getY() / REALMZ_GRID_SIZE + screen.getY() - viewHeight / 2 / REALMZ_GRID_SIZE;
     if (coords_x < 0 || coords_x > getWidth())
         coords_x = -1;
     if (coords_y < 0 || coords_y > getHeight())
         coords_y = -1;
+
     return math::Vec2<int>(coords_y, coords_x);
 }
 
@@ -105,7 +106,7 @@ gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer da
     cairo_translate(cr, (+viewWidth / 2 - _camera_position.getX()) / REALMZ_GRID_SIZE * REALMZ_GRID_SIZE, (+viewHeight / 2 - _camera_position.getY())/ REALMZ_GRID_SIZE * REALMZ_GRID_SIZE);
 
     // model
-
+    /*
     GdkRGBA color; color.red = 0; color.green = 0; color.blue = 0.85; color.alpha = 0.25;
     gdk_cairo_set_source_rgba(cr, &color);
     cairo_rectangle(cr, 0, 0, 32, 32);
@@ -119,7 +120,7 @@ gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer da
     cairo_rectangle(cr, 0, 0, 200, -200);
     cairo_rectangle(cr, 0, 0, 200, 200);
     cairo_stroke(cr);
-
+    */
     draw_map_ui(cr);
     
     cairo_restore(cr);
@@ -177,7 +178,10 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
 
     if (ctrlModes == DRAWING_ERASER_SELECTED && mousePositionHasChanged) // we only add new item if mouse square changes //
     {
-        delThingMapUI();
+        math::Vec2<int> world_coords = screen_coords_to_world_coords(mousePosition);
+        if (world_coords.getX() == -1 || world_coords.getY() == -1) // check if is possible to add //
+            return TRUE;
+        delThingMapUI(world_coords);
         ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
     }
 
@@ -190,11 +194,12 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
         mapDetachment.setY(mousePosition.getY() - mouseStartPositionToMoveMapView.getY());
         mapDetachment = mapDetachment * -(REALMZ_GRID_SIZE/4.0);
         camera_at(_camera_position_when_user_press_space + mapDetachment);
-        camera_block();        
+        camera_block();     
     }
-
+    
+    if(mousePosition != mousePositionPrevious)
+        forceRedraw();
     mousePositionPrevious = mousePosition;
-    gtk_widget_queue_draw(GTK_WIDGET(drawingArea));
     return TRUE;
 }
 
@@ -207,7 +212,6 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
         math::Vec2<int> world_coords = screen_coords_to_world_coords(mousePosition);
         if (world_coords.getX() == -1 || world_coords.getY() == -1) // check if is possible to add //
             return TRUE;
-        
 
         // ctrl add operation to the stack //
         ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI(world_coords)));
@@ -218,7 +222,11 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
       }
       else if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_ERASE)
       {
-        delThingMapUI();
+        math::Vec2<int> world_coords = screen_coords_to_world_coords(mousePosition);
+        if (world_coords.getX() == -1 || world_coords.getY() == -1) // check if is possible to add //
+              return TRUE;
+
+        delThingMapUI(world_coords);
         mousePositionPrevious = mousePosition;
         ctrlModes = DRAWING_ERASER_SELECTED;
       }
@@ -333,9 +341,9 @@ data::Thing ui::MapUI::addThingMapUI(math::Vec2<int> worl_coords)
 }
 
 
-void ui::MapUI::delThingMapUI()
+void ui::MapUI::delThingMapUI(math::Vec2<int> woord_coords)
 {
-  this->cleansCylinder(mousePosition.getY(), mousePosition.getX(), 0);
+  this->cleansCylinder(woord_coords.getX(), woord_coords.getY(), 0);
   forceRedraw();
 }
 

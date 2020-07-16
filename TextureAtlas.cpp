@@ -16,7 +16,7 @@ data::TextureAtlas::TextureAtlas(int width, int height)
 	if (pixelBuf == NULL)
 		throw def::ReturnMsg::NOT_ENOUGH_MEMORY;
 
-	pixelBufClean32x32 = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE + 1, REALMZ_GRID_SIZE + 1);
+	pixelBufClean32x32 = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE);
 	gdk_pixbuf_fill(pixelBufClean32x32, 0x22222200); // clean buffer //
 
 	resetCursor();
@@ -55,7 +55,7 @@ void data::TextureAtlas::leftShiftCursor()
 const std::vector<math::Vec2<int>> data::TextureAtlas::addAddImgs(const GdkPixbuf* srcImg, const def::IMG_SIZE size)
 {
 	std::vector<math::Vec2<int>> refs;// get all references that were created //
-	if (gdk_pixbuf_get_width(srcImg) != 64 || gdk_pixbuf_get_height(srcImg) != 64) // we do need continue if srcImg != (64x64) //
+	if (gdk_pixbuf_get_width(srcImg) != 64 || gdk_pixbuf_get_height(srcImg) != 64) // we dont continue if srcImg != (64x64) //
 		throw def::ReturnMsg::PIXELBUF_INVALID_SIZE;
 	
 	// add images at the cursor position //
@@ -65,7 +65,7 @@ const std::vector<math::Vec2<int>> data::TextureAtlas::addAddImgs(const GdkPixbu
 	{
 		// fill pixel with 32x32//
 		gdk_pixbuf_copy_area(srcImg, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBuf, cursor[AT_COL] * REALMZ_GRID_SIZE, cursor[AT_ROW] * REALMZ_GRID_SIZE);
-		refs.push_back(cursor); rightShiftCursor();		
+		refs.push_back(cursor); rightShiftCursor();
 	}
 	break;
 	case def::IMG_SIZE::IMG_SIZE_32X64:
@@ -105,7 +105,7 @@ const std::vector<math::Vec2<int>> data::TextureAtlas::addAddImgs(const GdkPixbu
 	return refs;
 }
 
-void data::TextureAtlas::delImgObj(std::vector<data::ImgObj>::iterator it, std::vector<data::ImgObj>::iterator end)
+void data::TextureAtlas::delImgObj(std::list<data::ImgObj>::iterator it, std::list<data::ImgObj>::iterator end)
 {
 	int countShifts = it->getSizeAsInt();// get delete img size //
 	math::Vec2<int> startPos = it->getRef(0);// reset startPosition cursor //

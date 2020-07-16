@@ -1,5 +1,6 @@
 #pragma once
 #include <gdk/gdk.h>
+#include <list>
 #include "Definitions.h"
 #include "ImgObj.h"
 #include "Vec2.h"
@@ -76,7 +77,7 @@ namespace data {
 		/**
 		 * @brief This methods erases the texture atlas releasing data of atlas pixelbuf.
 		 */
-		void delImgObj(std::vector<data::ImgObj>::iterator it, std::vector<data::ImgObj>::iterator end);
+		void delImgObj(std::list<data::ImgObj>::iterator it, std::list<data::ImgObj>::iterator end);
 		
 		/**
 		 * @brief This methods gets buffer of pixels (GdkPixbuf*).
