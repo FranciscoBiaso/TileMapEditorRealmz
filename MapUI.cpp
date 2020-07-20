@@ -605,7 +605,6 @@ void ui::MapUI::draw_map_ui(cairo_t * cr)
     }
 }
 
-
 std::string ui::MapUI::mouse_coords_to_word_position_to_string(math::Vec2<int> screen_coords)
 {
     return std::string("(" + std::to_string(screen_coords.getX()) + ", " + std::to_string(screen_coords.getY()) + ")");
