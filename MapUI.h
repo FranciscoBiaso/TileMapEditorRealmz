@@ -29,6 +29,7 @@ namespace ui {
 		GObject* gtkMapViewPort; // container to draw the map //
 		GObject* gtkMapFrame; 
 		GObject* scrolledwindowMapUI;
+		GObject* _gtk_label_mouse_coords;
 		int viewWidth, viewHeight;
 		int _map_layer;
 		data::Thing drawObj;
@@ -216,6 +217,11 @@ namespace ui {
 		 * @brief This method disable draw map borders.
 		 */
 		void disable_draw_map_borders();
+
+		/**
+		 *  @brief converts mouse coords to words position as a string.
+		 */
+		std::string mouse_coords_to_word_position_to_string(math::Vec2<int> screen_coord);
 
 	};
 }

@@ -23,6 +23,7 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
     gtkMapViewPort = gtk_builder_get_object(GtkUserInterface::builder, "gtkMapViewPort");
     gtkMapFrame = gtk_builder_get_object(GtkUserInterface::builder, "gtkMapFrame");
     scrolledwindowMapUI = gtk_builder_get_object(GtkUserInterface::builder, "scrolledwindowMapUI");
+    _gtk_label_mouse_coords =  gtk_builder_get_object(GtkUserInterface::builder, "GtkLabelMouseCoords");
 
     drawingArea = gtk_drawing_area_new();
     gtk_widget_set_can_focus(drawingArea, true);
@@ -35,7 +36,6 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
     gtk_widget_add_events(drawingArea, GDK_LEAVE_NOTIFY_MASK);
     gtk_widget_add_events(drawingArea, GDK_ENTER_NOTIFY_MASK);
     gtk_widget_add_events(drawingArea, GDK_ENTER_NOTIFY_MASK);
-    
 
     gtk_widget_set_size_request(GTK_WIDGET(drawingArea), getWidth() * REALMZ_GRID_SIZE + 6 * REALMZ_GRID_SIZE, getHeight() * REALMZ_GRID_SIZE + 6 * REALMZ_GRID_SIZE);
     gtk_container_add(GTK_CONTAINER(gtkMapViewPort), drawingArea);
@@ -165,6 +165,8 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
     mousePosition.setY((int)(e->y / REALMZ_GRID_SIZE) );
     bool mousePositionHasChanged = (mousePositionPrevious != mousePosition);
     
+    gtk_label_set_text(GTK_LABEL(_gtk_label_mouse_coords), mouse_coords_to_word_position_to_string(screen_coords_to_world_coords(mousePosition)).c_str());
+
     if (ctrlModes == DRAWING_PEN_SELECTED && mousePositionHasChanged) // we only add new item if mouse square changes //
     {
         math::Vec2<int> world_coords = screen_coords_to_world_coords(mousePosition);
@@ -601,6 +603,10 @@ void ui::MapUI::draw_map_ui(cairo_t * cr)
             cylinder->draw(cr);
         }
     }
+}
 
 
+std::string ui::MapUI::mouse_coords_to_word_position_to_string(math::Vec2<int> screen_coords)
+{
+    return std::string("(" + std::to_string(screen_coords.getX()) + ", " + std::to_string(screen_coords.getY()) + ")");
 }
