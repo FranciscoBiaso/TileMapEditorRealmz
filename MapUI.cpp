@@ -82,15 +82,17 @@ void ui::MapUI::static_my_getsize(GtkWidget* widget, GtkAllocation* allocation, 
 
 math::Vec2<int> ui::MapUI::screen_coords_to_world_coords(math::Vec2<int> screen)
 {
-    int coords_x = _camera_position.getX() / REALMZ_GRID_SIZE + screen.getX() - viewWidth / 2 / REALMZ_GRID_SIZE;
-    int coords_y = _camera_position.getY() / REALMZ_GRID_SIZE + screen.getY() - viewHeight / 2 / REALMZ_GRID_SIZE;
-    if (coords_x < 0 || coords_x > getWidth())
-        coords_x = -1;
-    if (coords_y < 0 || coords_y > getHeight())
-        coords_y = -1;
 
-    return math::Vec2<int>(coords_y, coords_x);
+    int world_coords_x = (-viewWidth / 2 +  _camera_position.getX()) / REALMZ_GRID_SIZE  + screen.getX();
+    int world_coords_y = (-viewHeight / 2 + _camera_position.getY()) / REALMZ_GRID_SIZE + screen.getY();
+    if (world_coords_x < 0 || world_coords_x > getWidth())
+        world_coords_x = -1;
+    if (world_coords_y < 0 || world_coords_y > getHeight())
+        world_coords_y = -1;
+
+    return math::Vec2<int>(world_coords_x, world_coords_y);
 }
+
 
 
 gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data)
@@ -165,6 +167,15 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
     mousePosition.setY((int)(e->y / REALMZ_GRID_SIZE) );
     bool mousePositionHasChanged = (mousePositionPrevious != mousePosition);
     
+    std::cout << "mousePosition(" << mousePosition.getX() << "," << mousePosition.getY() << ")" << std::endl;
+    math::Vec2<int> world_coords = screen_coords_to_world_coords(mousePosition);
+    std::cout << "world_coords(" << world_coords.getX() << "," << world_coords.getY() << ")" << std::endl;
+
+    std::cout << "_camera_position(" << _camera_position.getX() << "," << _camera_position.getY() << ")" << std::endl;
+    std::cout << "viewWidth/viewHeight(" << viewWidth << "," << viewHeight << ")" << std::endl<<std::endl;
+
+
+
     gtk_label_set_text(GTK_LABEL(_gtk_label_mouse_coords), mouse_coords_to_word_position_to_string(screen_coords_to_world_coords(mousePosition)).c_str());
 
     if (ctrlModes == DRAWING_PEN_SELECTED && mousePositionHasChanged) // we only add new item if mouse square changes //
@@ -194,7 +205,7 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
         // mouse distance vector //
         mapDetachment.setX(mousePosition.getX() - mouseStartPositionToMoveMapView.getX());
         mapDetachment.setY(mousePosition.getY() - mouseStartPositionToMoveMapView.getY());
-        mapDetachment = mapDetachment * -(REALMZ_GRID_SIZE/4.0);
+        mapDetachment = mapDetachment * -(REALMZ_GRID_SIZE/6.0);
         camera_at(_camera_position_when_user_press_space + mapDetachment);
         camera_block();     
     }
