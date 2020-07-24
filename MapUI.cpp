@@ -73,6 +73,7 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
     camera_set_delta(REALMZ_GRID_SIZE);
 
     enable_draw_map_borders();
+    show_shadow_square();
 }
 
 void ui::MapUI::static_my_getsize(GtkWidget* widget, GtkAllocation* allocation, void* data)
@@ -126,13 +127,27 @@ gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer da
     draw_map_ui(cr);
     
     cairo_restore(cr);
+
     // mouse square - shadow //
     if (canDrawMouseShadowSquare)
-    {
-        GdkRGBA HLSColor; HLSColor.red = 0; HLSColor.green = 0; HLSColor.blue = 0.85; HLSColor.alpha = 0.25;
-        graphics::drawSquare(cr, mousePosition.getX() * REALMZ_GRID_SIZE, mousePosition.getY() * REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, HLSColor);
+    {        
+        GdkRGBA HLSColor; HLSColor.red = 0; HLSColor.green = 0; HLSColor.blue = 0.85; HLSColor.alpha = 0.05;
+        GdkRGBA HLSColor2; HLSColor2.red = 0; HLSColor2.green = 0; HLSColor2.blue = 0.25; HLSColor2.alpha = 0.15;
+        // back ground //
+        graphics::drawSquare(cr, mousePosition_by_32.getX() * REALMZ_GRID_SIZE, mousePosition_by_32.getY() * REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, HLSColor2);
+        // square //
+        graphics::drawSquare(cr, mousePosition_by_32.getX() * REALMZ_GRID_SIZE + 2, mousePosition_by_32.getY() * REALMZ_GRID_SIZE + 2, REALMZ_GRID_SIZE - 4, REALMZ_GRID_SIZE - 4, HLSColor);
     }
     
+    /*
+    if (ctrlModes == MOVING_VIEW_OF_MAP)
+    {
+        GdkRGBA HLSColor; HLSColor.red = 1; HLSColor.green = 0; HLSColor.blue = 0.85; HLSColor.alpha = 0.25;
+        graphics::drawSquare(cr, mouseStartPositionToMoveMapView.getX() , mouseStartPositionToMoveMapView.getY(), REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, HLSColor);
+
+    }
+    */
+
     return FALSE;
 }
 
@@ -163,24 +178,18 @@ gboolean ui::MapUI::static_cb_onLeave(GtkWidget* widget, GdkEvent* event, gpoint
 
 gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpointer user_data)
 {
-    mousePosition.setX((int)(e->x / REALMZ_GRID_SIZE) );
-    mousePosition.setY((int)(e->y / REALMZ_GRID_SIZE) );
-    bool mousePositionHasChanged = (mousePositionPrevious != mousePosition);
-    
-    std::cout << "mousePosition(" << mousePosition.getX() << "," << mousePosition.getY() << ")" << std::endl;
-    math::Vec2<int> world_coords = screen_coords_to_world_coords(mousePosition);
-    std::cout << "world_coords(" << world_coords.getX() << "," << world_coords.getY() << ")" << std::endl;
+    mousePosition_by_32.setX((int)(e->x / REALMZ_GRID_SIZE));
+    mousePosition_by_32.setY((int)(e->y / REALMZ_GRID_SIZE));
+    mousePosition_windows_coord.setXY(e->x, e->y);
 
-    std::cout << "_camera_position(" << _camera_position.getX() << "," << _camera_position.getY() << ")" << std::endl;
-    std::cout << "viewWidth/viewHeight(" << viewWidth << "," << viewHeight << ")" << std::endl<<std::endl;
+    bool mousePositionHasChanged = (mousePositionPrevious != mousePosition_by_32);
+    math::Vec2<int> world_coords = screen_coords_to_world_coords(mousePosition_by_32);
 
-
-
-    gtk_label_set_text(GTK_LABEL(_gtk_label_mouse_coords), mouse_coords_to_word_position_to_string(screen_coords_to_world_coords(mousePosition)).c_str());
+    gtk_label_set_text(GTK_LABEL(_gtk_label_mouse_coords), mouse_coords_to_word_position_to_string(screen_coords_to_world_coords(mousePosition_by_32)).c_str());
 
     if (ctrlModes == DRAWING_PEN_SELECTED && mousePositionHasChanged) // we only add new item if mouse square changes //
     {
-        math::Vec2<int> world_coords = screen_coords_to_world_coords(mousePosition);
+        math::Vec2<int> world_coords = screen_coords_to_world_coords(mousePosition_by_32);
         if (world_coords.getX() == -1 || world_coords.getY() == -1) // check if is possible to add //
             return TRUE;
 
@@ -191,7 +200,7 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
 
     if (ctrlModes == DRAWING_ERASER_SELECTED && mousePositionHasChanged) // we only add new item if mouse square changes //
     {
-        math::Vec2<int> world_coords = screen_coords_to_world_coords(mousePosition);
+        math::Vec2<int> world_coords = screen_coords_to_world_coords(mousePosition_by_32);
         if (world_coords.getX() == -1 || world_coords.getY() == -1) // check if is possible to add //
             return TRUE;
         delThingMapUI(world_coords);
@@ -200,19 +209,22 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
 
     if (ctrlModes == MOVING_VIEW_OF_MAP)
     {
-        if (mousePosition == mouseStartPositionToMoveMapView)
+        if (mousePosition_by_32 == (mouseStartPositionToMoveMapView * (1.0/REALMZ_GRID_SIZE)))
             return TRUE;
         // mouse distance vector //
-        mapDetachment.setX(mousePosition.getX() - mouseStartPositionToMoveMapView.getX());
-        mapDetachment.setY(mousePosition.getY() - mouseStartPositionToMoveMapView.getY());
-        mapDetachment = mapDetachment * -(REALMZ_GRID_SIZE/6.0);
+        mapDetachment.setX(mousePosition_windows_coord.getX() - mouseStartPositionToMoveMapView.getX());
+        mapDetachment.setY(mousePosition_windows_coord.getY() - mouseStartPositionToMoveMapView.getY());
+        //mapDetachment = mapDetachment * -(REALMZ_GRID_SIZE/2);
         camera_at(_camera_position_when_user_press_space + mapDetachment);
-        camera_block();     
+        camera_block();
+
     }
     
-    if(mousePosition != mousePositionPrevious)
+    if(mousePositionHasChanged)
         forceRedraw();
-    mousePositionPrevious = mousePosition;
+
+    mousePositionPrevious = mousePosition_by_32;
+
     return TRUE;
 }
 
@@ -222,7 +234,7 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
     {
       if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_BRUSH)
       {
-        math::Vec2<int> world_coords = screen_coords_to_world_coords(mousePosition);
+        math::Vec2<int> world_coords = screen_coords_to_world_coords(mousePosition_by_32);
         if (world_coords.getX() == -1 || world_coords.getY() == -1) // check if is possible to add //
             return TRUE;
 
@@ -230,17 +242,17 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
         ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI(world_coords)));
         ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
 
-        mousePositionPrevious = mousePosition;
+        mousePositionPrevious = mousePosition_by_32;
         ctrlModes = DRAWING_PEN_SELECTED;
       }
       else if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_ERASE)
       {
-        math::Vec2<int> world_coords = screen_coords_to_world_coords(mousePosition);
+        math::Vec2<int> world_coords = screen_coords_to_world_coords(mousePosition_by_32);
         if (world_coords.getX() == -1 || world_coords.getY() == -1) // check if is possible to add //
               return TRUE;
 
         delThingMapUI(world_coords);
-        mousePositionPrevious = mousePosition;
+        mousePositionPrevious = mousePosition_by_32;
         ctrlModes = DRAWING_ERASER_SELECTED;
       }
       else if(gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_NONE)
@@ -259,7 +271,7 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
       {
         ctrlModesPrevious = ctrlModes;
         ctrlModes = MOVING_VIEW_OF_MAP;
-        mouseStartPositionToMoveMapView = mousePosition;
+        mouseStartPositionToMoveMapView = mousePosition_windows_coord;
         _camera_position_when_user_press_space = camera_get_position();
         hide_shadow_square();
         selectCursor();
@@ -379,7 +391,7 @@ void ui::MapUI::selectCursor()
     switch (ctrlModes)
     {
     case MOVING_VIEW_OF_MAP:
-        gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(drawingArea)), gdk_cursor_new_for_display(gdk_display_get_default(), GDK_DIAMOND_CROSS));
+        gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(drawingArea)), gdk_cursor_new_for_display(gdk_display_get_default(), GDK_FLEUR));
         return;
     default:
         break;

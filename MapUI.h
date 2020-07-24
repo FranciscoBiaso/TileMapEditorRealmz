@@ -33,7 +33,9 @@ namespace ui {
 		int viewWidth, viewHeight;
 		int _map_layer;
 		data::Thing drawObj;
-		math::Vec2<int> mousePosition;
+		math::Vec2<int> mousePosition_windows_coord;
+		math::Vec2<int> mousePosition_by_32;
+		
 		math::Vec2<int> mousePositionPrevious;
 		math::Vec2<int> mouseStartPositionToMoveMapView; /**< position of mouse when keyboard space was pressed */
 		math::Vec2<int> mapDetachment; /**< displace of mouseStartPositionToMoveMapView and new mouse position */
