@@ -35,6 +35,7 @@ namespace ui {
 		data::Thing drawObj;
 		math::Vec2<int> mousePosition_windows_coord;
 		math::Vec2<int> mousePosition_by_32;
+		math::Vec2<int> mousePosition_select_from;
 		
 		math::Vec2<int> mousePositionPrevious;
 		math::Vec2<int> mouseStartPositionToMoveMapView; /**< position of mouse when keyboard space was pressed */

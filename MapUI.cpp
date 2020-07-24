@@ -86,15 +86,17 @@ math::Vec2<int> ui::MapUI::screen_coords_to_world_coords(math::Vec2<int> screen)
 
     int world_coords_x = (-viewWidth / 2 +  _camera_position.getX()) / REALMZ_GRID_SIZE  + screen.getX();
     int world_coords_y = (-viewHeight / 2 + _camera_position.getY()) / REALMZ_GRID_SIZE + screen.getY();
-    if (world_coords_x < 0 || world_coords_x > getWidth())
-        world_coords_x = -1;
-    if (world_coords_y < 0 || world_coords_y > getHeight())
-        world_coords_y = -1;
+    if (world_coords_x < 0)
+        world_coords_x = 0;
+    if(world_coords_x > getWidth())
+        world_coords_x = getWidth();
+    if (world_coords_y < 0)
+        world_coords_y = 0;
+    if(world_coords_y > getHeight())
+        world_coords_y = getHeight();
 
     return math::Vec2<int>(world_coords_x, world_coords_y);
 }
-
-
 
 gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data)
 {
@@ -325,6 +327,11 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
           camera_move_left();
           forceRedraw();
       }
+
+      if (event->key.keyval == GDK_KEY_Shift_L)
+      {
+          mousePosition_select_from = mousePosition_by_32;
+      }
     }
     else if (event->type == GDK_KEY_RELEASE)
     {
@@ -334,6 +341,17 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
         show_shadow_square();
         selectCursor();
         forceRedraw();
+      }
+
+      if (event->key.keyval == GDK_KEY_Shift_L)
+      {
+          math::Vec2<int> world_coords_start = screen_coords_to_world_coords(mousePosition_select_from);
+          math::Vec2<int> world_coords_end = screen_coords_to_world_coords(mousePosition_by_32);
+
+          // shift to left-top -> right-bottom //
+          for(int line = world_coords_start.getY();line< world_coords_end.getY();line++)
+            for (int col = world_coords_start.getX(); col < world_coords_end.getX(); col++)
+                delThingMapUI(math::Vec2<int>(line,col));          
       }
     }
 
