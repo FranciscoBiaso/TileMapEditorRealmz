@@ -36,6 +36,7 @@ namespace ui {
 		math::Vec2<int> mousePosition_windows_coord;
 		math::Vec2<int> mousePosition_by_32;
 		math::Vec2<int> mousePosition_select_from;
+		math::Vec2<int> mousePosition_select_to;
 		
 		math::Vec2<int> mousePositionPrevious;
 		math::Vec2<int> mouseStartPositionToMoveMapView; /**< position of mouse when keyboard space was pressed */
@@ -47,6 +48,7 @@ namespace ui {
 		int _camera_delta; /**< camera displacement (x,y) */
 		double _camera_move_speed; /**< camera speed when moving with space key */
 		bool canDrawMouseShadowSquare;
+		bool _canDrawSelectionSquare;
 		bool thingIsSelected;
 		bool _draw_map_borders;
 		int ctrlModes;

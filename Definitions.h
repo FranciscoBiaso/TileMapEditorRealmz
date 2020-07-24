@@ -37,6 +37,9 @@ namespace def{
     enum DrawingToolMode{
         DRAWING_NONE,
         DRAWING_BRUSH,
-        DRAWING_ERASE
+        DRAWING_ERASE,
+        SELECTING
     };
+
+
 }

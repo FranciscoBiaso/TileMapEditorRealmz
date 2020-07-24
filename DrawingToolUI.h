@@ -16,6 +16,7 @@ namespace ui {
 		GObject* brush;
 		GObject* eraser;
 		def::DrawingToolMode drawingMode;
+		def::DrawingToolMode drawingModePrevious;
 
 		/**
 		 *  @brief Auxiliary function to avoid static members.
@@ -44,6 +45,16 @@ namespace ui {
 
 		/**
 		 * @brief This methods set the drawing mode.
+		 */
+		void setPreviousDrawingMode(def::DrawingToolMode);
+
+		/**
+		 * @brief This methods gets the previous drawing mode.
+		 */
+		def::DrawingToolMode gePrevioustDrawingMode() const;
+
+		/**
+		 * @brief This methods set the previousdrawing mode.
 		 */
 		void setDrawingMode(def::DrawingToolMode);
 

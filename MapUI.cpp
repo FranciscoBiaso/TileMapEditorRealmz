@@ -74,6 +74,7 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
 
     enable_draw_map_borders();
     show_shadow_square();
+    _canDrawSelectionSquare = false;
 }
 
 void ui::MapUI::static_my_getsize(GtkWidget* widget, GtkAllocation* allocation, void* data)
@@ -140,6 +141,21 @@ gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer da
         // square //
         graphics::drawSquare(cr, mousePosition_by_32.getX() * REALMZ_GRID_SIZE + 2, mousePosition_by_32.getY() * REALMZ_GRID_SIZE + 2, REALMZ_GRID_SIZE - 4, REALMZ_GRID_SIZE - 4, HLSColor);
     }
+
+    if (_canDrawSelectionSquare)
+    {
+        GdkRGBA colorBorder; colorBorder.red = 0; colorBorder.green = 0.8; colorBorder.blue = 0.00; colorBorder.alpha = 0.05;
+        GdkRGBA colorBg; colorBg.red = 0; colorBg.green = 0; colorBg.blue = 0.65; colorBg.alpha = 0.25;
+        
+        int width = (mousePosition_select_to.getX() - mousePosition_select_from.getX()) * REALMZ_GRID_SIZE;
+        int height = (mousePosition_select_to.getY() - mousePosition_select_from.getY()) * REALMZ_GRID_SIZE;
+        // back ground //
+        graphics::drawSquare(cr, mousePosition_select_from.getX() * REALMZ_GRID_SIZE, mousePosition_select_from.getY() * REALMZ_GRID_SIZE,
+                             width, height, colorBorder);
+        // square //
+        graphics::drawSquare(cr, mousePosition_select_from.getX() * REALMZ_GRID_SIZE+2, mousePosition_select_from.getY() * REALMZ_GRID_SIZE + 2, 
+                             width - 4,height -4, colorBorder);
+    }
     
     /*
     if (ctrlModes == MOVING_VIEW_OF_MAP)
@@ -183,6 +199,8 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
     mousePosition_by_32.setX((int)(e->x / REALMZ_GRID_SIZE));
     mousePosition_by_32.setY((int)(e->y / REALMZ_GRID_SIZE));
     mousePosition_windows_coord.setXY(e->x, e->y);
+    if(gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING)
+        mousePosition_select_to = mousePosition_by_32;
 
     bool mousePositionHasChanged = (mousePositionPrevious != mousePosition_by_32);
     math::Vec2<int> world_coords = screen_coords_to_world_coords(mousePosition_by_32);
@@ -328,9 +346,12 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
           forceRedraw();
       }
 
-      if (event->key.keyval == GDK_KEY_Shift_L)
+      if (event->key.keyval == GDK_KEY_Shift_L && gDrawingToolUI->getDrawingMode() != def::DrawingToolMode::SELECTING)
       {
+          gDrawingToolUI->setPreviousDrawingMode(gDrawingToolUI->getDrawingMode());
+          gDrawingToolUI->setDrawingMode(def::DrawingToolMode::SELECTING);
           mousePosition_select_from = mousePosition_by_32;
+          _canDrawSelectionSquare = true;
       }
     }
     else if (event->type == GDK_KEY_RELEASE)
@@ -343,15 +364,19 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
         forceRedraw();
       }
 
-      if (event->key.keyval == GDK_KEY_Shift_L)
+      if (event->key.keyval == GDK_KEY_Shift_L && gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING)
       {
+          gDrawingToolUI->setDrawingMode(gDrawingToolUI->gePrevioustDrawingMode());
+          _canDrawSelectionSquare = false;
           math::Vec2<int> world_coords_start = screen_coords_to_world_coords(mousePosition_select_from);
           math::Vec2<int> world_coords_end = screen_coords_to_world_coords(mousePosition_by_32);
 
           // shift to left-top -> right-bottom //
           for(int line = world_coords_start.getY();line< world_coords_end.getY();line++)
             for (int col = world_coords_start.getX(); col < world_coords_end.getX(); col++)
-                delThingMapUI(math::Vec2<int>(line,col));          
+                delThingMapUI(math::Vec2<int>(line,col));
+
+          forceRedraw();
       }
     }
 

@@ -67,3 +67,13 @@ void ui::DrawingToolUI::setDrawingMode(def::DrawingToolMode drawingMode)
 {
     this->drawingMode = drawingMode;
 }
+
+void ui::DrawingToolUI::setPreviousDrawingMode(def::DrawingToolMode drawingMode)
+{
+    this->drawingModePrevious = drawingMode;
+}
+
+def::DrawingToolMode ui::DrawingToolUI::gePrevioustDrawingMode() const
+{
+    return this->drawingModePrevious;
+}
