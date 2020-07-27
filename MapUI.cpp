@@ -396,7 +396,7 @@ data::Thing ui::MapUI::addThingMapUI(math::Vec2<int> worl_coords)
     // mouse x is col, y is row //
     if (thingIsSelected)
     {
-        ret = addThing(drawObj, worl_coords.getX(), worl_coords.getY(), 0);
+        ret = addThing(drawObj, worl_coords.getY(), worl_coords.getX(), 0);
         gAuxUI->printMsg("Thing " + drawObj.getName() + " added as ["+ drawObj.getType() + "]!");
         forceRedraw();
     }
