@@ -144,8 +144,8 @@ gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer da
 
     if (_canDrawSelectionSquare)
     {
-        GdkRGBA colorBorder; colorBorder.red = 0; colorBorder.green = 0.8; colorBorder.blue = 0.00; colorBorder.alpha = 0.05;
-        GdkRGBA colorBg; colorBg.red = 0; colorBg.green = 0; colorBg.blue = 0.65; colorBg.alpha = 0.25;
+        GdkRGBA colorBorder; colorBorder.red = 0; colorBorder.green = 0.0; colorBorder.blue = 0.90; colorBorder.alpha = 0.15;
+        GdkRGBA colorBg; colorBg.red = 0; colorBg.green = 0; colorBg.blue = 0.65; colorBg.alpha = 0.05;
         
         int width = (mousePosition_select_to.getX() - mousePosition_select_from.getX()) * REALMZ_GRID_SIZE;
         int height = (mousePosition_select_to.getY() - mousePosition_select_from.getY()) * REALMZ_GRID_SIZE;
