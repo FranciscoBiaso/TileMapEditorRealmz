@@ -149,11 +149,30 @@ gboolean ui::MapUI::cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer da
         
         int width = (mousePosition_select_to.getX() - mousePosition_select_from.getX()) * REALMZ_GRID_SIZE;
         int height = (mousePosition_select_to.getY() - mousePosition_select_from.getY()) * REALMZ_GRID_SIZE;
+        
+        if (width > 0)
+            width += REALMZ_GRID_SIZE;
+        if(height  > 0)
+            height += REALMZ_GRID_SIZE;
+        
+        int offset_x = 0;
+        int offset_y = 0;
+        if (width <= 0)
+        {
+            offset_x += REALMZ_GRID_SIZE;
+            width -= REALMZ_GRID_SIZE;
+        }
+        if (height <= 0)
+        {
+            offset_y += REALMZ_GRID_SIZE;
+            height -= REALMZ_GRID_SIZE;
+        }
+
         // back ground //
-        graphics::drawSquare(cr, mousePosition_select_from.getX() * REALMZ_GRID_SIZE, mousePosition_select_from.getY() * REALMZ_GRID_SIZE,
+        graphics::drawSquare(cr, offset_x + mousePosition_select_from.getX() * REALMZ_GRID_SIZE, offset_y + mousePosition_select_from.getY() * REALMZ_GRID_SIZE,
                              width, height, colorBorder);
         // square //
-        graphics::drawSquare(cr, mousePosition_select_from.getX() * REALMZ_GRID_SIZE+2, mousePosition_select_from.getY() * REALMZ_GRID_SIZE + 2, 
+        graphics::drawSquare(cr, offset_x + mousePosition_select_from.getX() * REALMZ_GRID_SIZE+2, offset_y + mousePosition_select_from.getY() * REALMZ_GRID_SIZE + 2,
                              width - 4,height -4, colorBorder);
     }
     
@@ -316,9 +335,9 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
           }
 
           // shift to left-top -> right-bottom //
-          for (int line = world_coords_start.getY(); line < world_coords_end.getY(); line++)
-              for (int col = world_coords_start.getX(); col < world_coords_end.getX(); col++)
-                  delThingMapUI(math::Vec2<int>(line, col));
+          for (int line = world_coords_start.getY(); line <= world_coords_end.getY(); line++)
+              for (int col = world_coords_start.getX(); col <= world_coords_end.getX(); col++)
+                  delThingMapUI(math::Vec2<int>(col, line));
 
           forceRedraw();
       }
@@ -445,7 +464,7 @@ data::Thing ui::MapUI::addThingMapUI(math::Vec2<int> worl_coords)
 
 void ui::MapUI::delThingMapUI(math::Vec2<int> woord_coords)
 {
-  this->cleansCylinder(woord_coords.getX(), woord_coords.getY(), 0);
+  this->cleansCylinder(woord_coords.getY(), woord_coords.getX(), 0);
   forceRedraw();
 }
 
