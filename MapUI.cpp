@@ -279,6 +279,49 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
       {
         gAuxUI->printMsg("First selects a drawing tool!");
       }
+      else if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING)
+      {
+          math::Vec2<int> world_coords_start;
+          math::Vec2<int> world_coords_end;
+          math::Vec2<int> mousePosition_select_from_world = screen_coords_to_world_coords(mousePosition_select_from);
+          math::Vec2<int> mousePosition_by_32_world = screen_coords_to_world_coords(mousePosition_by_32);
+          // selection from left to right && from top to bottom //
+          if (mousePosition_select_from.getX() < mousePosition_by_32.getX() &&
+              mousePosition_select_from.getY() < mousePosition_by_32.getY())
+          {
+              world_coords_start = screen_coords_to_world_coords(mousePosition_select_from);
+              world_coords_end = screen_coords_to_world_coords(mousePosition_by_32);
+
+          }
+          // selection from left to right && from bottom to top //
+          else if (mousePosition_select_from.getX() < mousePosition_by_32.getX() &&
+                   mousePosition_select_from.getY() > mousePosition_by_32.getY())
+          {
+              world_coords_start.setXY(mousePosition_select_from_world.getX(), mousePosition_by_32_world.getY());
+              world_coords_end.setXY(mousePosition_by_32_world.getX(), mousePosition_select_from_world.getY());
+          }
+          // selection from right to left && from top to bottom //
+          else if (mousePosition_select_from.getX() > mousePosition_by_32.getX() &&
+                   mousePosition_select_from.getY() < mousePosition_by_32.getY())
+          {
+              world_coords_start.setXY(mousePosition_by_32_world.getX(), mousePosition_select_from_world.getY());
+              world_coords_end.setXY(mousePosition_select_from_world.getX(), mousePosition_by_32_world.getY());
+          }
+          // selection from right to left && from bottom to top //
+          else if (mousePosition_select_from.getX() > mousePosition_by_32.getX() &&
+                   mousePosition_select_from.getY() > mousePosition_by_32.getY())
+          {
+              world_coords_start.setXY(mousePosition_by_32_world.getX(), mousePosition_by_32_world.getY());
+              world_coords_end.setXY(mousePosition_select_from_world.getX(), mousePosition_select_from_world.getY());
+          }
+
+          // shift to left-top -> right-bottom //
+          for (int line = world_coords_start.getY(); line < world_coords_end.getY(); line++)
+              for (int col = world_coords_start.getX(); col < world_coords_end.getX(); col++)
+                  delThingMapUI(math::Vec2<int>(line, col));
+
+          forceRedraw();
+      }
     }
     else if (event->type == GDK_BUTTON_RELEASE)
     {
@@ -368,15 +411,6 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
       {
           gDrawingToolUI->setDrawingMode(gDrawingToolUI->gePrevioustDrawingMode());
           _canDrawSelectionSquare = false;
-          math::Vec2<int> world_coords_start = screen_coords_to_world_coords(mousePosition_select_from);
-          math::Vec2<int> world_coords_end = screen_coords_to_world_coords(mousePosition_by_32);
-
-          // shift to left-top -> right-bottom //
-          for(int line = world_coords_start.getY();line< world_coords_end.getY();line++)
-            for (int col = world_coords_start.getX(); col < world_coords_end.getX(); col++)
-                delThingMapUI(math::Vec2<int>(line,col));
-
-          forceRedraw();
       }
     }
 
