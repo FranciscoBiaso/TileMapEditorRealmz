@@ -66,6 +66,15 @@ bool ui::DrawingToolUI::areAllToogleFalse()
 void ui::DrawingToolUI::setDrawingMode(def::DrawingToolMode drawingMode)
 {
     this->drawingMode = drawingMode;
+    if(drawingMode == def::DrawingToolMode::DRAWING_BRUSH)
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(brush), TRUE);
+    else if(drawingMode == def::DrawingToolMode::DRAWING_ERASE)
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(eraser), TRUE);
+    else if (drawingMode == def::DrawingToolMode::DRAWING_NONE)
+    {
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(brush), FALSE);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(eraser), FALSE);
+    }
 }
 
 void ui::DrawingToolUI::setPreviousDrawingMode(def::DrawingToolMode drawingMode)
@@ -76,4 +85,14 @@ void ui::DrawingToolUI::setPreviousDrawingMode(def::DrawingToolMode drawingMode)
 def::DrawingToolMode ui::DrawingToolUI::gePrevioustDrawingMode() const
 {
     return this->drawingModePrevious;
+}
+
+bool ui::DrawingToolUI::is_brush_enable()
+{
+    return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(brush));
+}
+
+bool ui::DrawingToolUI::is_eraser_enable()
+{
+    return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(eraser));
 }

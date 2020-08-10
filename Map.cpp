@@ -1,6 +1,7 @@
 #include "Map.h"
 #include "Cylinder.h"
 #include <gtk/gtk.h>
+#include "GLScence.h"
 
 scene::Map::Map(std::string name, int width, int height) : name(name),
 	width(width), height(height)
@@ -20,11 +21,23 @@ scene::Map::Map(std::string name, int width, int height) : name(name),
 		}
 	}	
 }
+#include <iostream>
+#include "Vec2.h"
+#include <glm/glm.hpp>
+#include "Thing.h"
+#include "ImgObj.h"
 
 data::Thing scene::Map::addThing(data::Thing newThing, int line, int col, int level)
 {	
 	newThing.setName(std::to_string(_count_things));
 	_count_things++;
+	
+	math::Vec2<int> ref = newThing.getImgObjPtr()->getRef(0);
+	glm::vec2 glmRef(ref.getX(), ref.getY());
+	Quad & quad = _glScence->getQuad(line * getWidth() + col);
+	quad.setTextCoord(glmRef);
+	quad.setColor(glm::vec4(1, 1, 1, 1));
+
 	return this->structure[level][width * line + col].addItem(newThing);	
 }
 
@@ -37,6 +50,7 @@ void scene::Map::removeThing(std::string name, int line, int col, int level)
 {
 	this->structure[level][width * line + col].removeItem(name);
 	_count_things--; 
+	_glScence->getQuad(line * getWidth() + col).reset_textcoord(-1);
 }
 
 void scene::Map::drawMap(cairo_t* cr, math::Vec2<int> camera_position, int widthTiles, int heightTiles, bool draw_borders)
@@ -98,4 +112,9 @@ void scene::Map::deletAllThings(std::string thingName)
 int scene::Map::getCountThings()
 {
 	return _count_things;
+}
+
+void scene::Map::setGlScene(GLScence* gl)
+{
+	_glScence = gl;
 }

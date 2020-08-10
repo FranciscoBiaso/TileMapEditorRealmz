@@ -7,6 +7,8 @@
 #include <gdk/gdk.h>
 #include <gtk/gtk.h>
 #include <iostream>
+#include "GLScence.h"
+
 namespace ui {
 
 	/*!
@@ -25,6 +27,7 @@ namespace ui {
 			MOVING_VIEW_OF_MAP
 		};
 	private:
+		GLScence* _glScene;
 		GtkWidget* drawingArea; // widget to draw //
 		GObject* gtkMapViewPort; // container to draw the map //
 		GObject* gtkMapFrame; 
@@ -45,6 +48,14 @@ namespace ui {
 		math::Vec2<int> _view_center;
 		math::Vec2<int> _camera_position;  /**< center of camera */
 		math::Vec2<int> _camera_position_when_user_press_space;  /**<  */
+
+		glm::vec2 _mouse_to_world;
+		glm::vec2 _mouse_to_world_previous;
+		glm::vec2 _camera_on_hit_space;
+		glm::vec2 _mouse_coord;
+		glm::vec2 _mousePosition_select_from;
+		glm::vec2 _mousePosition_select_to;
+
 		int _camera_delta; /**< camera displacement (x,y) */
 		double _camera_move_speed; /**< camera speed when moving with space key */
 		bool canDrawMouseShadowSquare;
@@ -143,6 +154,7 @@ namespace ui {
 		 */
 		static gboolean static_cb_onLeave(GtkWidget* widget, GdkEvent* event, gpointer user_data);
 
+		void loadOpenGLMap();
 	public:
 		/**
 		 * constructor.
@@ -179,6 +191,13 @@ namespace ui {
 		void delThingMapUI(math::Vec2<int> world_coords);
 		void delThingMapUI(std::string thing_name,math::Vec3<int> thing_position);
 		void delThingMapUI(data::Thing*);
+
+
+		data::Thing  addThingMapUI(glm::vec2 world_coords);
+		void delThingMapUI(glm::vec2 world_coords);
+
+		data::Thing addThingMapUI(int line, int col);
+		void delThingMapUI(int line, int col);
 
 		/**
 		 * @brief This method is active when mouse enters into this user interface.

@@ -38,7 +38,8 @@ namespace def{
         DRAWING_NONE,
         DRAWING_BRUSH,
         DRAWING_ERASE,
-        SELECTING
+        SELECTING_ERASE,
+        SELECTING_BRUSH,
     };
 
 

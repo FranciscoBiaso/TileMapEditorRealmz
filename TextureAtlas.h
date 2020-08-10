@@ -84,6 +84,9 @@ namespace data {
 		 */
 		GdkPixbuf* getPixelbuf() const { return pixelBuf; }
 
+		int getAtlasWidth() { return gdk_pixbuf_get_width(pixelBuf); }
+		int getAtlasHeight() { return gdk_pixbuf_get_height(pixelBuf); }
+
 	};
 
 }

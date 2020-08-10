@@ -87,6 +87,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\Francisco\source\repos\TME\Tile-Map-Editor---Realmz\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -99,6 +100,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\Francisco\source\repos\TME\Tile-Map-Editor---Realmz\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -114,7 +116,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;TME_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\Francisco\source\repos\TME\include\glm;C:\Users\Francisco\source\repos\TME\include\nlohmann;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Francisco\source\repos\TME\Tile-Map-Editor---Realmz\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,7 +135,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;TME_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\Francisco\source\repos\TME\include\glm;C:\Users\Francisco\source\repos\TME\include\nlohmann;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Francisco\source\repos\TME\Tile-Map-Editor---Realmz\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,6 +152,7 @@
     <ClCompile Include="DebugTextureAtlas.cpp" />
     <ClCompile Include="DrawingFunctions.cpp" />
     <ClCompile Include="DrawingToolUI.cpp" />
+    <ClCompile Include="GLScence.cpp" />
     <ClCompile Include="ImgPack.cpp" />
     <ClCompile Include="ImgPackUI.cpp" />
     <ClCompile Include="Map.cpp" />
@@ -173,6 +176,7 @@
     <ClInclude Include="Definitions.h" />
     <ClInclude Include="DrawingFunctions.h" />
     <ClInclude Include="DrawingToolUI.h" />
+    <ClInclude Include="GLScence.h" />
     <ClInclude Include="ImgPack.h" />
     <ClInclude Include="ImgPackUI.h" />
     <ClInclude Include="Map.h" />

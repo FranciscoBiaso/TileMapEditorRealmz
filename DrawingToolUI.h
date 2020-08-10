@@ -67,6 +67,9 @@ namespace ui {
 		 * @brief This method occurs when the toggle button erase is triggered.
 		 */
 		void cb_signalGtkToggleButtonEraser(GtkToggleButton* togglebutton, gpointer user_data);
+
+		bool is_brush_enable();
+		bool is_eraser_enable();
 	};
 
 }

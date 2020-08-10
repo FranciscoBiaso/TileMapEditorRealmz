@@ -8,6 +8,7 @@
 #include "Vec2.h"
 
 namespace data { class Thing; }
+class GLScence; 
 
 namespace scene {
 
@@ -20,6 +21,7 @@ namespace scene {
 	class Map
 	{
 	protected:
+		GLScence* _glScence;
 		std::string name;/**< name of the map */
 		int width;/**< width */
 		int height;/**< height */
@@ -81,6 +83,8 @@ namespace scene {
 		 * @brief Get count things placed into the map.
 		 */
 		int getCountThings();
+
+		void setGlScene(GLScence*);
 	};
 }
 
