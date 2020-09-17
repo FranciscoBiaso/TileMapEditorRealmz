@@ -37,7 +37,7 @@ namespace scene {
 		/**
 		 * Constructor.
 		 */
-		Map(std::string name, int width, int height);
+		Map(std::string name, int width, int height, int levels);
 
 		/**
 		 * @brief This method gets Cylinder from position (x,y,z).
@@ -85,6 +85,9 @@ namespace scene {
 		int getCountThings();
 
 		void setGlScene(GLScence*);
+
+		void saveInternalMap();
+		void loadInternalMapFromJson();
 	};
 }
 

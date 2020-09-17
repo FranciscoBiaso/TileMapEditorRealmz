@@ -7,6 +7,7 @@
 #include "MapUI.h"
 #include "DrawingToolUI.h"
 #include "CtrlMap.h"
+#include "AppLoaderSettings.h"
 
 #ifdef TME_DEBUG
 #include "DebugTextureAtlas.h"
@@ -23,14 +24,96 @@ ui::ThingCreatorTool* gThingCreatorTool = nullptr;
 ui::GraphicsTool* gGraphicsTool = nullptr;
 ui::DrawingToolUI* gDrawingToolUI = nullptr;
 ctrl::CtrlMap* ctrlMap = nullptr;
+AppLoaderSettings gAppLoaderSettings;
 //-----------------------------------------//
 
 #ifdef TME_DEBUG
 DebugTextureAtlas* debugTextureAtlas = nullptr;
 #endif
 
+bool ctrlPressed;
+bool isSavingMap;
+
+
+static gboolean fill(gpointer  user_data)
+{
+    GtkWidget* progress_bar = (GtkWidget*)(user_data);
+
+    /*Get the current progress*/
+    gdouble fraction;
+    fraction = gtk_progress_bar_get_fraction(GTK_PROGRESS_BAR(progress_bar));
+
+    /*Increase the bar by 10% each time this function is called*/
+    fraction += 0.1;
+
+    /*Fill in the bar with the new fraction*/
+    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress_bar), fraction);
+
+    /*Ensures that the fraction stays below 1.0*/
+    if (!isSavingMap)
+    {
+        //gtk_window_close((GtkWindow*)p_window);
+        return TRUE;
+    }
+
+
+    return FALSE;
+}
+
+int create_window() {
+    GtkWidget* p_main_box = NULL;
+
+    //Create window
+    //p_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
+    //gtk_window_set_title(GTK_WINDOW(p_window), "Saving map!");
+    //gtk_window_set_default_size(GTK_WINDOW(p_window), 320, 200);
+
+    GtkWidget* progress_bar = gtk_progress_bar_new();
+   // gtk_container_add(GTK_CONTAINER(p_window), progress_bar);
+    g_timeout_add(500, fill, GTK_PROGRESS_BAR(progress_bar));
+
+    //gtk_widget_show_all(p_window);
+    return true;
+}
+
+
+static gboolean cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer user_data)
+{
+    if (event->type == GDK_KEY_PRESS)
+    {
+        if (event->key.keyval == GDK_KEY_Control_L)
+        {
+            ctrlPressed = true;
+        }
+
+        if (ctrlPressed && (event->key.keyval == GDK_KEY_s || event->key.keyval == GDK_KEY_S))
+        {
+            //create_window();
+            gAuxUI->printMsg("Saving map data!");
+            gResources->getImgPack().getTextureAtlas()->saveAtlasAsImg();
+            gResources->getImgPack().getTextureAtlas()->saveAtlasInfoAsJson();
+            gResources->getImgPack().saveImgPackAsJsonFile();
+            gResources->saveStuffBook();
+            gMapUI->saveMap();
+        }
+    }
+   
+    if (event->type == GDK_KEY_RELEASE)
+    {
+        if (event->key.keyval == GDK_KEY_Control_L)
+        {
+            ctrlPressed = false;
+        }
+    }
+
+    return FALSE;
+}
+#include <Windows.h>
+
 int main(int argc, char** argv)
 {
+    FreeConsole();
     // Gtk lib initialization //---------------------//
     gtk_init(&argc, &argv);
     //---------------------//
@@ -41,6 +124,9 @@ int main(int argc, char** argv)
     gtk_builder_connect_signals(GtkUserInterface::builder, NULL);
     //---------------------//
 
+    gAuxUI = new ui::AuxUI();
+    gAppLoaderSettings.load();
+
     // Resources //---------------------//
     gResources = new data::MapResources();
     //---------------------//
@@ -48,12 +134,17 @@ int main(int argc, char** argv)
     // user interface // ---------------------//
     gStuffBook = new ui::StuffBookUI();
     gImgPackUI = new ui::ImgPackUI();
-    gAuxUI = new ui::AuxUI();
     gThingCreatorTool = new ui::ThingCreatorTool();
     gGraphicsTool = new ui::GraphicsTool();
-    gMapUI = new ui::MapUI("map", 350, 350);
+    gMapUI = new ui::MapUI(gAppLoaderSettings.getMapNameToLoad(), gAppLoaderSettings.getMapWidth(), gAppLoaderSettings.getMapHeight(), gAppLoaderSettings.getMapLevels());
     gDrawingToolUI = new ui::DrawingToolUI();
     //---------------------//
+
+    gGraphicsTool->loadImgPackFromJson();
+    gResources->loadStuffBookFromJson();
+    gStuffBook->updateTree(); // update tree view //
+    gMapUI->loadMapFromJson();
+    gMapUI->forceRedraw();
 
     // Controller // ---------------------//
     ctrlMap = new ctrl::CtrlMap();
@@ -64,11 +155,16 @@ int main(int argc, char** argv)
     debugTextureAtlas = new DebugTextureAtlas(gResources->getImgPack().getTextureAtlas()->getPixelbuf());
 #endif
 
-
     GtkWidget* window = GTK_WIDGET(gtk_builder_get_object(GtkUserInterface::builder, "window"));
+    gtk_window_maximize((GtkWindow*)window);
+    
+    gtk_widget_add_events(window, GDK_ALL_EVENTS_MASK);
+    g_signal_connect(G_OBJECT(window), "button-release-event", G_CALLBACK(cb_clickNotify), NULL);
+    g_signal_connect(G_OBJECT(window), "button-press-event", G_CALLBACK(cb_clickNotify), NULL);
+    g_signal_connect(G_OBJECT(window), "key-press-event", G_CALLBACK(cb_clickNotify), NULL);
+    g_signal_connect(G_OBJECT(window), "key-release-event", G_CALLBACK(cb_clickNotify), NULL);
     gtk_widget_show_all(window);
     gtk_main();
-
     delete gResources;
     delete gStuffBook;
     delete gImgPackUI;
@@ -80,3 +176,4 @@ int main(int argc, char** argv)
     delete ctrlMap;
     return 0;
 }
+

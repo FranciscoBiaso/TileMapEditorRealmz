@@ -36,6 +36,7 @@ namespace data {
 		 * @param size ImgSize to be copied (32x32, 32x64, 64x32, 64x64).
 		 */
 		void addImgObj(std::string name, const GdkPixbuf* srcImg, const def::IMG_SIZE size);
+		void addImgObjFromJson(ImgObj);
 
 		/**
 		 * @brief This method delete ImgObj from this data strcture.
@@ -68,5 +69,6 @@ namespace data {
 		 */
 		std::list<data::ImgObj>& getImgVec();
 
+		void saveImgPackAsJsonFile();
 	};
 }

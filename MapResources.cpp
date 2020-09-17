@@ -1,4 +1,6 @@
 #include "MapResources.h"
+#include "AuxUI.h"
+extern ui::AuxUI* gAuxUI;
 
 data::MapResources::MapResources()
 {
@@ -60,4 +62,85 @@ void data::MapResources::createStuffBookFromJson()
 int data::MapResources::getLayerAsInt(const std::string name)
 {
 	return layerOrder[name];
+}
+
+void data::MapResources::saveStuffBook()
+{
+	//std::map<std::string, std::map<std::string, data::Thing>> stuffBook; // dicionary of dicionary (things) //
+	Json::Value jsonValue;
+	data::Thing thing;
+	std::string thingName;
+	for (auto it = stuffBook.begin(); it != stuffBook.end(); it++)
+	{
+		std::map sub_dicionary = it->second;
+		for (auto j = sub_dicionary.begin(); j != sub_dicionary.end(); j++)
+		{
+			thing = j->second;
+			thingName = j->first;
+			jsonValue[thingName]["type"] = thing.getType();
+			jsonValue[thingName]["img_ptr"] = thing.getImgObjPtr()->getName();
+		}
+	}
+
+	Json::StreamWriterBuilder builder;
+
+	builder["commentStyle"] = "None";
+	builder["indentation"] = "   ";
+	std::unique_ptr<Json::StreamWriter> writer(
+		builder.newStreamWriter());
+
+	// Make a new JSON document for the configuration. Preserve original comments.
+
+
+	std::ofstream ofs("resources//stuff_book.json", std::ofstream::out);// file to read //
+	writer->write(jsonValue, &ofs);
+
+	ofs.close();
+}
+
+void data::MapResources::loadStuffBookFromJson()
+{	
+	std::ifstream ifs("resources//stuff_book.json");// file to read //
+	Json::CharReaderBuilder rbuilder;	// reader //
+	std::string errs; // to check errors //
+	Json::Value jsonObj;
+	data::Thing thing;	
+	Json::parseFromStream(rbuilder, ifs, &jsonObj, &errs); // parser //   
+	if (!jsonObj.isNull()) // loading img pack //
+	{
+		gAuxUI->printMsg("Loading StuffBook from file!");
+		
+		for (auto it = jsonObj.begin(); it != jsonObj.end(); it++)
+		{
+			std::string name = it.name();
+			std::string imgObjName = (*it)["img_ptr"].asString();
+			thing.setName(name);
+			thing.setType((*it)["type"].asString());
+			auto iterator = getImgPack().find(imgObjName);
+			if (iterator != getImgPack().getImgVec().end())
+			{
+				thing.setImgObjPtr(&(*iterator));
+				addThing(thing);
+			}
+		}
+		
+	}
+	else
+	{
+		gAuxUI->printMsg("No ImgPack data to be loaded!");
+	}
+}
+
+int data::MapResources::getItemFromStuffBook(std::string itemName, data::Thing & t)
+{
+	for (auto it = stuffBook.begin(); it != stuffBook.end(); it++)
+	{
+		auto result = it->second.find(itemName);
+		if (result != it->second.end()) // we found a thing //
+		{	
+			t =  result->second;
+			return 1;
+		}
+	}
+	return 0;
 }

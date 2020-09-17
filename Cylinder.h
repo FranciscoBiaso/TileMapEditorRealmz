@@ -70,6 +70,8 @@ namespace scene {
 		 * @return true if already exists them swaps the vector item. false if the item doesn't exist.
 		 */
 		bool ifItemByLayerAlreadyExistsSwap(data::Thing& toAdd);
+
+		std::vector<data::Thing>& getItems();
 	};
 
 }

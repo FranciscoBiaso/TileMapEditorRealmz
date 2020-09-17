@@ -102,6 +102,7 @@ public:
     glm::vec2 screen_to_world_by_grid_size(glm::vec2 screen);
     void get_LeftTop_rightbot(glm::vec2 A, glm::vec2 B, glm::vec2& leftTop, glm::vec2& rightBot);
 
+    void resetZoom();
     void zoomIn();
     void zoomOut();
 

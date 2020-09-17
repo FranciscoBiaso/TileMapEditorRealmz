@@ -289,6 +289,8 @@ namespace ui {
 		 */
 		static void simulate();
 
+		bool loadImgPackFromJson();
+
 	};
 
 }

@@ -34,6 +34,8 @@ namespace ui {
 		 *  @brief Auxiliary function to avoid static members.
 		 */
 		static gboolean static_cb_removeThing(GtkWidget* widget, GdkEventKey* event, gpointer   user_data);
+
+		std::string lastThingSelected;
 	public:
 
 		/**
@@ -65,6 +67,8 @@ namespace ui {
 		 *  @brief This method delets all things from stuffbook with images with names = imgName.
 	   */
 		void deleteAllThings(std::string imgName);
+
+		std::string getLastThingSelected() { return lastThingSelected; }
 	};
 }
 

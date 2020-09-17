@@ -48,6 +48,7 @@ extern data::MapResources* gResources;
 extern DebugTextureAtlas* debugTextureAtlas;
 #endif
 extern ui::ImgPackUI* gImgPackUI;
+extern ui::AuxUI* gAuxUI;
 
 ui::GraphicsTool::GraphicsTool()
 {
@@ -314,8 +315,6 @@ void ui::GraphicsTool::setDstSurfaceBGFromDstPixelbufBG()
     surfaceDst_background = gdk_cairo_surface_create_from_pixbuf(pixelBufImgDest_background, 0, NULL);
 }
 
-
-
 void ui::GraphicsTool::setDrawingAreaImgDst(GtkWidget* widget)
 {
     if (drawingAreaImgDst == nullptr)
@@ -401,6 +400,7 @@ void ui::GraphicsTool::cb_signalGtkToggleButton32x32(GtkToggleButton* togglebutt
 
 void ui::GraphicsTool::cb_signalGtkToggleButton32x64(GtkToggleButton* togglebutton, gpointer user_data)
 {
+    return;
     if (gtk_toggle_button_get_active(togglebutton) == TRUE)
     {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x32), FALSE);
@@ -423,6 +423,7 @@ void ui::GraphicsTool::cb_signalGtkToggleButton32x64(GtkToggleButton* togglebutt
 
 void ui::GraphicsTool::cb_signalGtkToggleButton64x32(GtkToggleButton* togglebutton, gpointer user_data)
 {
+    return;
     if (gtk_toggle_button_get_active(togglebutton) == TRUE)
     {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x32), FALSE);
@@ -443,6 +444,7 @@ void ui::GraphicsTool::cb_signalGtkToggleButton64x32(GtkToggleButton* togglebutt
 
 void ui::GraphicsTool::cb_signalGtkToggleButton64x64(GtkToggleButton* togglebutton, gpointer user_data)
 {
+    return;
     if (gtk_toggle_button_get_active(togglebutton) == TRUE)
     {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtkToggleButton32x32), FALSE);
@@ -689,8 +691,13 @@ void ui::GraphicsTool::createTreeViewImgObj()
 
 void ui::GraphicsTool::cb_createImgObj(GtkWidget* widget, gpointer data)
 {
-    gResources->getImgPack().addImgObj(imgName, pixelBufImgDest, imgFormat);
-    gImgPackUI->updateTree(); // update tree view //
+    auto it = gResources->getImgPack().find(std::string(imgName));
+    
+    if (it == gResources->getImgPack().getImgVec().end())
+    {
+        gResources->getImgPack().addImgObj(imgName, pixelBufImgDest, imgFormat);
+        gImgPackUI->updateTree(); // update tree view //
+    }
    
 #ifdef TME_DEBUG
     debugTextureAtlas->surface = gdk_cairo_surface_create_from_pixbuf(gResources->getImgPack().getTextureAtlas()->getPixelbuf(), 0, NULL);
@@ -718,5 +725,38 @@ std::string ui::GraphicsTool::getSizeAsString()
         break;
     default: return "getSizeAsString() unknown type!";
         break;
+    }
+}
+
+bool ui::GraphicsTool::loadImgPackFromJson()
+{
+    std::ifstream ifs("resources//img_pack.json");// file to read //
+    Json::CharReaderBuilder rbuilder;	// reader //
+    std::string errs; // to check errors //
+    Json::Value jsonObj;
+    Json::parseFromStream(rbuilder, ifs, &jsonObj, &errs); // parser //   
+    if (!jsonObj.isNull()) // loading img pack //
+    {
+        gAuxUI->printMsg("Loading ImgPack from file!");
+        for (auto it = jsonObj.begin(); it != jsonObj.end(); it++)
+        {
+          
+            std::vector<math::Vec2<int>> refs;
+            refs.push_back(math::Vec2<int>((*it)["0_ref_x"].asInt(), (*it)["0_ref_y"].asInt()));
+
+            std::string name = it.name();
+            std::string size = (*it)["size"].asString();
+            def::IMG_SIZE imgSize;
+            if (size == "32x32") imgSize = def::IMG_SIZE::IMG_SIZE_32X32;
+            if (size == "32x64") imgSize = def::IMG_SIZE::IMG_SIZE_32X64;
+            if (size == "64x32") imgSize = def::IMG_SIZE::IMG_SIZE_64X32;
+            if (size == "64x64") imgSize = def::IMG_SIZE::IMG_SIZE_64X64;
+            gResources->getImgPack().addImgObjFromJson(data::ImgObj(name, imgSize, refs));
+            gImgPackUI->updateTree();
+        }
+    }
+    else
+    {
+        gAuxUI->printMsg("No ImgPack data to be loaded!");
     }
 }

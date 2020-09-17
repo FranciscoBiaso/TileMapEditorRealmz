@@ -1,25 +1,33 @@
 #include "TextureAtlas.h"
 #include "MapResources.h"
-
+#include "AuxUI.h"
 GdkPixbuf* data::TextureAtlas::pixelBuf = nullptr;
 GdkPixbuf* data::TextureAtlas::pixelBufClean32x32 = nullptr;
 
 extern data::MapResources* gResources;
+extern ui::AuxUI* gAuxUI;
 
 data::TextureAtlas::TextureAtlas(int width, int height)
 {
-	if (pixelBuf == nullptr)
+	loadTextureAtlasInfoFromJson();
+	if (!loadTextureAtlasFromImg())
 	{
-		pixelBuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, (TEXTURE_ATLAS_MAX_WIDTH +1) * REALMZ_GRID_SIZE, (TEXTURE_ATLAS_MAX_WIDTH +1) * REALMZ_GRID_SIZE);
+		pixelBuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, (TEXTURE_ATLAS_MAX_WIDTH + 1) * REALMZ_GRID_SIZE, (TEXTURE_ATLAS_MAX_WIDTH + 1) * REALMZ_GRID_SIZE);
 		gdk_pixbuf_fill(pixelBuf, 0x55555544); // clean buffer //
+		
+		if (pixelBuf == NULL)
+			throw def::ReturnMsg::NOT_ENOUGH_MEMORY;
+
+		pixelBufClean32x32 = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE);
+		gdk_pixbuf_fill(pixelBufClean32x32, 0x22222200); // clean buffer //
+
+		resetCursor();
+		gAuxUI->printMsg("Created a new texture atlas!");
 	}
-	if (pixelBuf == NULL)
-		throw def::ReturnMsg::NOT_ENOUGH_MEMORY;
-
-	pixelBufClean32x32 = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE);
-	gdk_pixbuf_fill(pixelBufClean32x32, 0x22222200); // clean buffer //
-
-	resetCursor();
+	else
+	{
+		gAuxUI->printMsg("Load texture atlas from bmp file!");
+	}
 }
 
 void data::TextureAtlas::resetCursor()
@@ -148,4 +156,49 @@ void data::TextureAtlas::delImgObj(std::list<data::ImgObj>::iterator it, std::li
 			pixelBuf,
 			cursor[AT_COL] * REALMZ_GRID_SIZE, cursor[AT_ROW] * REALMZ_GRID_SIZE);
 	}	
+}
+
+void data::TextureAtlas::saveAtlasAsImg()
+{
+	gdk_pixbuf_savev(pixelBuf, "resources/textureAtlas.png", "png", NULL, NULL, NULL);
+}
+
+bool data::TextureAtlas::loadTextureAtlasFromImg()
+{
+	pixelBuf = gdk_pixbuf_new_from_file("resources/textureAtlas.png",NULL);
+	return pixelBuf != NULL;
+}
+
+void data::TextureAtlas::saveAtlasInfoAsJson()
+{
+	Json::Value root;
+	Json::Value jsonArrayCylinders(Json::arrayValue);
+	root["cursor_x"] = cursor.getX();
+	root["cursor_y"] = cursor.getY();
+
+	Json::StreamWriterBuilder builder;
+
+	builder["commentStyle"] = "None";
+	builder["indentation"] = "   ";
+	std::unique_ptr<Json::StreamWriter> writer(
+		builder.newStreamWriter());
+
+	std::ofstream ofs("resources//texture_atlas_info.json", std::ofstream::out);// file to read //
+	writer->write(root, &ofs);
+
+	ofs.close();
+}
+
+bool data::TextureAtlas::loadTextureAtlasInfoFromJson()
+{
+	std::ifstream ifs("resources//texture_atlas_info.json");// file to read //
+	Json::CharReaderBuilder rbuilder;	// reader //
+	std::string errs; // to check errors //
+	Json::Value jsonObj;
+	Json::parseFromStream(rbuilder, ifs, &jsonObj, &errs); // parser //   
+	if (!jsonObj.isNull()) // loading img pack //
+	{
+		cursor.setX(jsonObj["cursor_x"].asInt());
+		cursor.setX(jsonObj["cursor_y"].asInt());
+	}
 }

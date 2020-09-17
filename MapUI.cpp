@@ -9,6 +9,7 @@
 #include <Windows.h>
 #endif
 
+extern ui::StuffBookUI* gStuffBook;
 extern data::MapResources* gResources;
 extern ui::AuxUI* gAuxUI;
 extern ui::DrawingToolUI* gDrawingToolUI;
@@ -18,7 +19,7 @@ namespace GtkUserInterface { extern GtkBuilder* builder; }
 
 GdkPixbuf* ui::MapUI::_pixelbuf_full_Grid = NULL;
 
-ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,height)
+ui::MapUI::MapUI(std::string name, int width, int height, int levels) : Map(name,width,height, levels)
 {
 
     gtkMapViewPort = gtk_builder_get_object(GtkUserInterface::builder, "gtkMapViewPort");
@@ -37,9 +38,12 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
     gtk_widget_add_events(_glScene->getGLArea(), GDK_BUTTON_RELEASE_MASK);
     gtk_widget_add_events(_glScene->getGLArea(), GDK_KEY_PRESS_MASK);
     gtk_widget_add_events(_glScene->getGLArea(), GDK_KEY_RELEASE_MASK);
+    gtk_widget_add_events(_glScene->getGLArea(), GDK_SCROLL_MASK);
     gtk_widget_add_events(_glScene->getGLArea(), GDK_LEAVE_NOTIFY_MASK);
     gtk_widget_add_events(_glScene->getGLArea(), GDK_ENTER_NOTIFY_MASK);
     gtk_widget_add_events(_glScene->getGLArea(), GDK_ENTER_NOTIFY_MASK);
+    gtk_widget_add_events(_glScene->getGLArea(), GDK_SCROLL_MASK);
+
 
 
     //gtk_widget_set_size_request(GTK_WIDGET(_glScene->getGLArea()), 100,100);
@@ -51,6 +55,7 @@ ui::MapUI::MapUI(std::string name, int width, int height) : Map(name,width,heigh
     g_signal_connect(G_OBJECT(_glScene->getGLArea()), "button-release-event", G_CALLBACK(static_cb_clickNotify), this);
     g_signal_connect(G_OBJECT(_glScene->getGLArea()), "key-press-event", G_CALLBACK(static_cb_clickNotify), this);
     g_signal_connect(G_OBJECT(_glScene->getGLArea()), "key-release-event", G_CALLBACK(static_cb_clickNotify), this);
+    g_signal_connect(G_OBJECT(_glScene->getGLArea()), "scroll-event", G_CALLBACK(static_cb_scroll), this);
     
     g_signal_connect(G_OBJECT(_glScene->getGLArea()), "motion-notify-event", G_CALLBACK(static_cb_MotionNotify), this);
     g_signal_connect(G_OBJECT(_glScene->getGLArea()), "enter-notify-event", G_CALLBACK(static_cb_onEnter), this);
@@ -120,6 +125,11 @@ void ui::MapUI::static_cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer
     reinterpret_cast<MapUI*>(data)->cb_draw_callback(widget, cr, data);
 }
 
+gboolean ui::MapUI::static_cb_scroll(GtkWidget* widget, GdkEvent* event, gpointer user_data)
+{
+    return reinterpret_cast<MapUI*>(user_data)->cb_scroll(widget, event, user_data);
+}
+
 gboolean ui::MapUI::static_cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer user_data)
 {
     return reinterpret_cast<MapUI*>(user_data)->cb_clickNotify(widget, event, user_data);
@@ -183,11 +193,14 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
            // offset = glm::vec2(-REALMZ_GRID_SIZE, -REALMZ_GRID_SIZE);
         //if(_mousePosition_select_from.x != _mousePosition_select_to.x && _mousePosition_select_from.y != _mousePosition_select_to.y)
             _glScence->updateSelectionQuad(_mousePosition_select_from, _mousePosition_select_to + offset, glm::vec4(0.2, 0.3, 0.9,0.4), glm::vec4(0.2, 1.0, 0.7,0.5));
+            
     }
 
-    math::Vec2<int> world_coords = screen_coords_to_world_coords(mousePosition_by_32);
 
-    gtk_label_set_text(GTK_LABEL(_gtk_label_mouse_coords), mouse_coords_to_word_position_to_string(screen_coords_to_world_coords(mousePosition_by_32)).c_str());
+    glm::vec2 world_coords = _glScene->screen_to_world(_mouse_coord);
+
+    // s
+    gtk_label_set_text(GTK_LABEL(_gtk_label_mouse_coords), std::string("(" + std::to_string((int)world_coords.x/REALMZ_GRID_SIZE) + ", " + std::to_string(-1 * (int)world_coords.y/ REALMZ_GRID_SIZE) + ")" ).c_str());
 
     if (ctrlModes == DRAWING_PEN_SELECTED && mousePositionHasChanged) // we only add new item if mouse square changes //
     {
@@ -196,13 +209,15 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
         // ctrl add operation to the stack //
         ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI(world_coords)));
         ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
+        
     }
 
-    if (ctrlModes == DRAWING_ERASER_SELECTED && mousePositionHasChanged  ) // we only add new item if mouse square changes //
+    if (ctrlModes == DRAWING_ERASER_SELECTED && mousePositionHasChanged) // we only add new item if mouse square changes //
     {
         glm::vec2 world_coords = _glScene->screen_to_world(_mouse_coord);
         delThingMapUI(world_coords);
         ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
+        
     }
 
     if (ctrlModes == MOVING_VIEW_OF_MAP)
@@ -222,8 +237,6 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
         _glScene->setCamera(_camera_on_hit_space + direction * glm::vec2(-1.0,1.0));
         
         //camera_block();
-
-
     }
     
     //if(mousePositionHasChanged)
@@ -232,7 +245,19 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
     mousePositionPrevious = mousePosition_by_32;
 
     _mouse_to_world_previous = _mouse_to_world;
-    return TRUE;
+    return FALSE;
+}
+
+
+gboolean ui::MapUI::cb_scroll(GtkWidget* widget, GdkEvent* event, gpointer user_data)
+{
+    if (event->scroll.direction == GDK_SCROLL_UP && isLeftKeyPressed)
+        _glScene->zoomIn();
+    else if(event->scroll.direction == GDK_SCROLL_DOWN && isLeftKeyPressed)
+        _glScene->zoomOut();
+
+    forceRedraw();
+    return FALSE;
 }
 
 gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer user_data)
@@ -249,6 +274,7 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
 
         mousePositionPrevious = mousePosition_by_32;
         ctrlModes = DRAWING_PEN_SELECTED;
+        
       }
       else if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_ERASE)
       {
@@ -258,10 +284,12 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
         //ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::REMOVE_THING, delThingMapUI(world_coords)));
         delThingMapUI(world_coords);
         ctrlModes = DRAWING_ERASER_SELECTED;
+        
       }
       else if(gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_NONE)
       {
         gAuxUI->printMsg("First selects a drawing tool!");
+        
       }
       else if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_ERASE || 
                gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_BRUSH)
@@ -288,11 +316,13 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
                   if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_BRUSH)
                     addThingMapUI(line, col);
               }
+          
       }
     }
     else if (event->type == GDK_BUTTON_RELEASE)
     {
         ctrlModes = DRAWING_EMPTY;
+        
     }
 
     if (event->type == GDK_KEY_PRESS)
@@ -307,6 +337,7 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
         _camera_on_hit_space = _glScene->getCameraCenter();
         hide_shadow_square();
         _glScence->disableQuadShadow();
+        
       }
 
       // CTRL + Z //
@@ -319,6 +350,7 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
               ctrl::sOperation operation = ctrlMap->rem_ctrlz();
               do_reverse_operation(operation);
               ctrlMap->add_ctrly(operation.swap_operation()); // add this op into the another stack //
+              
           }
       }
 
@@ -332,41 +364,52 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
               ctrl::sOperation operation = ctrlMap->rem_ctrly();
               do_reverse_operation(operation);
               ctrlMap->add_ctrlz(operation.swap_operation()); // add this op into the another stack //
+              
           }
       }
       // MOVING CAMERA //
       if (event->key.keyval == GDK_KEY_w || event->key.keyval == GDK_KEY_W)
       {
           camera_move_top();
+          
       }
       else if (event->key.keyval == GDK_KEY_d || event->key.keyval == GDK_KEY_D)
       {
           camera_move_right();
+          
       }
       else if (event->key.keyval == GDK_KEY_s || event->key.keyval == GDK_KEY_S)
       {
           camera_move_bottom();
+          
       }
       else if (event->key.keyval == GDK_KEY_a || event->key.keyval == GDK_KEY_A)
       {
           camera_move_left();
+          
       }
 
       else if (event->key.keyval == GDK_KEY_plus || event->key.keyval == GDK_KEY_equal)
       {
           _glScence->zoomIn();
+          
       }
       else if (event->key.keyval == GDK_KEY_minus || event->key.keyval == GDK_KEY_endash)
       {
           _glScence->zoomOut();
+          
       }
       else if (event->key.keyval == GDK_KEY_S || event->key.keyval == GDK_KEY_s)
       {
           _glScence->setScaleFactor(1.0);
           _glScence->setCamera(glm::vec2(0,0));
+          
       }
-
-
+      else if (event->key.keyval == GDK_KEY_Control_L)
+      {
+          isLeftKeyPressed = true;
+          
+      }
 
       if (event->key.keyval == GDK_KEY_Shift_L && gDrawingToolUI->getDrawingMode() != def::DrawingToolMode::SELECTING_ERASE && 
           gDrawingToolUI->is_eraser_enable())
@@ -378,6 +421,7 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
           _mousePosition_select_to = _mousePosition_select_from;
           _canDrawSelectionSquare = true;
           _glScence->disableQuadShadow();
+          
       }
       else if (event->key.keyval == GDK_KEY_Shift_L && gDrawingToolUI->getDrawingMode() != def::DrawingToolMode::SELECTING_BRUSH &&
           gDrawingToolUI->is_brush_enable())
@@ -389,7 +433,19 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
           _mousePosition_select_to = _mousePosition_select_from;
           _canDrawSelectionSquare = true;
           _glScence->disableQuadShadow();
+          
       }
+      /*
+      if(isLeftKeyPressed && (event->key.keyval == GDK_KEY_s || event->key.keyval == GDK_KEY_S))
+      {
+        gAuxUI->printMsg("Saving map data!");
+        gResources->getImgPack().getTextureAtlas()->saveAtlasAsImg();
+        gResources->getImgPack().getTextureAtlas()->saveAtlasInfoAsJson();
+        gResources->getImgPack().saveImgPackAsJsonFile();
+        gResources->saveStuffBook();
+        this->saveMap();
+      }
+      */
     }
     else if (event->type == GDK_KEY_RELEASE)
     {
@@ -398,6 +454,7 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
         ctrlModes = ctrlModesPrevious;  
         show_shadow_square();  
         _glScence->enableQuadShadow();
+        
       }
 
       if (event->key.keyval == GDK_KEY_Shift_L && gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_ERASE)
@@ -419,16 +476,21 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
           _glScence->enableQuadShadow();
           
       }
+
+      else if (event->key.keyval == GDK_KEY_Control_L)
+      {
+          isLeftKeyPressed = false;
+         
+      }
     }
     selectCursor();
     forceRedraw();
-    return TRUE;
+    return FALSE;
 }
 
 void ui::MapUI::setDrawThingObj(data::Thing thing)
 {
     drawObj = thing;
-
     thingIsSelected = true;
 }
 
@@ -480,7 +542,6 @@ data::Thing ui::MapUI::addThingMapUI(math::Vec2<int> worl_coords)
     }
     return ret;
 }
-
 
 void ui::MapUI::delThingMapUI(int line, int col)
 {
@@ -804,4 +865,9 @@ void ui::MapUI::loadOpenGLMap()
         _glScene->addQuad(-line, getWidth(), 0, quadSize, quadColor, quadColor * percentage1, quadColor * percentage2, quadColor * percentage3);
     }
     */
+}
+
+void ui::MapUI::loadMapFromJson()
+{
+    loadInternalMapFromJson();
 }

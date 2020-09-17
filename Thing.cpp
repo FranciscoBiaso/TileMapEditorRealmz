@@ -34,10 +34,11 @@ data::Thing::Thing(Thing*copy)
 	name = copy->name;
 	imgObj_ptr = copy->imgObj_ptr;
 	type = copy->type;
+	stuffBookRefName = copy->stuffBookRefName;
 }
 
 data::Thing::Thing(const Thing& copy) : name(copy.name), imgObj_ptr(copy.imgObj_ptr),
-		type(copy.type), parent(copy.parent)
+		type(copy.type), parent(copy.parent), stuffBookRefName(copy.stuffBookRefName)
 {
 }
 
@@ -49,6 +50,7 @@ data::Thing& data::Thing::operator=(const data::Thing& v2)
 		name = v2.name;
 		imgObj_ptr = v2.imgObj_ptr;
 		type = v2.type;
+		stuffBookRefName = v2.stuffBookRefName;
 	}
 	return *this;
 }

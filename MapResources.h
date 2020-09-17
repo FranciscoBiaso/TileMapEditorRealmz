@@ -25,8 +25,7 @@ namespace data {
 		/**
 		 *  @brief This method fills stuffBook data loading from json file.
 		 */
-		void createStuffBookFromJson(); 
-		void loadImgBook() {} 
+		void createStuffBookFromJson(); 		 
 	public:
 		/**
 		 *  constructor
@@ -69,6 +68,11 @@ namespace data {
 		 *  @brief This method gets layer as integer.
 		 */
 		int getLayerAsInt(const std::string name);
+
+		void saveStuffBook();
+		void loadStuffBookFromJson();
+
+		int getItemFromStuffBook(std::string itemName, data::Thing &);
 	};
 }
 

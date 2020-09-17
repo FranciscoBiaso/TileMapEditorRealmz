@@ -15,8 +15,17 @@ namespace ui {
 	private:
 		GObject* brush;
 		GObject* eraser;
+		GObject* zoomIn;
+		GObject* zoomOut;
+		GObject* zoomReset;
 		def::DrawingToolMode drawingMode;
 		def::DrawingToolMode drawingModePrevious;
+
+
+
+		static void static_cb_signalGtkToggleButtonZoomIn(GtkButton* togglebutton, gpointer user_data);
+		static void static_cb_signalGtkToggleButtonZoomOut(GtkButton* togglebutton, gpointer user_data);
+		static void static_cb_signalGtkToggleButtonZoomReset(GtkButton* togglebutton, gpointer user_data);
 
 		/**
 		 *  @brief Auxiliary function to avoid static members.
@@ -67,6 +76,10 @@ namespace ui {
 		 * @brief This method occurs when the toggle button erase is triggered.
 		 */
 		void cb_signalGtkToggleButtonEraser(GtkToggleButton* togglebutton, gpointer user_data);
+
+		void cb_signalGtkToggleButtonZoomIn(GtkButton* togglebutton, gpointer user_data);
+		void cb_signalGtkToggleButtonZoomOut(GtkButton* togglebutton, gpointer user_data);
+		void cb_signalGtkToggleButtonZoomReset(GtkButton* togglebutton, gpointer user_data);
 
 		bool is_brush_enable();
 		bool is_eraser_enable();

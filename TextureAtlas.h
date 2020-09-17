@@ -87,6 +87,13 @@ namespace data {
 		int getAtlasWidth() { return gdk_pixbuf_get_width(pixelBuf); }
 		int getAtlasHeight() { return gdk_pixbuf_get_height(pixelBuf); }
 
+
+		void saveAtlasInfoAsJson();
+		void saveAtlasAsImg();
+		bool loadTextureAtlasFromImg();
+		bool loadTextureAtlasInfoFromJson();
+
+		const math::Vec2<int> getCursor() { return cursor; }
 	};
 
 }

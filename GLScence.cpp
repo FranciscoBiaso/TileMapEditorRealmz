@@ -476,9 +476,22 @@ void GLScence::translateCamera(glm::vec2 delta)
     _mvp = _projection * _camera * glm::mat4(1.0);
 }
 
+
+void GLScence::resetZoom()
+{
+    scaleFactor = 1.0f;
+    glm::mat4 zoom(1);
+    zoom[0][0] = scaleFactor;
+    zoom[1][1] = scaleFactor;
+    zoom[2][2] = scaleFactor;
+    _mvp = _projection * _camera * glm::mat4(1.0) * zoom;
+}
+
 void GLScence::zoomIn()
 {
-    scaleFactor += 0.01f;
+    scaleFactor += 0.05f;
+    if (scaleFactor >= 1.35)
+        scaleFactor = 1.35;
     glm::mat4 zoom(1);
     zoom[0][0] = scaleFactor;
     zoom[1][1] = scaleFactor;
@@ -488,7 +501,9 @@ void GLScence::zoomIn()
 
 void GLScence::zoomOut()
 {
-    scaleFactor -= 0.01f;
+    scaleFactor -= 0.05f;
+    if (scaleFactor <= 0.65)
+        scaleFactor = 0.65;
     glm::mat4 zoom(1);
     zoom[0][0] = scaleFactor;
     zoom[1][1] = scaleFactor;

@@ -79,6 +79,11 @@ namespace ui {
 		void hide_shadow_square();
 		void show_shadow_square();
 
+		// mouse zoom //
+		bool isLeftKeyPressed;
+
+
+
 		/**
 		 *  @brief Do the inverse operation of drawing tool operations.
 		 *  Example 1: AddThing -> DoInverse -> RemThing.
@@ -132,6 +137,11 @@ namespace ui {
 		/**
 		 *  @brief Auxiliary function to avoid static members.
 		 */
+		static gboolean static_cb_scroll(GtkWidget* widget, GdkEvent* event, gpointer user_data);
+
+		/**
+		 *  @brief Auxiliary function to avoid static members.
+		 */
 		static void static_cb_draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data);
 
 		/**
@@ -159,7 +169,11 @@ namespace ui {
 		/**
 		 * constructor.
 		 */
-		MapUI(std::string name, int width, int height);
+		MapUI(std::string name, int width, int height, int levels);
+
+
+
+		gboolean cb_scroll(GtkWidget* widget, GdkEvent* event, gpointer user_data);
 
 		/**
 		 *  @brief This method represents a redenring callback.
@@ -246,7 +260,11 @@ namespace ui {
 		 *  @brief converts mouse coords to words position as a string.
 		 */
 		std::string mouse_coords_to_word_position_to_string(math::Vec2<int> screen_coord);
+		
+		void loadMapFromJson();
+		void saveMap() { this->saveInternalMap(); }
 
+		GLScence* getGLScene() { return _glScence; }
 	};
 }
 

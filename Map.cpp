@@ -2,9 +2,15 @@
 #include "Cylinder.h"
 #include <gtk/gtk.h>
 #include "GLScence.h"
+#include "json/json.h"
+#include <fstream>
+#include "AuxUI.h"
 
-scene::Map::Map(std::string name, int width, int height) : name(name),
-	width(width), height(height)
+extern ui::AuxUI* gAuxUI;
+extern data::MapResources* gResources;
+
+scene::Map::Map(std::string name, int width, int height, int levels) : name(name),
+	width(width), height(height), levels(levels)
 {
 	_count_things = 0;
 	levels = MAP_COUNT_LEVELS;
@@ -117,4 +123,97 @@ int scene::Map::getCountThings()
 void scene::Map::setGlScene(GLScence* gl)
 {
 	_glScence = gl;
+}
+
+void scene::Map::saveInternalMap()
+{
+	Json::Value root;
+	Json::Value jsonArrayCylinders(Json::arrayValue);
+	root["0_count_things"] = _count_things;
+	//root["0_levels"] = levels;
+	//root["0_width"] = width;
+	//root["0_height"] = height;
+	root["0_name"] = name;
+
+	Json::Value cylinder;
+	for (int y = 0; y < height; y++)
+	{
+		for (int x = 0; x < width; x++)
+		{
+			
+			Json::Value jsonArrayItems(Json::arrayValue);
+			auto items = structure[0][width * y + x].getItems();
+			for (int i = 0; i < items.size(); i++)
+			{
+				jsonArrayItems.append(items[i].getStuffBookRefName());
+			}
+			cylinder["items"] = jsonArrayItems;
+			cylinder["y"] = y;
+			cylinder["x"] = x;
+			jsonArrayCylinders.append(cylinder);
+		}
+	}
+
+	root["map_units"] = jsonArrayCylinders;
+
+	Json::StreamWriterBuilder builder;
+
+	builder["commentStyle"] = "None";
+	builder["indentation"] = "   ";
+	std::unique_ptr<Json::StreamWriter> writer(
+		builder.newStreamWriter());
+
+	// Make a new JSON document for the configuration. Preserve original comments.
+
+
+	std::ofstream ofs("resources//map_things.json", std::ofstream::out);// file to read //
+	writer->write(root, &ofs);
+
+	ofs.close();
+}
+
+void scene::Map::loadInternalMapFromJson()
+{
+	std::string mapName = name;
+	std::ifstream ifs("resources//map_things.json");// file to read //
+	Json::CharReaderBuilder rbuilder;	// reader //
+	std::string errs; // to check errors //
+	Json::Value jsonObj;
+	data::Thing thing;
+	Json::parseFromStream(rbuilder, ifs, &jsonObj, &errs); // parser //   
+	if (!jsonObj.isNull()) // loading img pack //
+	{
+		if (jsonObj["0_name"].asString() != mapName)
+			return;
+
+		gAuxUI->printMsg("Loading Map from file!");
+		Json::Value map_units = jsonObj["map_units"];
+		
+		for (int i =0;i< map_units.size(); i++)
+		{
+				
+			Json::Value cylinder = map_units[i];
+			int x = cylinder["x"].asInt();
+			int y = cylinder["y"].asInt();
+
+			Json::Value itens = map_units[i]["items"];
+
+			for (int j = 0; j < itens.size(); j++)
+			{
+				std::string stuffBookItemName = itens[j].asString();
+				data::Thing aux;
+
+				if (gResources->getItemFromStuffBook(stuffBookItemName, aux) != 0)
+				{			
+					aux.setStuffBookRefName(stuffBookItemName);
+					addThing(aux, y, x, 0);
+				}
+			}
+			
+		}	
+	}
+	else
+	{
+		gAuxUI->printMsg("No ImgPack data to be loaded!");
+	}
 }

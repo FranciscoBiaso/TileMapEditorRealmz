@@ -209,8 +209,11 @@ void ui::StuffBookUI::cb_selectThing(GtkTreeView* tree_view, GtkTreePath* path, 
             auto mapThing = map.find(std::string(thingName));
             if (mapThing != map.end())// founded //
             {
+                lastThingSelected = mapThing->second.getName();
                 gAuxUI->printMsg("Thing " + mapThing->second.getName() + " selected!");
-                gMapUI->setDrawThingObj(mapThing->second);
+                data::Thing t = mapThing->second;
+                t.setStuffBookRefName(lastThingSelected);
+                gMapUI->setDrawThingObj(t);
                 gDrawingToolUI->setDrawingMode(def::DrawingToolMode::DRAWING_BRUSH);
             }
         }        

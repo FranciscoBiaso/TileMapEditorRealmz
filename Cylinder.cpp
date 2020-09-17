@@ -102,3 +102,8 @@ void scene::Cylinder::cleans()
 		items.erase(items.begin());
 	}
 }
+
+std::vector<data::Thing>& scene::Cylinder::getItems()
+{
+	return items;
+}
