@@ -21,7 +21,7 @@ GdkPixbuf* ui::MapUI::_pixelbuf_full_Grid = NULL;
 
 ui::MapUI::MapUI(std::string name, int width, int height, int levels) : Map(name,width,height, levels)
 {
-
+    worldFloor = 0;
     gtkMapViewPort = gtk_builder_get_object(GtkUserInterface::builder, "gtkMapViewPort");
     gtkMapFrame = gtk_builder_get_object(GtkUserInterface::builder, "gtkMapFrame");
     scrolledwindowMapUI = gtk_builder_get_object(GtkUserInterface::builder, "scrolledwindowMapUI");
@@ -164,7 +164,7 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
 
     //_glScene->_shadowSquare.updatePosition(glm::vec3(-64, 64, 0), REALMZ_GRID_SIZE);
     // update shadow square position //
-    math::Vec2<int> screen_coords = screen_coords_to_world_coords(mousePosition_windows_coord);    
+    //math::Vec2<int> screen_coords = screen_coords_to_world_coords(mousePosition_windows_coord);    
 
 
     _mouse_coord = glm::vec2(e->x, e->y);
@@ -178,8 +178,8 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
 
     // mouse in world coords formated by 32 grid size//
     // float gridBorderSize = 1;
-    _glScene->_shadowSquare.updatePosition(glm::vec3(_glScene->screen_to_world(glm::vec2(_mouse_coord)),0), REALMZ_GRID_SIZE);
-    glm::vec4 shadowSquareColor = glm::vec4(1, 0.8, 0.6, 0.7);
+    _glScene->_shadowSquare.updatePosition(glm::vec3(_glScene->screen_to_world(glm::vec2(_mouse_coord),(getWidth()-1) * REALMZ_GRID_SIZE,(getHeight()-1) * REALMZ_GRID_SIZE), (float)worldFloor - 0.01), REALMZ_GRID_SIZE);
+    glm::vec4 shadowSquareColor = glm::vec4(0.6, 0.95, 1.0, 0.8);
 
     _glScene->_shadowSquare.setColor(shadowSquareColor);
     _glScene->_shadowSquare.reset_textcoord(-1);
@@ -187,35 +187,29 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
     if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_ERASE ||
         gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_BRUSH)
     {
-        _mousePosition_select_to = _glScene->screen_to_world(glm::vec2(_mouse_coord));
+        _mousePosition_select_to = _glScene->screen_to_world(glm::vec2(_mouse_coord), getWidth() * REALMZ_GRID_SIZE, getHeight() * REALMZ_GRID_SIZE);
+
         glm::vec2 offset(0,0);
-        //if (_mousePosition_select_from.x < _mousePosition_select_to.x && _mousePosition_select_from.y < _mousePosition_select_to.y)
-           // offset = glm::vec2(-REALMZ_GRID_SIZE, -REALMZ_GRID_SIZE);
-        //if(_mousePosition_select_from.x != _mousePosition_select_to.x && _mousePosition_select_from.y != _mousePosition_select_to.y)
-            _glScence->updateSelectionQuad(_mousePosition_select_from, _mousePosition_select_to + offset, glm::vec4(0.2, 0.3, 0.9,0.4), glm::vec4(0.2, 1.0, 0.7,0.5));
-            
+        _glScence->updateSelectionQuad(_mousePosition_select_from, _mousePosition_select_to + offset, glm::vec4(0.2, 0.3, 0.9,0.8), glm::vec4(0.2, 1.0, 0.7,0.1), (float)worldFloor- 0.01);
+        
     }
+    
+    glm::vec2 world_coords = _glScene->screen_to_world(_mouse_coord, (getWidth() - 1) * REALMZ_GRID_SIZE, (getHeight() - 1) * REALMZ_GRID_SIZE);
 
-
-    glm::vec2 world_coords = _glScene->screen_to_world(_mouse_coord);
-
-    // s
-    gtk_label_set_text(GTK_LABEL(_gtk_label_mouse_coords), std::string("(" + std::to_string((int)world_coords.x/REALMZ_GRID_SIZE) + ", " + std::to_string(-1 * (int)world_coords.y/ REALMZ_GRID_SIZE) + ")" ).c_str());
+    // show floor //
+    gtk_label_set_text(GTK_LABEL(_gtk_label_mouse_coords),
+            std::string("(" + std::to_string((int)world_coords.x / REALMZ_GRID_SIZE) + ", " +
+            std::to_string(-1 * (int)world_coords.y / REALMZ_GRID_SIZE) + ", " +
+            std::to_string(worldFloor) + ")").c_str());
 
     if (ctrlModes == DRAWING_PEN_SELECTED && mousePositionHasChanged) // we only add new item if mouse square changes //
     {
-        glm::vec2 world_coords = _glScene->screen_to_world(_mouse_coord);
-
-        // ctrl add operation to the stack //
-        ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI(world_coords)));
-        ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
-        
+        addThingWithAutoBorderMapUI(world_coords);        
     }
 
     if (ctrlModes == DRAWING_ERASER_SELECTED && mousePositionHasChanged) // we only add new item if mouse square changes //
     {
-        glm::vec2 world_coords = _glScene->screen_to_world(_mouse_coord);
-        delThingMapUI(world_coords);
+        delThingMapUI(world_coords,std::abs(worldFloor));
         ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
         
     }
@@ -234,7 +228,7 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
         math::Vec2 v = _camera_position_when_user_press_space + mapDetachment;
         float speed = 1.0f;
 
-        _glScene->setCamera(_camera_on_hit_space + direction * glm::vec2(-1.0,1.0));
+        _glScene->setCamera(_camera_on_hit_space + direction * glm::vec2(-1.0,1.0), worldFloor);
         
         //camera_block();
     }
@@ -252,10 +246,30 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
 gboolean ui::MapUI::cb_scroll(GtkWidget* widget, GdkEvent* event, gpointer user_data)
 {
     if (event->scroll.direction == GDK_SCROLL_UP && isLeftKeyPressed)
-        _glScene->zoomIn();
-    else if(event->scroll.direction == GDK_SCROLL_DOWN && isLeftKeyPressed)
-        _glScene->zoomOut();
+    {
+        glm::vec3 center = _glScence->getCameraCenter();
+        worldFloor -= 1;
+        if (worldFloor <= -(levels-1))
+            worldFloor = -(levels-1);
+        
+        _glScence->setCamera(glm::vec2(center.x, center.y), worldFloor);
+    }
+    else if (event->scroll.direction == GDK_SCROLL_DOWN && isLeftKeyPressed)
+    {
+        glm::vec3 center = _glScence->getCameraCenter();
+        worldFloor += 1;
 
+        if (worldFloor >= 0)
+            worldFloor = 0;
+        _glScence->setCamera(glm::vec2(center.x, center.y), worldFloor);
+    }
+
+    // print world floor //
+    glm::vec2 world_coords = _glScene->screen_to_world(_mouse_coord, (getWidth() - 1) * REALMZ_GRID_SIZE, (getHeight() - 1) * REALMZ_GRID_SIZE);
+    gtk_label_set_text(GTK_LABEL(_gtk_label_mouse_coords),
+        std::string("(" + std::to_string((int)world_coords.x / REALMZ_GRID_SIZE) + ", " +
+            std::to_string(-1 * (int)world_coords.y / REALMZ_GRID_SIZE) + ", " +
+            std::to_string(worldFloor) + ")").c_str());
     forceRedraw();
     return FALSE;
 }
@@ -266,11 +280,14 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
     {
       if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_BRUSH)
       {
-        glm::vec2 world_coords = _glScene->screen_to_world(_mouse_coord);
+        glm::vec2 world_coords = _glScene->screen_to_world(_mouse_coord, (getWidth() - 1) * REALMZ_GRID_SIZE, (getHeight() - 1) * REALMZ_GRID_SIZE);
 
         // ctrl add operation to the stack //
-        ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI(world_coords)));
-        ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
+        if (thingIsSelected)
+        {
+            // add multiple things //
+            addThingWithAutoBorderMapUI(world_coords);
+        }
 
         mousePositionPrevious = mousePosition_by_32;
         ctrlModes = DRAWING_PEN_SELECTED;
@@ -278,11 +295,9 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
       }
       else if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::DRAWING_ERASE)
       {
-        glm::vec2 world_coords = _glScene->screen_to_world(_mouse_coord);
+        glm::vec2 world_coords = _glScene->screen_to_world(_mouse_coord, (getWidth() - 1) * REALMZ_GRID_SIZE, (getHeight() - 1) * REALMZ_GRID_SIZE);
 
-        // ctrl add operation to the stack //
-        //ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::REMOVE_THING, delThingMapUI(world_coords)));
-        delThingMapUI(world_coords);
+        delThingMapUI(world_coords, std::abs(worldFloor));
         ctrlModes = DRAWING_ERASER_SELECTED;
         
       }
@@ -307,14 +322,17 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
               leftTop.x = 0;
           if (rightBot.x < 0)
               rightBot.x = 0;
+
+
+
           // shift to left-top -> right-bottom //
           for (int line = leftTop.y; line < rightBot.y; line++)
               for (int col = leftTop.x; col < rightBot.x; col++)
               {
                   if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_ERASE)
-                    delThingMapUI(line,col);
+                    delThingMapUI(line,col, std::abs(worldFloor));
                   if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_BRUSH)
-                    addThingMapUI(line, col);
+                    addThingMapUI(line, col, std::abs(worldFloor));
               }
           
       }
@@ -417,7 +435,7 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
           _glScence->enableQuadSelection();
           gDrawingToolUI->setPreviousDrawingMode(gDrawingToolUI->getDrawingMode());
           gDrawingToolUI->setDrawingMode(def::DrawingToolMode::SELECTING_ERASE);
-          _mousePosition_select_from = _glScence->screen_to_world(_mouse_coord);
+          _mousePosition_select_from = _glScence->screen_to_world(_mouse_coord, (getWidth() - 1) * REALMZ_GRID_SIZE, (getHeight() - 1) * REALMZ_GRID_SIZE);
           _mousePosition_select_to = _mousePosition_select_from;
           _canDrawSelectionSquare = true;
           _glScence->disableQuadShadow();
@@ -429,7 +447,7 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
           _glScence->enableQuadSelection();
           gDrawingToolUI->setPreviousDrawingMode(gDrawingToolUI->getDrawingMode());
           gDrawingToolUI->setDrawingMode(def::DrawingToolMode::SELECTING_BRUSH);
-          _mousePosition_select_from = _glScence->screen_to_world(_mouse_coord);
+          _mousePosition_select_from = _glScence->screen_to_world(_mouse_coord, (getWidth() - 1) * REALMZ_GRID_SIZE, (getHeight() - 1) * REALMZ_GRID_SIZE);
           _mousePosition_select_to = _mousePosition_select_from;
           _canDrawSelectionSquare = true;
           _glScence->disableQuadShadow();
@@ -494,12 +512,14 @@ void ui::MapUI::setDrawThingObj(data::Thing thing)
     thingIsSelected = true;
 }
 
-data::Thing ui::MapUI::addThingMapUI(int line, int col)
+// map thingName -> array 8 thingsNames
+
+data::Thing ui::MapUI::addThingMapUI(int line, int col, int level)
 {
     data::Thing ret;
     if (thingIsSelected)
     {
-        ret = addThing(drawObj, line, col, 0);
+        ret = addThing(drawObj, line, col, level);
     }
     else
     {
@@ -508,16 +528,17 @@ data::Thing ui::MapUI::addThingMapUI(int line, int col)
     return ret;
 }
 
-data::Thing ui::MapUI::addThingMapUI(glm::vec2 world_coords)
+data::Thing ui::MapUI::addThingMapUI(glm::vec2 world_coords, int level)
 {
     // format data 
     world_coords.x /= REALMZ_GRID_SIZE;
-    world_coords.y /= REALMZ_GRID_SIZE * -1.0;
+    world_coords.y /= REALMZ_GRID_SIZE * -1;
+
     data::Thing ret;
     // mouse x is col, y is row //
     if (thingIsSelected)
     {
-        ret = addThing(drawObj, (int)world_coords.y, (int)world_coords.x, 0);                
+        ret = addThing(drawObj, (int)world_coords.y, (int)world_coords.x, level);
     }
     else
     {
@@ -526,13 +547,32 @@ data::Thing ui::MapUI::addThingMapUI(glm::vec2 world_coords)
     return ret;
 }
 
-data::Thing ui::MapUI::addThingMapUI(math::Vec2<int> worl_coords)
+data::Thing ui::MapUI::addThingMapUI(glm::vec2 world_coords, int level, data::Thing thing)
+{
+    // format data 
+    world_coords.x /= REALMZ_GRID_SIZE;
+    world_coords.y /= REALMZ_GRID_SIZE * -1;
+
+    data::Thing ret;
+    // mouse x is col, y is row //
+    if (thingIsSelected)
+    {
+        ret = addThing(thing, (int)world_coords.y, (int)world_coords.x, level);
+    }
+    else
+    {
+        gAuxUI->printMsg("You need To select a Thing before drawn!");
+    }
+    return ret;
+}
+
+data::Thing ui::MapUI::addThingMapUI(math::Vec2<int> worl_coords, float level)
 {
     data::Thing ret;
     // mouse x is col, y is row //
     if (thingIsSelected)
     {
-        ret = addThing(drawObj, worl_coords.getY(), worl_coords.getX(), 0);
+        ret = addThing(drawObj, worl_coords.getY(), worl_coords.getX(), level);
         gAuxUI->printMsg("Thing " + drawObj.getName() + " added as ["+ drawObj.getType() + "]!");
         
     }
@@ -543,26 +583,23 @@ data::Thing ui::MapUI::addThingMapUI(math::Vec2<int> worl_coords)
     return ret;
 }
 
-void ui::MapUI::delThingMapUI(int line, int col)
+void ui::MapUI::delThingMapUI(int line, int col, int level)
 {
-    this->cleansCylinder(line, col, 0);
+    this->cleansCylinder(line, col, level);
     _glScene->getQuad(line, col).setTextCoord(0, 0, 32, 32);
     _glScene->getQuad(line, col).setColor(glm::vec4(1, 1, 1, 0));    
 }
 
-void ui::MapUI::delThingMapUI(glm::vec2 world_coords)
+void ui::MapUI::delThingMapUI(glm::vec2 world_coords, int level)
 {
     // format data 
     world_coords.x /= REALMZ_GRID_SIZE;
     world_coords.y /= REALMZ_GRID_SIZE * -1.0;
-    this->cleansCylinder(world_coords.y, world_coords.x, 0);
-    _glScene->getQuad(world_coords).setTextCoord(0,0,32,32);
-    _glScene->getQuad(world_coords).setColor(glm::vec4(1,1,1,0));    
-}
+    int index = (world_coords.y * getWidth() + world_coords.x) + level * getWidth() * getHeight();
 
-void ui::MapUI::delThingMapUI(math::Vec2<int> woord_coords)
-{
-  this->cleansCylinder(woord_coords.getY(), woord_coords.getX(), 0);  
+    this->cleansCylinder(world_coords.y, world_coords.x, level);
+    _glScene->getQuad(index).setTextCoord(0,0,32,32);
+    _glScene->getQuad(index).setColor(glm::vec4(1,1,1,0.5));
 }
 
 void ui::MapUI::delThingMapUI(std::string thing_name, math::Vec3<int> thing_position)
@@ -835,39 +872,327 @@ std::string ui::MapUI::mouse_coords_to_word_position_to_string(math::Vec2<int> s
 void ui::MapUI::loadOpenGLMap()
 {
     float gridBorderSize = 0;
-    glm::vec4 quadColor(0.2, 0.2, 0.7,0.9);
-    float alpha = 0.65;
-    for (int line = 0; line < getWidth(); line++)
+    float alpha = 0.5f; // THIS VALUE IS IMPORTANTE, CHECK GLSL SHADER //
+    float adjust = 0.1; // space to draw selection quad //
+    for (int level = 0; level < levels; level++)
     {
-        for (int col = 0; col < getHeight(); col++)
+        for (int line = 0; line < getHeight(); line++)
         {
-            _glScene->addQuad(-line, col, 0, REALMZ_GRID_SIZE - gridBorderSize, glm::vec4(0,0,0,0));
-            _glScene->getQuad(line, col).setTextCoord(0, 0, 32, 32);
-            //_glScene->getQuad(line, col).reset_color();
-            //_glScene->getQuad(line, col).setColor(glm::vec4(1, 0, 0, 0.25), glm::vec4(0, 1, 0, 0.25), glm::vec4(0, 0, 1, 0.25), glm::vec4(1, 1, 0, 0.85));
+            for (int col = 0; col < getWidth(); col++)
+            {   
+                _glScene->addQuad(-line, col, -(level + adjust) * 1.0f, REALMZ_GRID_SIZE - gridBorderSize, glm::vec4(1,1,1, alpha));
+                _glScence->getQuad((line * getWidth() + col) + level * getWidth() * getHeight()).setTextCoord(0, 0, 32, 32);
+            }
         }
     }
-    /*
-    float quadSize = 4;
-    // draw border corners //
-    for (int col = 0; col < getHeight(); col++)
+}
+
+
+void ui::MapUI::loadAutoBorderFromJson()
+{
+    std::ifstream ifs("resources//auto_border.json");// file to read //
+    Json::CharReaderBuilder rbuilder;	// reader //
+    std::string errs; // to check errors //
+    Json::Value jsonObj;    
+    Json::parseFromStream(rbuilder, ifs, &jsonObj, &errs); // parser //   
+    if (!jsonObj.isNull())
     {
-        // top //
-        _glScene->addQuad(1, col, 0, quadSize, quadColor, quadColor * percentage1, quadColor * percentage2, quadColor * percentage3);
-        // bot //
-        _glScene->addQuad(-getHeight(), col, 0, quadSize, quadColor, quadColor * percentage1, quadColor * percentage2, quadColor * percentage3);
+        Json::Value thingsAutoBorders = jsonObj["thingsAutoBorders"];
+        
+
+        for (int i = 0; i < thingsAutoBorders.size(); i++)
+        {
+            std::vector<std::string> bordersStr;
+
+            Json::Value borders = thingsAutoBorders[i]["border_left"];
+            if (!borders.isNull())  bordersStr.push_back(borders.asString()); else bordersStr.push_back("");
+            borders = thingsAutoBorders[i]["border_right"];
+            if (!borders.isNull())   bordersStr.push_back(borders.asString()); else bordersStr.push_back("");
+            borders = thingsAutoBorders[i]["border_top"];
+            if (!borders.isNull())   bordersStr.push_back(borders.asString()); else bordersStr.push_back("");
+            borders = thingsAutoBorders[i]["border_bot"];
+            if (!borders.isNull())   bordersStr.push_back(borders.asString()); else bordersStr.push_back("");
+            borders = thingsAutoBorders[i]["border_left-top"];
+            if (!borders.isNull())   bordersStr.push_back(borders.asString()); else bordersStr.push_back("");
+            borders = thingsAutoBorders[i]["border_right-top"];
+            if (!borders.isNull())   bordersStr.push_back(borders.asString()); else bordersStr.push_back("");
+            borders = thingsAutoBorders[i]["border_left-bot"];
+            if (!borders.isNull())   bordersStr.push_back(borders.asString()); else bordersStr.push_back("");
+            borders = thingsAutoBorders[i]["border_right-bot"];
+            if (!borders.isNull())   bordersStr.push_back(borders.asString()); else bordersStr.push_back("");
+
+            Json::Value thingName = thingsAutoBorders[i]["thing_name"];
+            _autoBorders[thingName.asString()] = bordersStr;
+        }
     }
-    for (int line = 0; line < getWidth(); line++)
+    else
     {
-        // left //
-        _glScene->addQuad(-line, -1, 0, quadSize, quadColor, quadColor * percentage1, quadColor * percentage2, quadColor * percentage3);
-        // right //
-        _glScene->addQuad(-line, getWidth(), 0, quadSize, quadColor, quadColor * percentage1, quadColor * percentage2, quadColor * percentage3);
+        gAuxUI->printMsg("Failed to load autoborder file");
     }
-    */
 }
 
 void ui::MapUI::loadMapFromJson()
 {
     loadInternalMapFromJson();
+}
+
+
+bool ui::MapUI::hasAutoBorder(std::string thingName, std::vector<std::string> & borders)
+{    
+    for (auto it = _autoBorders.begin(); it != _autoBorders.end(); it++) // iterate through stuffbook //
+    {
+        if (it->first == thingName)
+        {
+            borders = it->second;
+            return true;
+        }
+    }
+    return false;
+}
+
+void ui::MapUI::addThingWithAutoBorderMapUI(glm::vec2 coord)
+{   
+    std::vector <std::string> borders;
+    std::vector<int> listToNotIterate;
+    std::map<int, int> listToFill;
+    bool hasTile[8];
+    if (hasAutoBorder(drawObj.getName(), borders))
+    {   
+        data::Thing tmp;
+        // 0 left left 
+        for(int i=0;i<borders.size();i++)
+            if (borders[i] != "")
+            {
+                glm::vec2 mapCoords = coord + getOffset(i);
+                
+                scene::Cylinder cylinder;
+                try
+                {
+                    cylinder = at(mapCoords.y / REALMZ_GRID_SIZE * -1, mapCoords.x / REALMZ_GRID_SIZE, std::abs(worldFloor));
+                }
+                catch (def::ReturnMsg & msg)
+                {
+                    if (msg == def::ReturnMsg::ARRAY_OUT_OF_RANGE)
+                    {
+                        continue;
+                    }
+                }
+
+                if(cylinder.hasThingByName(drawObj.getName()))
+                    hasTile[i] = true;
+                else
+                    hasTile[i] = false;
+
+                if (i == 0 && cylinder.hasThingByName(drawObj.getName())) // LEFT
+                {
+                    listToNotIterate.push_back(4);
+                    listToNotIterate.push_back(6);
+                }
+
+                if (i == 1 && cylinder.hasThingByName(drawObj.getName())) // RIGHT
+                {
+                    listToNotIterate.push_back(5);
+                    listToNotIterate.push_back(7);
+                }
+
+                if (i == 2 && cylinder.hasThingByName(drawObj.getName())) // TOP
+                {
+                    listToNotIterate.push_back(4);
+                    listToNotIterate.push_back(5);
+                }
+
+                if (i == 3 && cylinder.hasThingByName(drawObj.getName())) // BOT    
+                {
+                    listToNotIterate.push_back(6);
+                    listToNotIterate.push_back(7);
+                }
+            }
+
+        // 0 left left 
+        for (int i = 0; i < borders.size(); i++)
+            if (borders[i] != "")
+            {
+                glm::vec2 mapCoords = coord + getOffset(i);
+
+                scene::Cylinder cylinder;
+                try
+                {
+                    cylinder = at(mapCoords.y / REALMZ_GRID_SIZE * -1, mapCoords.x / REALMZ_GRID_SIZE, std::abs(worldFloor));
+                }
+                catch (def::ReturnMsg& msg)
+                {
+                    if (msg == def::ReturnMsg::ARRAY_OUT_OF_RANGE)
+                    {
+                        continue;
+                    }
+                }
+
+                auto result = std::find(listToNotIterate.begin(), listToNotIterate.end(), i);
+                if (result != std::end(listToNotIterate))
+                {
+                    continue;
+                }
+
+                if (gStuffBook->getThingByName(borders[i], tmp) && isIntoMap(mapCoords) && !cylinder.hasThingByName(drawObj.getName()))
+                {
+                    ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI(mapCoords, std::abs(worldFloor), tmp)));
+                    ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
+                }
+            }
+
+
+        // SINGLES //
+        if (hasTile[def::Combinations::LEFT_BOT]) 
+        {
+            listToFill[def::Combinations::LEFT] = def::Combinations::RIGHT_BOT;
+            listToFill[def::Combinations::BOT] = def::Combinations::LEFT_TOP;
+        }
+        if (hasTile[def::Combinations::LEFT_TOP])
+        {
+            listToFill[def::Combinations::LEFT] = def::Combinations::RIGHT_TOP;
+            listToFill[def::Combinations::TOP] = def::Combinations::LEFT_BOT;
+        }
+        if (hasTile[def::Combinations::RIGHT_TOP])
+        {
+            listToFill[def::Combinations::RIGHT] = def::Combinations::LEFT_TOP;
+            listToFill[def::Combinations::TOP] = def::Combinations::RIGHT_BOT;
+        }
+        if (hasTile[def::Combinations::RIGHT_BOT])
+        {
+            listToFill[def::Combinations::RIGHT] = def::Combinations::LEFT_BOT;
+            listToFill[def::Combinations::BOT] = def::Combinations::RIGHT_TOP;
+        }
+        // check diagonal combinations DOUBLES//
+        if(hasTile[def::Combinations::LEFT_TOP] && hasTile[def::Combinations::TOP])
+        { 
+            listToFill[def::Combinations::LEFT] = def::Combinations::RIGHT_TOP;
+        }
+        if (hasTile[def::Combinations::TOP] && hasTile[def::Combinations::RIGHT_TOP])
+        {
+            listToFill[def::Combinations::RIGHT] = def::Combinations::LEFT_TOP;
+        }
+        // 2
+        if (hasTile[def::Combinations::LEFT_BOT] && hasTile[def::Combinations::BOT])
+        {
+            listToFill[def::Combinations::LEFT] = def::Combinations::RIGHT_BOT;
+        }
+        if (hasTile[def::Combinations::BOT] && hasTile[def::Combinations::RIGHT_BOT])
+        {
+            listToFill[def::Combinations::RIGHT] = def::Combinations::LEFT_BOT;
+        }
+        // 3
+        if (hasTile[def::Combinations::LEFT] && hasTile[def::Combinations::LEFT_TOP])
+        {
+            listToFill[def::Combinations::TOP] = def::Combinations::LEFT_BOT;
+        }
+        if (hasTile[def::Combinations::RIGHT] && hasTile[def::Combinations::RIGHT_TOP])
+        {
+            listToFill[def::Combinations::TOP] = def::Combinations::RIGHT_BOT;
+        }
+        // 4
+        if (hasTile[def::Combinations::RIGHT] && hasTile[def::Combinations::RIGHT_BOT])
+        {
+            listToFill[def::Combinations::BOT] = def::Combinations::RIGHT_TOP;
+        }
+        if (hasTile[def::Combinations::LEFT] && hasTile[def::Combinations::LEFT_BOT])
+        {
+            listToFill[def::Combinations::BOT] = def::Combinations::LEFT_TOP;
+        }
+
+        for (auto it = listToFill.begin(); it != listToFill.end(); it++)
+        {
+            glm::vec2 mapCoords = coord + getOffset(it->first);
+            scene::Cylinder cylinder;
+            try
+            {
+                cylinder = at(mapCoords.y / REALMZ_GRID_SIZE * -1, mapCoords.x / REALMZ_GRID_SIZE, std::abs(worldFloor));
+            }
+            catch (def::ReturnMsg& msg)
+            {
+                if (msg == def::ReturnMsg::ARRAY_OUT_OF_RANGE)
+                {
+                    continue;
+                }
+            }
+            if (!cylinder.hasThingByName(drawObj.getName()))
+            {
+                gStuffBook->getThingByName(borders[it->second], tmp);
+                ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI(mapCoords, std::abs(worldFloor), tmp)));
+                ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
+            }
+            
+        }
+
+        ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI(coord, std::abs(worldFloor))));
+        ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
+
+    }
+    // add only once //
+    else
+    {
+        ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI(coord, std::abs(worldFloor))));
+        ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
+    }
+}
+
+
+glm::vec2 ui::MapUI::getOffset(int index)
+{   
+    if (index == 0) return glm::vec2(-REALMZ_GRID_SIZE, 0); // left 
+    if (index == 1) return glm::vec2(REALMZ_GRID_SIZE, 0); // right 
+    if (index == 2) return glm::vec2(0, REALMZ_GRID_SIZE); // top
+    if (index == 3) return glm::vec2(0, -REALMZ_GRID_SIZE); // bot
+    if (index == 4) return glm::vec2(-REALMZ_GRID_SIZE, REALMZ_GRID_SIZE); // left top
+    if (index == 5) return glm::vec2(REALMZ_GRID_SIZE, REALMZ_GRID_SIZE); // r top
+    if (index == 6) return glm::vec2(-REALMZ_GRID_SIZE, -REALMZ_GRID_SIZE); // l b
+    if (index == 7) return glm::vec2(REALMZ_GRID_SIZE, -REALMZ_GRID_SIZE); // r b
+    return  glm::vec2(0, 0);
+}
+
+bool ui::MapUI::isIntoMap(glm::vec2 coords)
+{
+    coords.x /= REALMZ_GRID_SIZE;
+    coords.y /= REALMZ_GRID_SIZE * -1;
+    
+    if (coords.x < 0 || coords.x >= getWidth() ||
+        coords.y < 0 || coords.y >= getHeight())
+        return false;
+    return true;
+}
+
+void  ui::MapUI::cleanAutoBorders()
+{
+    _autoBorders.clear();
+}
+
+void ui::MapUI::setCanSeeDownStairs(bool value)
+{
+    canSeeDownStairs = value;
+
+    if (canSeeDownStairs == true)
+    {
+        // alpha = 0.4 add transparency, see frag glsl //
+        updateGlSceneColorFloor(std::abs(worldFloor), glm::vec4(1, 1, 1, 0.3));
+    }
+    else
+    {
+        // alpha = 0.5 become opaque see frag glsl //
+        updateGlSceneColorFloor(std::abs(worldFloor), glm::vec4(1, 1, 1, 0.5));
+    }
+}
+
+void ui::MapUI::updateGlSceneColorFloor(int floor, glm::vec4 color)
+{
+    for (int line = 0; line < getHeight(); line++)
+    {
+        for (int col = 0; col < getWidth(); col++)
+        {
+            int index = (line * getWidth() + col) + floor * getWidth() * getHeight();
+            Quad& quad = _glScene->getQuad(index);
+            if(std::abs(quad.T1.colorA.a - 0.5) < 0.01) // this is a grid
+                quad.setColor(color);
+            if(std::abs(quad.T1.colorA.a - 0.3) < 0.01) // this is a grid
+                quad.setColor(color);
+        }
+    }
 }
