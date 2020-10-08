@@ -5,128 +5,136 @@
 #include <vector>
 #include "Map.h"
 #include <epoxy/gl.h>
-//class scene::Map;
-
-typedef struct Triangle {
-    Triangle() {}
-    Triangle(glm::vec3 A, glm::vec3 B, glm::vec3 C, glm::vec2 A_text = glm::vec2(0, 0), glm::vec2 B_text = glm::vec2(0, 0), glm::vec2 C_text = glm::vec2(0, 0))
-    {
-        this->A = A;
-        this->B = B;
-        this->C = C;
-        setTextCoord(A_text, B_text, C_text);
-    }
-    void setColor(glm::vec4 a, glm::vec4 b, glm::vec4 c);
-    void setTextCoord(glm::vec2 a, glm::vec2 b, glm::vec2 c);
-    glm::vec3 A;
-    glm::vec4 colorA;
-    glm::vec2 A_text_coord;
-    glm::vec3 B;
-    glm::vec4 colorB;
-    glm::vec2 B_text_coord;
-    glm::vec3 C;
-    glm::vec4 colorC;
-    glm::vec2 C_text_coord;
-};
-
-typedef struct Quad {
-    /*
-        A-------------D
-        |             |
-        |             |
-        |             |
-        |             |
-        |             |
-        B-------------C
-    */
-    Quad() {}
-    Quad(glm::vec3 leftTop, float side)
-    {
-        // Opengl Coords //
-        /*
-                   U
-          (0,0) ---------> 1
-            |
-           V|
-            |
-            v
-            1
-        */
-        updatePosition(leftTop, side);
-    }
-    void updatePosition(glm::vec3 leftTop, float topSide, float leftSide = 0);
-    void setTextCoord(int line, int col, int w = -1, int h = -1);
-    void setTextCoord(glm::vec2);
-    // a is left top //
-    void setColor(glm::vec4 a, glm::vec4 b, glm::vec4 c, glm::vec4 d);
-    void setColor(glm::vec4 color);
-    void reset_textcoord(float val = -1);
-    void reset_color();
-    // first triangle // A C B //
-    Triangle T1;
-    // seconds triangle // C D B //
-    Triangle T2;
-}Quad;
+#include "GLQuad.h"
 
 #define BUFFER_OFFSET(i) ((char*)NULL + (i))
+
+/*!
+    GLScence
+    ========
+
+    This class represents an encapsulation of the opengl API so that it is possible to draw;
+*/
 
 class GLScence
 {
 public:
-    GLScence(scene::Map *);
+    GLScence(scene::Map *); // used map width, height //
+    /**
+    *  @brief This method render all objects into the scene.
+    */
     static gboolean static_render(GtkGLArea* area, GdkGLContext* context, gpointer user_data);
-    static gboolean static_realize(GtkGLArea* area, gpointer user_data);
-    static void static_resize(GtkGLArea* area, gint width, gint height, gpointer user_data);
-    
     gboolean render(GtkGLArea* area, GdkGLContext* context);
+    /**
+    *  @brief This method is used to initialize OpenGL state.
+    */
+    static gboolean static_realize(GtkGLArea* area, gpointer user_data);
     gboolean realize(GtkGLArea* area);
+    /**
+    *  @brief This method is called when user resize opengl screen.
+    */
+    static void static_resize(GtkGLArea* area, gint width, gint height, gpointer user_data);
     void resize(GtkGLArea* area, gint width, gint height);
-
+   
+    /**
+    *  @brief This method returns opengl screen width.
+    */
     int getWidth();
+    /**
+    *  @brief This method returns opengl screen height.
+    */
     int getHeigth();
+    /**
+    *  @brief This method returns opengl Widget Area.
+    */
     GtkWidget* getGLArea();
-    void addQuad(int line, int col, int layer, float size, glm::vec4 color);
-    void setCamera(glm::vec2);
-    void translateCamera(glm::vec2);
-    void updateSelectionQuad(glm::vec2 A, glm::vec2 B, glm::vec4 colorRect, glm::vec4 colorBorder);
+    
+    /////////////////////////////////////
+    /// GRAPHICAL FUNCTIONS           ///
+    /// ///////////////////////////// ///
+    /**
+    *  @brief This method adds a square into opengl square vectos.
+    *         The internal map Things are drawn through texture over those squares.
+    */
+    void addQuad(int line, int col, float floor, float size, glm::vec4 color);
+
+    /**
+    *  @brief This method updates selection quad.
+    */
+    void updateSelectionQuad(glm::vec2 A, glm::vec2 B, glm::vec4 colorRect, glm::vec4 colorBorder, float zCoord);
+    
     void disableQuadSelection();
     void enableQuadSelection();
     void disableQuadShadow();
     void enableQuadShadow();
-    Quad& getQuad(int line, int col);
-    void setScaleFactor(float scale);
-    glm::vec3 getCameraCenter();
-    Quad& getQuad(int index);
-    Quad& getQuad(glm::vec2 coords);
-    glm::vec2 screen_to_world(glm::vec2 screen);
-    glm::vec2 screen_to_world_by_grid_size(glm::vec2 screen);
-    void get_LeftTop_rightbot(glm::vec2 A, glm::vec2 B, glm::vec2& leftTop, glm::vec2& rightBot);
+    
+    /**
+    *  @brief This method returns a quad from quad std::vector.
+    */
+    GLQuad& getQuad(int line, int col);
+    GLQuad& getQuad(int index);
+    GLQuad& getQuad(glm::vec2 coords);
 
+    /**
+    *  @brief This method changes scale factor value.
+    */
+    void setScaleFactor(float scale);
+
+    /**
+    *  @brief This method returns camera center.
+    */
+    glm::vec3 getCameraCenter();
+   
+    /**
+    *  @brief This method returns screen coords to world coords.
+    */
+    glm::vec2 screen_to_world(glm::vec2 screen, int w = 0, int h = 0);
+
+    /**
+    *  @brief This method returns finds two points (leftTop,rightBot) From two points.
+    */
+    void get_LeftTop_rightbot(glm::vec2 A, glm::vec2 B, glm::vec2& leftTop, glm::vec2& rightBot);
+    
+    /**
+    *  @brief This method sets camera center.
+    */
+    void setCamera(glm::vec2 centerXY, float centerZ = 0.0);
+    
+    /**
+    *  @brief This method translates camera.
+    */
+    void translateCamera(glm::vec2);
+    
+    /**
+    *  @brief Zoom functions.
+    */
     void resetZoom();
     void zoomIn();
     void zoomOut();
+    
 
-    Quad _shadowSquare;    
+    GLQuad _shadowSquare;
 private:
+    scene::Map* map;
+    GtkWidget* _gtkGLArea;
     GtkWidget* gridImg;
     bool quad_selection_on;
     bool quad_shadow_on;
-    scene::Map* map;
-    GtkWidget* _gtkGLArea;
-    glm::mat4 _projection;
-    glm::mat4 _camera;
-    glm::mat4 _mvp;
+    
+    glm::mat4 _projection; /**< projection matrix  */
+    glm::mat4 _camera; /**< camera matrix  */
+    glm::vec3 _camera_center; /**< center of camera  */
+    glm::mat4 _mvp;  /**< mvp matrix  */
+    float scaleFactor;  /**< scale factor used with zoom  */
+
+    GLuint gl_program;
     GLuint gl_vao[10];
     GLuint vertex_buffer[10];
-    GLuint gl_program;
     GLuint tex[2];
-    guchar* pixels;
-    glm::vec3 _camera_center;
-
-    std::vector<Quad> _quads;
-    Quad _selection[2]; // quad used during selection //
-    int width;
-    int height;
-    glm::vec2 scale;
-    float scaleFactor;
+    
+    std::vector<GLQuad> _quads; /**< square (quads) of map  */
+    GLQuad _selection[2]; /**< square used during selection interior and border */
+    int width; /**< screen width  */
+    int height; /**< screen height  */
+    
 };
