@@ -2,9 +2,11 @@
 #include "Map.h"
 #include "MapResources.h"
 #include <glm/glm.hpp>
+#include "SceneScripts.h"
 
 using namespace glm;
 extern data::MapResources* gResources;
+extern Scripts::SceneScripts* gSceneScripts;
 GdkPixbuf* _pixbuf;
 
 int vertices = 2 * 3 * 3;
@@ -48,6 +50,11 @@ const GLchar* fragmentSource = R"glsl(
         else
         {
             outColor = texture(textureAtlas, Texcoord) * Color.xyzw;
+        }
+
+        if(abs(Texcoord.x - -1.0) < eps && abs(Texcoord.y - -1.0) < eps)
+        {
+            outColor = Color;
         }
     }
 )glsl";
@@ -150,7 +157,7 @@ gboolean GLScence::render(GtkGLArea* area, GdkGLContext* context)
         
     }
     glUniform1i(texLoc2, 1);// send texture 1 to shader //
-    //////////////////////////
+    /////////////////////////
 
     // HOW WE WILL DRAW ? //
     glEnableVertexAttribArray(positionAtt);    // We like submitting vertices on stream 0 for no special reason
@@ -159,6 +166,7 @@ gboolean GLScence::render(GtkGLArea* area, GdkGLContext* context)
     glVertexAttribPointer(colorAtt, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));      // The starting point of the VBO, for the vertices
     glEnableVertexAttribArray(texAttrib);
     glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(7 * sizeof(float)));
+
 
     // BIND ARRAW //
     glBindVertexArray(gl_vao[0]);
@@ -169,6 +177,14 @@ gboolean GLScence::render(GtkGLArea* area, GdkGLContext* context)
         glDrawArrays(GL_TRIANGLES, 0, _quads.size() * (vertices + textures + colors));
     //////////////////////
     
+    // script rects //
+    glBindVertexArray(gl_vao[3]);
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer[3]);
+    glBufferData(GL_ARRAY_BUFFER, gSceneScripts->getQuads().size() * (vertices + textures + colors) * sizeof(float), &gSceneScripts->getQuads()[0], GL_DYNAMIC_DRAW);
+    if (gSceneScripts->getQuads().size() != 0)
+        glDrawArrays(GL_TRIANGLES, 0, gSceneScripts->getQuads().size() * (vertices + textures + colors));
+
+
     /// /////////////////////////////
     /// shadow QUAD /////////////////
     /// /////////////////////////////
@@ -241,7 +257,6 @@ gboolean GLScence::realize(GtkGLArea* area)
     glGenBuffers(1, &vertex_buffer[0]);   
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer[0]); // vertex_buffer is retrieved from glGenBuffers
     glBufferData(GL_ARRAY_BUFFER, _quads.size() * (vertices + textures + colors) * sizeof(float), &_quads[0], GL_DYNAMIC_DRAW);
-
     GLint positionAtt = glGetAttribLocation(gl_program, "position");
     GLint colorAtt = glGetAttribLocation(gl_program, "color");
     GLint texAttrib = glGetAttribLocation(gl_program, "texcoord");
@@ -272,6 +287,21 @@ gboolean GLScence::realize(GtkGLArea* area)
     glGenBuffers(1, &vertex_buffer[2]);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer[2]); // vertex_buffer is retrieved from glGenBuffers
     glBufferData(GL_ARRAY_BUFFER, 2 /*quads*/ * (vertices + textures + colors) * sizeof(float), _selection, GL_DYNAMIC_DRAW);
+    positionAtt = glGetAttribLocation(gl_program, "position");
+    colorAtt = glGetAttribLocation(gl_program, "color");
+    texAttrib = glGetAttribLocation(gl_program, "texcoord");
+    glEnableVertexAttribArray(positionAtt);    // We like submitting vertices on stream 0 for no special reason
+    glVertexAttribPointer(positionAtt, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), BUFFER_OFFSET(0));      // The starting point of the VBO, for the vertices
+    glEnableVertexAttribArray(colorAtt);    // We like submitting vertices on stream 0 for no special reason
+    glVertexAttribPointer(colorAtt, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));      // The starting point of the VBO, for the vertices
+    glEnableVertexAttribArray(texAttrib);
+    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(7 * sizeof(float)));
+
+    glGenVertexArrays(1, &gl_vao[3]);
+    glBindVertexArray(gl_vao[3]);
+    glGenBuffers(1, &vertex_buffer[3]);
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer[3]); // vertex_buffer is retrieved from glGenBuffers
+    glBufferData(GL_ARRAY_BUFFER, (vertices + textures + colors) * sizeof(float), &gSceneScripts->getQuads()[0], GL_DYNAMIC_DRAW);
     positionAtt = glGetAttribLocation(gl_program, "position");
     colorAtt = glGetAttribLocation(gl_program, "color");
     texAttrib = glGetAttribLocation(gl_program, "texcoord");

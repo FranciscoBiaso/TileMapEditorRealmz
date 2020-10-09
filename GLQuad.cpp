@@ -5,7 +5,7 @@ extern data::MapResources* gResources;
 
 GLQuad::GLQuad(){}
 
-GLQuad::GLQuad(glm::vec3 leftTop, float side)
+GLQuad::GLQuad(glm::vec3 leftTop, float side, glm::vec4 color)
 {
     // Opengl Coords //
     /*
@@ -18,6 +18,7 @@ GLQuad::GLQuad(glm::vec3 leftTop, float side)
         1
     */
     updatePosition(leftTop, side);
+    setColor(color);
 }
 
 

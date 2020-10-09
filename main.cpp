@@ -8,6 +8,7 @@
 #include "DrawingToolUI.h"
 #include "CtrlMap.h"
 #include "AppLoaderSettings.h"
+#include "SceneScripts.h"
 
 #include <Windows.h>
 
@@ -26,6 +27,7 @@ ui::ThingCreatorTool* gThingCreatorTool = nullptr;
 ui::GraphicsTool* gGraphicsTool = nullptr;
 ui::DrawingToolUI* gDrawingToolUI = nullptr;
 ctrl::CtrlMap* ctrlMap = nullptr;
+Scripts::SceneScripts* gSceneScripts = nullptr;
 AppLoaderSettings gAppLoaderSettings;
 //-----------------------------------------//
 
@@ -129,6 +131,12 @@ int main(int argc, char** argv)
     //---------------------//
 
     // user interface // ---------------------//
+    gSceneScripts = new Scripts::SceneScripts();
+
+    gSceneScripts->addScript(glm::vec2(0,0), 3 * REALMZ_GRID_SIZE, gAppLoaderSettings.getMapLevels() - 1, "", "", glm::vec4(1, 0.5, 0.25, 0.35));
+    gSceneScripts->addScript(glm::vec2(5 * REALMZ_GRID_SIZE, - 5 * REALMZ_GRID_SIZE), 5 * REALMZ_GRID_SIZE, gAppLoaderSettings.getMapLevels() - 1, "", "", glm::vec4(1, 0.5, 0.25, 0.35));
+
+
     gStuffBook = new ui::StuffBookUI();
     gImgPackUI = new ui::ImgPackUI();
     gThingCreatorTool = new ui::ThingCreatorTool();

@@ -20,7 +20,8 @@ typedef struct GLQuad {
         B-------------C
     */
     GLQuad();
-    GLQuad(glm::vec3 leftTop, float side);
+    GLQuad(glm::vec3 leftTop, float side, glm::vec4 color = glm::vec4(1,1,1,1));
+    
     void setCoordZ(float z);
     void updatePosition(glm::vec3 leftTop, float topSide, float leftSide = 0);
     void setTextCoord(int line, int col, int w = -1, int h = -1);
