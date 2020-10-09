@@ -74,16 +74,6 @@ GLQuad& GLScence::getQuad(int index)
     return _quads[index];
 }
 
-GLQuad& GLScence::getQuad(int line, int col)
-{
-    return _quads[line * map->getWidth() + col];
-}
-
-GLQuad& GLScence::getQuad(glm::vec2 coords)
-{
-    return _quads[(int)coords.y * map->getWidth() + (int)coords.x];
-}
-
 void GLScence::setScaleFactor(float scale)
 {
     scaleFactor = scale;
@@ -509,5 +499,14 @@ void GLScence::updateSelectionQuad(glm::vec2 A, glm::vec2 B, glm::vec4 colorRect
 
     _selection[0].setCoordZ(zCoord);
     _selection[1].setCoordZ(zCoord);
+}
 
+void GLScence::removeLightCylindergMapUI(int index)
+{
+    getQuad(index).setColor(glm::vec4(0.92, 0.32, 0.09, 1));
+}
+
+void GLScence::addLightCylindergMapUI(int index)
+{
+    getQuad(index).setColor(glm::vec4(1, 1, 1, 1));
 }

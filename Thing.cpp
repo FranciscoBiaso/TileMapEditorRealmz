@@ -44,6 +44,7 @@ data::Thing::Thing(const Thing& copy) : name(copy.name), imgObj_ptr(copy.imgObj_
 
 data::Thing& data::Thing::operator=(const data::Thing& v2)
 {
+	
 	if (this != &v2)
 	{
 		parent = v2.parent;
@@ -51,7 +52,8 @@ data::Thing& data::Thing::operator=(const data::Thing& v2)
 		imgObj_ptr = v2.imgObj_ptr;
 		type = v2.type;
 		stuffBookRefName = v2.stuffBookRefName;
-	}
+	}	
+
 	return *this;
 }
 

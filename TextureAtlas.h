@@ -8,7 +8,6 @@
 #define AT_COL 0
 #define AT_ROW 1
 
-
 namespace data {
 	/*!
 		TextureAtlas class

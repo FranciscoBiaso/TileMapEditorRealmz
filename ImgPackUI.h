@@ -45,6 +45,8 @@ namespace ui {
 		 *  @brief This method gets gtkTreeViewImgPack (GTK_TREE_VIEW);
 		 */
 		static GtkTreeView* getTreeView() { return GTK_TREE_VIEW(gtkTreeViewImgPack); }
+
+		void sort();
 	};
 
 }

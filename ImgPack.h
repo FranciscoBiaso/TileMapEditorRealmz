@@ -70,5 +70,7 @@ namespace data {
 		std::list<data::ImgObj>& getImgVec();
 
 		void saveImgPackAsJsonFile();
+
+		void sort();
 	};
 }

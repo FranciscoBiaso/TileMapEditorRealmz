@@ -38,9 +38,21 @@ namespace def{
         DRAWING_NONE,
         DRAWING_BRUSH,
         DRAWING_ERASE,
+        DRAWING_EYE,    // TILES WILL CHANGE COLOR AND THINGS WILL CHANGE ATTRIBUTE.
         SELECTING_ERASE,
         SELECTING_BRUSH,
     };
 
+    enum Combinations {
+        LEFT,
+        RIGHT,
+        TOP,
+        BOT,
+        LEFT_TOP,
+        RIGHT_TOP,
+        LEFT_BOT,
+        RIGHT_BOT
+    };
 
 }
+

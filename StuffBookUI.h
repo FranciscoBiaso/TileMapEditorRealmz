@@ -69,6 +69,8 @@ namespace ui {
 		void deleteAllThings(std::string imgName);
 
 		std::string getLastThingSelected() { return lastThingSelected; }
+
+		bool getThingByName(std::string name, data::Thing & thing);
 	};
 }
 

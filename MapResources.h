@@ -73,6 +73,7 @@ namespace data {
 		void loadStuffBookFromJson();
 
 		int getItemFromStuffBook(std::string itemName, data::Thing &);
+
 	};
 }
 

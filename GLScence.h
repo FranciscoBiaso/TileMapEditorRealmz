@@ -70,10 +70,8 @@ public:
     
     /**
     *  @brief This method returns a quad from quad std::vector.
-    */
-    GLQuad& getQuad(int line, int col);
+    */    
     GLQuad& getQuad(int index);
-    GLQuad& getQuad(glm::vec2 coords);
 
     /**
     *  @brief This method changes scale factor value.
@@ -112,8 +110,11 @@ public:
     void zoomIn();
     void zoomOut();
     
+    void removeLightCylindergMapUI(int index);
+    void addLightCylindergMapUI(int index);
 
     GLQuad _shadowSquare;
+
 private:
     scene::Map* map;
     GtkWidget* _gtkGLArea;
@@ -136,5 +137,5 @@ private:
     GLQuad _selection[2]; /**< square used during selection interior and border */
     int width; /**< screen width  */
     int height; /**< screen height  */
-    
+
 };

@@ -9,6 +9,7 @@ GObject* ui::GraphicsTool::gtkEntryImgName = nullptr;
 GObject* ui::GraphicsTool::gtkButtonAddImgName = nullptr;
 GObject* ui::GraphicsTool::gtkTreeViewImgObj = nullptr;
 GObject* ui::GraphicsTool::gtkButtonCreateImg = nullptr;
+GObject* ui::GraphicsTool::gtkButtonSplitImg = nullptr;
 GObject* ui::GraphicsTool::gtkScrolledWindowTileset = nullptr;
 GObject* ui::GraphicsTool::gtkCheckButtonGrid = nullptr;
 GObject* ui::GraphicsTool::gtkToggleButton32x32 = nullptr;
@@ -62,6 +63,7 @@ ui::GraphicsTool::GraphicsTool()
     gtkViewportImgSrc= gtk_builder_get_object(GtkUserInterface::builder, "gtkViewportImgSrc");
     gtkTreeViewImgObj = gtk_builder_get_object(GtkUserInterface::builder, "gtkTreeViewImgObj");
     gtkButtonCreateImg = gtk_builder_get_object(GtkUserInterface::builder, "gtkButtonCreateImg");
+    gtkButtonSplitImg = gtk_builder_get_object(GtkUserInterface::builder, "gtkButtonSplitImg");
     gtkEntryImgName = gtk_builder_get_object(GtkUserInterface::builder, "gtkEntryImgName");
 
     /* toggle buttons */
@@ -100,6 +102,7 @@ ui::GraphicsTool::GraphicsTool()
 
     /* bind check button to grid action (show or hide) */
     g_signal_connect(gtkButtonCreateImg, "clicked", G_CALLBACK(cb_createImgObj), NULL);
+    g_signal_connect(gtkButtonSplitImg, "clicked", G_CALLBACK(cb_splitImgObj), NULL);
 
     /* bind cb button create img obj */
     g_signal_connect(gtkFileChooserButtonImg, "file-set", G_CALLBACK(cb_onFileSet), gtkViewportImgSrc);
@@ -689,6 +692,33 @@ void ui::GraphicsTool::createTreeViewImgObj()
     gtk_tree_view_set_enable_tree_lines(GTK_TREE_VIEW(gtkTreeViewImgObj), true); // tree lines //
 }
 
+
+
+void ui::GraphicsTool::cb_splitImgObj(GtkWidget* widget, gpointer data)
+{
+    int width = gdk_pixbuf_get_width(pixelBufImgSrc);
+    int height = gdk_pixbuf_get_height(pixelBufImgSrc);
+    int imgName = 1;
+    auto listImgs = gResources->getImgPack().getStrucutre();
+
+    if (!listImgs.empty())
+    {
+        imgName = listImgs.size() + 1;
+    }
+
+
+    for (int h = 0; h < height; h += 32)
+    {
+        for (int c = 0; c < width; c += 32)
+        {
+            gdk_pixbuf_copy_area(pixelBufImgSrc, c, h, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE / 2);
+            gResources->getImgPack().addImgObj(std::to_string(imgName), pixelBufImgDest,def::IMG_SIZE::IMG_SIZE_32X32);
+            imgName++;
+        }
+    }
+    gImgPackUI->updateTree(); // update tree view //
+}
+
 void ui::GraphicsTool::cb_createImgObj(GtkWidget* widget, gpointer data)
 {
     auto it = gResources->getImgPack().find(std::string(imgName));
@@ -734,7 +764,8 @@ bool ui::GraphicsTool::loadImgPackFromJson()
     Json::CharReaderBuilder rbuilder;	// reader //
     std::string errs; // to check errors //
     Json::Value jsonObj;
-    Json::parseFromStream(rbuilder, ifs, &jsonObj, &errs); // parser //   
+    Json::parseFromStream(rbuilder, ifs, &jsonObj, &errs); // parser // 
+    
     if (!jsonObj.isNull()) // loading img pack //
     {
         gAuxUI->printMsg("Loading ImgPack from file!");
@@ -752,8 +783,10 @@ bool ui::GraphicsTool::loadImgPackFromJson()
             if (size == "64x32") imgSize = def::IMG_SIZE::IMG_SIZE_64X32;
             if (size == "64x64") imgSize = def::IMG_SIZE::IMG_SIZE_64X64;
             gResources->getImgPack().addImgObjFromJson(data::ImgObj(name, imgSize, refs));
-            gImgPackUI->updateTree();
         }
+        // sort structure before display //
+        gResources->getImgPack().sort();
+        gImgPackUI->updateTree();
     }
     else
     {

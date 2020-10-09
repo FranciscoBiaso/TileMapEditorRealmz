@@ -37,6 +37,7 @@ namespace ui {
 		static GObject* gtkButtonAddImgName;
 		static GObject* gtkTreeViewImgObj;
 		static GObject* gtkButtonCreateImg;
+		static GObject* gtkButtonSplitImg;
 		static GObject* gtkScrolledWindowTileset;
 		static GObject* gtkToggleButton32x32;
 		static GObject* gtkToggleButton32x64;
@@ -254,6 +255,7 @@ namespace ui {
 		 *  @param data extra information if needed.
 		 */
 		static void cb_createImgObj(GtkWidget* widget, gpointer data);
+		static void cb_splitImgObj(GtkWidget* widget, gpointer data);
 
 
 		/**

@@ -5,7 +5,9 @@
 extern data::MapResources* gResources;
 
 scene::Cylinder::Cylinder()
-{}
+{
+	_hasLight = true;
+}
 
 const data::Thing& scene::Cylinder::operator[](int index)
 {
@@ -59,6 +61,14 @@ data::Thing scene::Cylinder::addItem(data::Thing thing)
 {
 	thing.setCylinder(this);
 
+	// work only with one layer //
+	cleans();
+	items.push_back(thing);
+	return thing;
+
+
+	// \/ work with multiple layers //
+
 	// if item already exists swap them return //
 	if (ifItemByLayerAlreadyExistsSwap(thing)) return thing;
 
@@ -106,4 +116,29 @@ void scene::Cylinder::cleans()
 std::vector<data::Thing>& scene::Cylinder::getItems()
 {
 	return items;
+}
+
+
+bool scene::Cylinder::hasThingByName(std::string name)
+{
+	for (int i = 0; i < items.size(); i++)
+	{
+		if (items[i].getStuffBookRefName() == name) return true;
+	}
+	return false;
+}
+
+void scene::Cylinder::setLight(bool value)
+{
+	this->_hasLight = value;
+}
+
+bool scene::Cylinder::hasLight()
+{
+	return _hasLight;
+}
+
+bool scene::Cylinder::isEmpty()
+{
+	return this->items.empty();
 }

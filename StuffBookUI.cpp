@@ -17,6 +17,9 @@ ui::StuffBookUI::StuffBookUI()
     gtkTreeViewStuffBook = gtk_builder_get_object(GtkUserInterface::builder, "gtkTreeViewStuffBook");
     gtkScrolledWindowStuffbook = gtk_builder_get_object(GtkUserInterface::builder, "gtkScrolledWindowStuffbook");
     
+
+    gtk_tree_view_set_activate_on_single_click(GTK_TREE_VIEW(gtkTreeViewStuffBook), true);
+
     g_signal_connect(gtkTreeViewStuffBook, "key-press-event", G_CALLBACK(static_cb_removeThing), this);
 
     createTreeView();
@@ -245,4 +248,22 @@ void ui::StuffBookUI::deleteAllThings(std::string imgName)
   }
 
   gMapUI->forceRedraw();
+}
+
+bool ui::StuffBookUI::getThingByName(std::string name, data::Thing& thing)
+{
+    auto map = gResources->getStuffBook(); // get stuffbook //
+    
+    for (auto it = map.begin(); it != map.end(); it++) // iterate through stuffbook //
+    {
+        for (auto it_thing = it->second.begin(); it_thing != it->second.end(); it_thing++) // iterate through each thing into this type //
+        {
+            if (it_thing->first == name)
+            {
+                thing = it_thing->second;
+                return true;
+            }
+        }
+    }
+    return false;
 }

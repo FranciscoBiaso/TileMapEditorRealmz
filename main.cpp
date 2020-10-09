@@ -9,6 +9,8 @@
 #include "CtrlMap.h"
 #include "AppLoaderSettings.h"
 
+#include <Windows.h>
+
 #ifdef TME_DEBUG
 #include "DebugTextureAtlas.h"
 #endif // TME_DEBUG
@@ -34,7 +36,6 @@ DebugTextureAtlas* debugTextureAtlas = nullptr;
 bool ctrlPressed;
 bool isSavingMap;
 
-
 static gboolean fill(gpointer  user_data)
 {
     GtkWidget* progress_bar = (GtkWidget*)(user_data);
@@ -55,8 +56,6 @@ static gboolean fill(gpointer  user_data)
         //gtk_window_close((GtkWindow*)p_window);
         return TRUE;
     }
-
-
     return FALSE;
 }
 
@@ -76,7 +75,6 @@ int create_window() {
     //gtk_widget_show_all(p_window);
     return true;
 }
-
 
 static gboolean cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer user_data)
 {
@@ -109,11 +107,10 @@ static gboolean cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer user
 
     return FALSE;
 }
-#include <Windows.h>
 
 int main(int argc, char** argv)
 {
-    FreeConsole();
+   // FreeConsole();
     // Gtk lib initialization //---------------------//
     gtk_init(&argc, &argv);
     //---------------------//
@@ -144,6 +141,7 @@ int main(int argc, char** argv)
     gResources->loadStuffBookFromJson();
     gStuffBook->updateTree(); // update tree view //
     gMapUI->loadMapFromJson();
+    gMapUI->loadAutoBorderFromJson();
     gMapUI->forceRedraw();
 
     // Controller // ---------------------//
@@ -157,6 +155,7 @@ int main(int argc, char** argv)
 
     GtkWidget* window = GTK_WIDGET(gtk_builder_get_object(GtkUserInterface::builder, "window"));
     gtk_window_maximize((GtkWindow*)window);
+
     
     gtk_widget_add_events(window, GDK_ALL_EVENTS_MASK);
     g_signal_connect(G_OBJECT(window), "button-release-event", G_CALLBACK(cb_clickNotify), NULL);

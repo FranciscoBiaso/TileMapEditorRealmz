@@ -18,6 +18,7 @@ namespace scene {
 	private:
 		std::vector<data::Thing> items;
 		math::Vec3<int> coords;
+		bool _hasLight; // if false will not be illuminated in the game.
 	public:
 		
 		/**
@@ -72,6 +73,11 @@ namespace scene {
 		bool ifItemByLayerAlreadyExistsSwap(data::Thing& toAdd);
 
 		std::vector<data::Thing>& getItems();
+		bool hasThingByName(std::string Name);
+
+		void setLight(bool value);
+		bool hasLight();
+		bool isEmpty();
 	};
 
 }

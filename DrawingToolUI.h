@@ -18,14 +18,20 @@ namespace ui {
 		GObject* zoomIn;
 		GObject* zoomOut;
 		GObject* zoomReset;
+		GObject* reloadFiles;
+		GObject* viewDownStairs;
+		GObject* buttonEye;
 		def::DrawingToolMode drawingMode;
 		def::DrawingToolMode drawingModePrevious;
 
 
 
+		static void static_cb_signalGtkToggleButtonEye(GtkToggleButton* togglebutton, gpointer user_data);
 		static void static_cb_signalGtkToggleButtonZoomIn(GtkButton* togglebutton, gpointer user_data);
 		static void static_cb_signalGtkToggleButtonZoomOut(GtkButton* togglebutton, gpointer user_data);
 		static void static_cb_signalGtkToggleButtonZoomReset(GtkButton* togglebutton, gpointer user_data);
+		static void static_cb_signalGtkButtonViewDownStairs(GtkButton* togglebutton, gpointer user_data);
+		static void static_cb_signalGtkButtonReloadfiles(GtkButton* togglebutton, gpointer user_data);
 
 		/**
 		 *  @brief Auxiliary function to avoid static members.
@@ -77,9 +83,12 @@ namespace ui {
 		 */
 		void cb_signalGtkToggleButtonEraser(GtkToggleButton* togglebutton, gpointer user_data);
 
+		void cb_signalGtkToggleButtonEye(GtkToggleButton* togglebutton, gpointer user_data);
 		void cb_signalGtkToggleButtonZoomIn(GtkButton* togglebutton, gpointer user_data);
 		void cb_signalGtkToggleButtonZoomOut(GtkButton* togglebutton, gpointer user_data);
 		void cb_signalGtkToggleButtonZoomReset(GtkButton* togglebutton, gpointer user_data);
+		void cb_signalGtkButtonViewDownStairs(GtkButton* button, gpointer user_data);
+		void cb_signalGtkButtonReloadfiles(GtkButton* togglebutton, gpointer user_data);
 
 		bool is_brush_enable();
 		bool is_eraser_enable();

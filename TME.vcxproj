@@ -153,7 +153,9 @@
     <ClCompile Include="DebugTextureAtlas.cpp" />
     <ClCompile Include="DrawingFunctions.cpp" />
     <ClCompile Include="DrawingToolUI.cpp" />
+    <ClCompile Include="GLQuad.cpp" />
     <ClCompile Include="GLScence.cpp" />
+    <ClCompile Include="GLTriangle.cpp" />
     <ClCompile Include="ImgPack.cpp" />
     <ClCompile Include="ImgPackUI.cpp" />
     <ClCompile Include="Map.cpp" />
@@ -178,7 +180,9 @@
     <ClInclude Include="Definitions.h" />
     <ClInclude Include="DrawingFunctions.h" />
     <ClInclude Include="DrawingToolUI.h" />
+    <ClInclude Include="GLQuad.h" />
     <ClInclude Include="GLScence.h" />
+    <ClInclude Include="GLTriangle.h" />
     <ClInclude Include="ImgPack.h" />
     <ClInclude Include="ImgPackUI.h" />
     <ClInclude Include="Map.h" />

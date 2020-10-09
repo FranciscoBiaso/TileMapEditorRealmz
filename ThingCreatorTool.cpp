@@ -26,7 +26,8 @@ ui::ThingCreatorTool::ThingCreatorTool()
     gtkTreeViewThingObj = gtk_builder_get_object(GtkUserInterface::builder, "gtkTreeViewThingObj");
     gtkButtonCreateThing = gtk_builder_get_object(GtkUserInterface::builder, "gtkButtonCreateThing");
     gtkFrameThingImgView = gtk_builder_get_object(GtkUserInterface::builder, "gtkFrameThingImgView");
-
+    gtk_tree_view_set_activate_on_single_click(GTK_TREE_VIEW(gtkTreeViewThingType), true);
+    
     // creating models //
     createTreeViewThingType();
     createTreeViewThingObj();

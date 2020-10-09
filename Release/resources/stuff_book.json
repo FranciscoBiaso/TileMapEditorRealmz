@@ -1,1 +1,147 @@
-null
+{
+   "gro_a" : 
+   {
+      "img_ptr" : "155",
+      "type" : "ground"
+   },
+   "gro_b" : 
+   {
+      "img_ptr" : "40",
+      "type" : "ground"
+   },
+   "str_a_1" : 
+   {
+      "img_ptr" : "1",
+      "type" : "structures"
+   },
+   "str_a_10" : 
+   {
+      "img_ptr" : "18",
+      "type" : "structures"
+   },
+   "str_a_11" : 
+   {
+      "img_ptr" : "19",
+      "type" : "structures"
+   },
+   "str_a_12" : 
+   {
+      "img_ptr" : "20",
+      "type" : "structures"
+   },
+   "str_a_13" : 
+   {
+      "img_ptr" : "21",
+      "type" : "structures"
+   },
+   "str_a_14" : 
+   {
+      "img_ptr" : "22",
+      "type" : "structures"
+   },
+   "str_a_15" : 
+   {
+      "img_ptr" : "23",
+      "type" : "structures"
+   },
+   "str_a_2" : 
+   {
+      "img_ptr" : "2",
+      "type" : "structures"
+   },
+   "str_a_3" : 
+   {
+      "img_ptr" : "11",
+      "type" : "structures"
+   },
+   "str_a_4" : 
+   {
+      "img_ptr" : "12",
+      "type" : "structures"
+   },
+   "str_a_5" : 
+   {
+      "img_ptr" : "13",
+      "type" : "structures"
+   },
+   "str_a_6" : 
+   {
+      "img_ptr" : "14",
+      "type" : "structures"
+   },
+   "str_a_7" : 
+   {
+      "img_ptr" : "15",
+      "type" : "structures"
+   },
+   "str_a_8" : 
+   {
+      "img_ptr" : "16",
+      "type" : "structures"
+   },
+   "str_a_9" : 
+   {
+      "img_ptr" : "17",
+      "type" : "structures"
+   },
+   "str_b_1" : 
+   {
+      "img_ptr" : "65",
+      "type" : "structures"
+   },
+   "str_b_10" : 
+   {
+      "img_ptr" : "29",
+      "type" : "structures"
+   },
+   "str_b_11" : 
+   {
+      "img_ptr" : "28",
+      "type" : "structures"
+   },
+   "str_b_12" : 
+   {
+      "img_ptr" : "31",
+      "type" : "structures"
+   },
+   "str_b_2" : 
+   {
+      "img_ptr" : "64",
+      "type" : "structures"
+   },
+   "str_b_3" : 
+   {
+      "img_ptr" : "62",
+      "type" : "structures"
+   },
+   "str_b_4" : 
+   {
+      "img_ptr" : "59",
+      "type" : "structures"
+   },
+   "str_b_5" : 
+   {
+      "img_ptr" : "34",
+      "type" : "structures"
+   },
+   "str_b_6" : 
+   {
+      "img_ptr" : "35",
+      "type" : "structures"
+   },
+   "str_b_7" : 
+   {
+      "img_ptr" : "36",
+      "type" : "structures"
+   },
+   "str_b_8" : 
+   {
+      "img_ptr" : "37",
+      "type" : "structures"
+   },
+   "str_b_9" : 
+   {
+      "img_ptr" : "30",
+      "type" : "structures"
+   }
+}

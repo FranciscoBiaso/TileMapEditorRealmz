@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include "Map.h"
 #include "Thing.h"
 #include "Vec2.h"
@@ -24,6 +25,7 @@ namespace ui {
 			DRAWING_EMPTY = 0,
 			DRAWING_PEN_SELECTED = 1,
 			DRAWING_ERASER_SELECTED,
+			DRAWING_EYE_SELECTED,
 			MOVING_VIEW_OF_MAP
 		};
 	private:
@@ -71,8 +73,9 @@ namespace ui {
 		bool _grid_enable;
 		int _scroll_x_position;
 		int _scroll_y_position;
+		int worldFloor;
+		std::map<std::string, std::vector<std::string>> _autoBorders;
 
-		math::Vec2<int> screen_coords_to_world_coords(math::Vec2<int>);
 
 		void draw_map_ui(cairo_t* cr);
 
@@ -81,7 +84,7 @@ namespace ui {
 
 		// mouse zoom //
 		bool isLeftKeyPressed;
-
+		std::vector<bool> isFloorTransparency;
 
 
 		/**
@@ -165,6 +168,8 @@ namespace ui {
 		static gboolean static_cb_onLeave(GtkWidget* widget, GdkEvent* event, gpointer user_data);
 
 		void loadOpenGLMap();
+		glm::vec2 getOffset(int index);
+		bool isIntoMap(glm::vec2 coords);
 	public:
 		/**
 		 * constructor.
@@ -201,17 +206,17 @@ namespace ui {
 		// w i p //
 		void map_resize(GtkWidget* widget, GtkAllocation* allocation, void* data);
 
-		data::Thing  addThingMapUI(math::Vec2<int> world_coords);
-		void delThingMapUI(math::Vec2<int> world_coords);
+		data::Thing addThingMapUI(math::Vec2<int> world_coords, float level);
+		data::Thing addThingMapUI(glm::vec2 world_coords, int level, data::Thing thing);
 		void delThingMapUI(std::string thing_name,math::Vec3<int> thing_position);
 		void delThingMapUI(data::Thing*);
 
 
-		data::Thing  addThingMapUI(glm::vec2 world_coords);
-		void delThingMapUI(glm::vec2 world_coords);
+		data::Thing  addThingMapUI(glm::vec2 world_coords, int level = 0);
+		void delThingMapUI(glm::vec2 world_coords, int level);
 
-		data::Thing addThingMapUI(int line, int col);
-		void delThingMapUI(int line, int col);
+		data::Thing addThingMapUI(int line, int col, int level = 0);
+		void delThingMapUI(int line, int col, int level = 0);
 
 		/**
 		 * @brief This method is active when mouse enters into this user interface.
@@ -260,11 +265,24 @@ namespace ui {
 		 *  @brief converts mouse coords to words position as a string.
 		 */
 		std::string mouse_coords_to_word_position_to_string(math::Vec2<int> screen_coord);
-		
+
+		void loadAutoBorderFromJson();
 		void loadMapFromJson();
 		void saveMap() { this->saveInternalMap(); }
 
 		GLScence* getGLScene() { return _glScence; }
+
+		bool hasAutoBorder(std::string name, std::vector<std::string>& borders);
+		void addThingWithAutoBorderMapUI(glm::vec2 coord);
+		void cleanAutoBorders();
+		void setCanSeeDownStairs(bool value);
+		void updateGlSceneColorFloor(int floor, glm::vec4 color);
+		void upateCylinderLight(glm::vec2 coords, int floor);
+		/**
+		 *  @brief Checks if cylinder is a grid or not.
+		 */
+		bool isCylinderGrid(scene::Cylinder &);
+
 	};
 }
 

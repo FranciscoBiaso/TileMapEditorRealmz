@@ -49,7 +49,7 @@ data::TextureAtlas* data::ImgPack::getTextureAtlas() const
 {
 	return textureAtlas;
 }
-#include <iostream>
+
 void data::ImgPack::saveImgPackAsJsonFile()
 {
     Json::Value jsonValue;
@@ -79,4 +79,14 @@ void data::ImgPack::saveImgPackAsJsonFile()
 	writer->write(jsonValue, &ofs);
 	
 	ofs.close();
+}
+
+bool compare_nocase(const data::ImgObj& first, const data::ImgObj& second)
+{
+	return (std::atoi(first.getName().c_str()) < std::atoi(second.getName().c_str()));
+}
+
+void data::ImgPack::sort()
+{
+	_imgs.sort(compare_nocase);
 }
