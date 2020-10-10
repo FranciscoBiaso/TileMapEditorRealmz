@@ -16,17 +16,19 @@ ui::DrawingToolUI::DrawingToolUI()
     zoomReset = gtk_builder_get_object(GtkUserInterface::builder, "gtkButtonZoomReset");
     viewDownStairs = gtk_builder_get_object(GtkUserInterface::builder, "gtkButtonViewDownStairs");
     buttonEye = gtk_builder_get_object(GtkUserInterface::builder, "gtkToggleButtonEye");
+    toggleButtonScript = gtk_builder_get_object(GtkUserInterface::builder, "gtkToggleButtonScript");
 
 
     drawingMode = def::DrawingToolMode::DRAWING_NONE;
 
     g_signal_connect(brush, "toggled", G_CALLBACK(static_cb_signalGtkToggleButtonBrush), this);
     g_signal_connect(eraser, "toggled", G_CALLBACK(static_cb_signalGtkToggleButtonEraser), this);
+    g_signal_connect(toggleButtonScript, "toggled", G_CALLBACK(static_cb_signalGtkToggleButtonScript), this);
+    g_signal_connect(buttonEye, "toggled", G_CALLBACK(static_cb_signalGtkToggleButtonEye), this);
     g_signal_connect(zoomIn, "clicked", G_CALLBACK(static_cb_signalGtkToggleButtonZoomIn), this);
     g_signal_connect(zoomOut, "clicked", G_CALLBACK(static_cb_signalGtkToggleButtonZoomOut), this);
     g_signal_connect(zoomReset, "clicked", G_CALLBACK(static_cb_signalGtkToggleButtonZoomReset), this);
     g_signal_connect(viewDownStairs, "clicked", G_CALLBACK(static_cb_signalGtkButtonViewDownStairs), this);
-    g_signal_connect(buttonEye, "clicked", G_CALLBACK(static_cb_signalGtkToggleButtonEye), this);
 }
 
 def::DrawingToolMode ui::DrawingToolUI::getDrawingMode() const
@@ -34,6 +36,10 @@ def::DrawingToolMode ui::DrawingToolUI::getDrawingMode() const
     return drawingMode;
 }
 
+void ui::DrawingToolUI::static_cb_signalGtkToggleButtonScript(GtkToggleButton* togglebutton, gpointer user_data)
+{
+    reinterpret_cast<DrawingToolUI*>(user_data)->cb_signalGtkToggleButtonScript(togglebutton, user_data);
+}
 
 void ui::DrawingToolUI::static_cb_signalGtkToggleButtonEye(GtkToggleButton* togglebutton, gpointer user_data)
 {
@@ -75,13 +81,58 @@ void ui::DrawingToolUI::static_cb_signalGtkToggleButtonEraser(GtkToggleButton* t
     reinterpret_cast<DrawingToolUI*>(user_data)->cb_signalGtkToggleButtonEraser(togglebutton, user_data);
 }
 
+GtkToggleButton* ui::DrawingToolUI::getToggleButton(enum def::DrawingToolMode mode)
+{
+    switch (mode)
+    {
+    case def::DRAWING_NONE: return NULL;
+        break; 
+    case def::DRAWING_BRUSH: return GTK_TOGGLE_BUTTON(brush);
+        break;
+    case def::DRAWING_ERASE: return GTK_TOGGLE_BUTTON(eraser);
+        break;
+    case def::DRAWING_EYE: return GTK_TOGGLE_BUTTON(buttonEye);
+        break;
+    case def::DRAWING_SCRIPT: return GTK_TOGGLE_BUTTON(toggleButtonScript);
+        break;
+    case def::SELECTING_ERASE: return NULL;
+        break;
+    case def::SELECTING_BRUSH: return NULL;
+        break;
+    case def::SELECTING_SCRIPT: return NULL;
+        break;
+    default:
+        break;
+    }
+    return NULL;
+}
+
+void ui::DrawingToolUI::disableAllToggleButtonsMinus(GtkToggleButton* togglebutton, enum def::DrawingToolMode minusMode)
+{
+    if(togglebutton != GTK_TOGGLE_BUTTON(buttonEye)) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(buttonEye), FALSE);
+    if (togglebutton != GTK_TOGGLE_BUTTON(eraser)) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(eraser), FALSE);
+    if (togglebutton != GTK_TOGGLE_BUTTON(brush)) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(brush), FALSE);
+    if (togglebutton != GTK_TOGGLE_BUTTON(toggleButtonScript)) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggleButtonScript), FALSE);
+    drawingMode = minusMode;
+    gtk_toggle_button_set_active(togglebutton, TRUE);
+}
+
+void ui::DrawingToolUI::cb_signalGtkToggleButtonScript(GtkToggleButton* togglebutton, gpointer user_data)
+{
+    if (gtk_toggle_button_get_active(togglebutton) == TRUE)
+    {
+        disableAllToggleButtonsMinus(togglebutton, def::DrawingToolMode::DRAWING_SCRIPT);
+    }
+    else if (areAllToogleFalse())
+    {
+        drawingMode = def::DrawingToolMode::DRAWING_NONE;
+    }
+}
 void ui::DrawingToolUI::cb_signalGtkToggleButtonEye(GtkToggleButton* togglebutton, gpointer user_data)
 {
     if (gtk_toggle_button_get_active(togglebutton) == TRUE)
     {
-        drawingMode = def::DrawingToolMode::DRAWING_EYE;
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(eraser), FALSE);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(brush), FALSE);
+        disableAllToggleButtonsMinus(togglebutton, def::DrawingToolMode::DRAWING_EYE);
     }
     else if (areAllToogleFalse())
     {
@@ -93,9 +144,7 @@ void ui::DrawingToolUI::cb_signalGtkToggleButtonBrush(GtkToggleButton* togglebut
 {
     if (gtk_toggle_button_get_active(togglebutton) == TRUE)
     {
-        drawingMode = def::DrawingToolMode::DRAWING_BRUSH;
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(eraser), FALSE);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(buttonEye), FALSE);
+        disableAllToggleButtonsMinus(togglebutton, def::DrawingToolMode::DRAWING_BRUSH);
     }
     else if (areAllToogleFalse())
     {
@@ -107,9 +156,7 @@ void ui::DrawingToolUI::cb_signalGtkToggleButtonEraser(GtkToggleButton* togglebu
 {
     if (gtk_toggle_button_get_active(togglebutton) == TRUE)
     {
-        drawingMode = def::DrawingToolMode::DRAWING_ERASE;
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(brush), FALSE);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(buttonEye), FALSE);
+        disableAllToggleButtonsMinus(togglebutton, def::DrawingToolMode::DRAWING_ERASE);
     }
     else if(areAllToogleFalse())
     {
@@ -151,7 +198,8 @@ bool ui::DrawingToolUI::areAllToogleFalse()
 {
     return !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(eraser)) &&
            !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(brush)) && 
-           !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(buttonEye))
+           !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(buttonEye)) &&
+           !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggleButtonScript))
            ? true : false;
 }
 
@@ -190,4 +238,9 @@ bool ui::DrawingToolUI::is_brush_enable()
 bool ui::DrawingToolUI::is_eraser_enable()
 {
     return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(eraser));
+}
+
+bool ui::DrawingToolUI::is_script_enable()
+{
+    return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggleButtonScript));
 }

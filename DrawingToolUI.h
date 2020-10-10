@@ -21,11 +21,13 @@ namespace ui {
 		GObject* reloadFiles;
 		GObject* viewDownStairs;
 		GObject* buttonEye;
+		GObject* toggleButtonScript;
 		def::DrawingToolMode drawingMode;
 		def::DrawingToolMode drawingModePrevious;
 
 
 
+		static void static_cb_signalGtkToggleButtonScript(GtkToggleButton* togglebutton, gpointer user_data);
 		static void static_cb_signalGtkToggleButtonEye(GtkToggleButton* togglebutton, gpointer user_data);
 		static void static_cb_signalGtkToggleButtonZoomIn(GtkButton* togglebutton, gpointer user_data);
 		static void static_cb_signalGtkToggleButtonZoomOut(GtkButton* togglebutton, gpointer user_data);
@@ -83,6 +85,7 @@ namespace ui {
 		 */
 		void cb_signalGtkToggleButtonEraser(GtkToggleButton* togglebutton, gpointer user_data);
 
+		void cb_signalGtkToggleButtonScript(GtkToggleButton* togglebutton, gpointer user_data);
 		void cb_signalGtkToggleButtonEye(GtkToggleButton* togglebutton, gpointer user_data);
 		void cb_signalGtkToggleButtonZoomIn(GtkButton* togglebutton, gpointer user_data);
 		void cb_signalGtkToggleButtonZoomOut(GtkButton* togglebutton, gpointer user_data);
@@ -92,6 +95,10 @@ namespace ui {
 
 		bool is_brush_enable();
 		bool is_eraser_enable();
+		bool is_script_enable();
+
+		void disableAllToggleButtonsMinus(GtkToggleButton* togglebutton, enum def::DrawingToolMode mode);
+		GtkToggleButton * getToggleButton(enum def::DrawingToolMode mode);
 	};
 
 }

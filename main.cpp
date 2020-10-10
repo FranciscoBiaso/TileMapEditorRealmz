@@ -133,8 +133,8 @@ int main(int argc, char** argv)
     // user interface // ---------------------//
     gSceneScripts = new Scripts::SceneScripts();
 
-    gSceneScripts->addScript(glm::vec2(0,0), 3 * REALMZ_GRID_SIZE, gAppLoaderSettings.getMapLevels() - 1, "", "", glm::vec4(1, 0.5, 0.25, 0.35));
-    gSceneScripts->addScript(glm::vec2(5 * REALMZ_GRID_SIZE, - 5 * REALMZ_GRID_SIZE), 5 * REALMZ_GRID_SIZE, gAppLoaderSettings.getMapLevels() - 1, "", "", glm::vec4(1, 0.5, 0.25, 0.35));
+    //gSceneScripts->addScript(glm::vec2(0,0), 3 * REALMZ_GRID_SIZE, gAppLoaderSettings.getMapLevels() - 1, "", "", glm::vec4(1, 0.5, 0.25, 0.35));
+    //gSceneScripts->addScript(glm::vec2(5 * REALMZ_GRID_SIZE, - 5 * REALMZ_GRID_SIZE), 5 * REALMZ_GRID_SIZE, gAppLoaderSettings.getMapLevels() - 1, "", "", glm::vec4(0.5, 1, 0.25, 0.35));
 
 
     gStuffBook = new ui::StuffBookUI();

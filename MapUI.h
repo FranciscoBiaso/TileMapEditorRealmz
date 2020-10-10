@@ -26,6 +26,7 @@ namespace ui {
 			DRAWING_PEN_SELECTED = 1,
 			DRAWING_ERASER_SELECTED,
 			DRAWING_EYE_SELECTED,
+			DRAWING_SCRIPT_SELECTED,
 			MOVING_VIEW_OF_MAP
 		};
 	private:
@@ -43,7 +44,6 @@ namespace ui {
 		math::Vec2<int> mousePosition_select_from;
 		math::Vec2<int> mousePosition_select_to;
 		
-		math::Vec2<int> mousePositionPrevious;
 		math::Vec2<int> mouseStartPositionToMoveMapView; /**< position of mouse when keyboard space was pressed */
 		math::Vec2<int> mapDetachment; /**< displace of mouseStartPositionToMoveMapView and new mouse position */
 		math::Vec3<float> gridColor;

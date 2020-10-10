@@ -5,6 +5,7 @@
 #include "DrawingToolUI.h"
 #include "CtrlMap.h"
 #include "Thing.h"
+#include "SceneScripts.h"
 #ifdef _WIN32
 #include <Windows.h>
 #endif
@@ -14,6 +15,7 @@ extern data::MapResources* gResources;
 extern ui::AuxUI* gAuxUI;
 extern ui::DrawingToolUI* gDrawingToolUI;
 extern ctrl::CtrlMap* ctrlMap;
+extern Scripts::SceneScripts* gSceneScripts;
 
 namespace GtkUserInterface { extern GtkBuilder* builder; }
 
@@ -167,12 +169,13 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
     _glScene->_shadowSquare.reset_textcoord(-1);
 
     if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_ERASE ||
-        gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_BRUSH)
+        gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_BRUSH || 
+        gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_SCRIPT)
     {
         _mousePosition_select_to = _glScene->screen_to_world(glm::vec2(_mouse_coord), getWidth() * REALMZ_GRID_SIZE, getHeight() * REALMZ_GRID_SIZE);
 
         glm::vec2 offset(0,0);
-        _glScence->updateSelectionQuad(_mousePosition_select_from, _mousePosition_select_to + offset, glm::vec4(0.2, 0.3, 0.9,0.8), glm::vec4(0.2, 1.0, 0.7,0.1), (float)worldFloor- 0.01);
+        _glScence->updateSelectionQuad(_mousePosition_select_from, _mousePosition_select_to + offset, glm::vec4(0.2, 0.3, 0.9,0.45), glm::vec4(0.2, 1.0, 0.7,0.1), (float)worldFloor - 2 * 0.1f / 10.0f);
     }
     
     glm::vec2 world_coords = _glScene->screen_to_world(_mouse_coord, (getWidth() - 1) * REALMZ_GRID_SIZE, (getHeight() - 1) * REALMZ_GRID_SIZE);
@@ -219,8 +222,7 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
     
     //if(mousePositionHasChanged)
         forceRedraw();
-
-    mousePositionPrevious = mousePosition_by_32;
+    
     _mouse_to_world_previous = _mouse_to_world;
     return FALSE;
 }
@@ -269,10 +271,10 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
             // ctrl add operation to the stack //
             if (thingIsSelected)
             {
-                // add multiple things //
+                // add thing with auto border if possible //
                 addThingWithAutoBorderMapUI(world_coords);
             }
-            mousePositionPrevious = mousePosition_by_32;
+            
             ctrlModes = DRAWING_PEN_SELECTED;        
         }
         // ERASE //
@@ -293,36 +295,43 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
             gAuxUI->printMsg("First selects a drawing tool!");
         
         }
-      else if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_ERASE || 
-               gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_BRUSH)
-      {
+        else if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_ERASE || 
+                 gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_BRUSH || 
+                 gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_SCRIPT)
+         {
           
           glm::vec2 leftTop, rightBot;
           _glScence->get_LeftTop_rightbot(_mousePosition_select_from, _mousePosition_select_to, leftTop, rightBot);
             
-          leftTop /= REALMZ_GRID_SIZE;
-          rightBot /= REALMZ_GRID_SIZE;
-
-          leftTop.y *= -1;
-          rightBot.y *= -1;
-          if (leftTop.x < 0)
-              leftTop.x = 0;
-          if (rightBot.x < 0)
-              rightBot.x = 0;
 
 
-
-          // shift to left-top -> right-bottom //
-          for (int line = leftTop.y; line < rightBot.y; line++)
-              for (int col = leftTop.x; col < rightBot.x; col++)
-              {
-                  if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_ERASE)
-                    delThingMapUI(line,col, std::abs(worldFloor));
-                  if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_BRUSH)
-                    addThingMapUI(line, col, std::abs(worldFloor));
-              }
+          if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_ERASE ||
+              gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_BRUSH)
+          {
+              leftTop.y *= -1;
+              rightBot.y *= -1;
+              if (leftTop.x < 0)
+                  leftTop.x = 0;
+              if (rightBot.x < 0)
+                  rightBot.x = 0;
+                  leftTop /= REALMZ_GRID_SIZE;
+                  rightBot /= REALMZ_GRID_SIZE;
+                  // shift to left-top -> right-bottom //
+                  for (int line = leftTop.y; line < rightBot.y; line++)
+                      for (int col = leftTop.x; col < rightBot.x; col++)
+                      {
+                          if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_ERASE)
+                              delThingMapUI(line, col, std::abs(worldFloor));
+                          if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_BRUSH)
+                              addThingMapUI(line, col, std::abs(worldFloor));
+                      }
+          }
+          if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_SCRIPT)
+          {
+              gSceneScripts->addScript(leftTop, rightBot, floor, "", "");
+          }
           
-      }
+        }
     }
     else if (event->type == GDK_BUTTON_RELEASE)
     {
@@ -416,12 +425,14 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
           
       }
 
-      if (event->key.keyval == GDK_KEY_Shift_L && gDrawingToolUI->getDrawingMode() != def::DrawingToolMode::SELECTING_ERASE && 
-          gDrawingToolUI->is_eraser_enable())
+      // SHIFT + SCRIPT BUTTON //
+
+      if (event->key.keyval == GDK_KEY_Shift_L && gDrawingToolUI->getDrawingMode() != def::DrawingToolMode::SELECTING_SCRIPT && 
+          gDrawingToolUI->is_script_enable())
       {
           _glScence->enableQuadSelection();
           gDrawingToolUI->setPreviousDrawingMode(gDrawingToolUI->getDrawingMode());
-          gDrawingToolUI->setDrawingMode(def::DrawingToolMode::SELECTING_ERASE);
+          gDrawingToolUI->setDrawingMode(def::DrawingToolMode::SELECTING_SCRIPT);
           _mousePosition_select_from = _glScence->screen_to_world(_mouse_coord, (getWidth() - 1) * REALMZ_GRID_SIZE, (getHeight() - 1) * REALMZ_GRID_SIZE);
           _mousePosition_select_to = _mousePosition_select_from;
           _canDrawSelectionSquare = true;
@@ -480,6 +491,16 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
           _canDrawSelectionSquare = false;
           _glScence->enableQuadShadow();
           
+      }
+
+      // script //
+      if (event->key.keyval == GDK_KEY_Shift_L && gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_SCRIPT)
+      {
+          gDrawingToolUI->setDrawingMode(gDrawingToolUI->gePrevioustDrawingMode());
+          _glScence->disableQuadSelection();
+          _mousePosition_select_to = _mousePosition_select_from;
+          _canDrawSelectionSquare = false;
+          _glScence->enableQuadShadow();
       }
 
       else if (event->key.keyval == GDK_KEY_Control_L)
@@ -1183,7 +1204,7 @@ void ui::MapUI::updateGlSceneColorFloor(int floor, glm::vec4 color)
         for (int col = 0; col < getWidth(); col++)
         {
             int index = (line * getWidth() + col) + floor * getWidth() * getHeight();
-            GLQuad& quad = _glScene->getQuad(index);
+            GLRect& quad = _glScene->getQuad(index);
             if(std::abs(quad.T1.colorA.a - 0.5) < 0.01) // this is a grid
                 quad.setColor(color);
             if(std::abs(quad.T1.colorA.a - 0.3) < 0.01) // this is a grid

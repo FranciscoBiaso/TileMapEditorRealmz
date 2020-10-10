@@ -42,7 +42,7 @@ data::Thing scene::Map::addThing(data::Thing newThing, int line, int col, int le
 	glm::vec2 glmRef(ref.getX(), ref.getY());
 
 	// GET QUAD FROM RENDER STRUCTURE  //
-	GLQuad& quad = _glScence->getQuad((line * getWidth() + col) + level * getWidth() * getHeight());
+	GLRect& quad = _glScence->getQuad((line * getWidth() + col) + level * getWidth() * getHeight());
 	// SET VALUES //
 	quad.setTextCoord(glmRef);
 

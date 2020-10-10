@@ -39,8 +39,10 @@ namespace def{
         DRAWING_BRUSH,
         DRAWING_ERASE,
         DRAWING_EYE,    // TILES WILL CHANGE COLOR AND THINGS WILL CHANGE ATTRIBUTE.
+        DRAWING_SCRIPT,
         SELECTING_ERASE,
         SELECTING_BRUSH,
+        SELECTING_SCRIPT
     };
 
     enum Combinations {

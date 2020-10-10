@@ -76,7 +76,7 @@ GLScence::GLScence(scene::Map* map) : map(map)
     scaleFactor = 1.0f;   
 }
 
-GLQuad& GLScence::getQuad(int index)
+GLRect& GLScence::getQuad(int index)
 {
     return _quads[index];
 }
@@ -219,7 +219,7 @@ gboolean GLScence::render(GtkGLArea* area, GdkGLContext* context)
 
 void GLScence::addQuad(int line, int col, float floor, float size,glm::vec4 color)
 {
-    GLQuad q(vec3(col * REALMZ_GRID_SIZE, line * REALMZ_GRID_SIZE, floor), size);
+    GLRect q(vec3(col * REALMZ_GRID_SIZE, line * REALMZ_GRID_SIZE, floor), size);
     q.setColor(color);
     _quads.push_back(q);
 }

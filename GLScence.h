@@ -5,7 +5,7 @@
 #include <vector>
 #include "Map.h"
 #include <epoxy/gl.h>
-#include "GLQuad.h"
+#include "GLRect.h"
 
 #define BUFFER_OFFSET(i) ((char*)NULL + (i))
 
@@ -71,7 +71,7 @@ public:
     /**
     *  @brief This method returns a quad from quad std::vector.
     */    
-    GLQuad& getQuad(int index);
+    GLRect& getQuad(int index);
 
     /**
     *  @brief This method changes scale factor value.
@@ -113,7 +113,7 @@ public:
     void removeLightCylindergMapUI(int index);
     void addLightCylindergMapUI(int index);
 
-    GLQuad _shadowSquare;
+    GLRect _shadowSquare;
 
 private:
     scene::Map* map;
@@ -133,8 +133,8 @@ private:
     GLuint vertex_buffer[10];
     GLuint tex[2];
     
-    std::vector<GLQuad> _quads; /**< square (quads) of map  */
-    GLQuad _selection[2]; /**< square used during selection interior and border */
+    std::vector<GLRect> _quads; /**< square (quads) of map  */
+    GLRect _selection[2]; /**< square used during selection interior and border */
     int width; /**< screen width  */
     int height; /**< screen height  */
 
