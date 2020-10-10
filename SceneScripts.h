@@ -8,7 +8,7 @@
 #include "DrawingFunctions.h"
 
 // The script is composed by
-// GRAPHICAL AREA QUAD
+// GRAPHICAL AREA RECT
 // GRAPHICAL NAME
 // script id NAME FROM JSON script FILE
 
@@ -27,7 +27,8 @@ namespace Scripts {
         SceneScripts();
         std::vector<GLQuad> getQuads();
 
-        void addScript(glm::vec2 xy, float size, int floor, std::string graphicalName, std::string IDJsonName, glm::vec4 color);
+        void addScript(glm::vec2 xy, glm::vec2 dest, int floor, std::string graphicalName, std::string IDJsonName,
+                       glm::vec4 RectColor = glm::vec4(0.5, 1, 0.25, 0.25), glm::vec4 borderColor = glm::vec4(0, 1, 1, 0.85), float borderSize = 1.0f);
 
     private:
         float _scriptLayerOverFloor;
