@@ -107,7 +107,7 @@ extern "C" {
 	GLT_API GLboolean gltInit(void);
 	GLT_API void gltTerminate(void);
 
-	GLT_API GLTtext* gltCreateText(void);
+	GLT_API GLTtext* gltCreateText(float x, float y, float z);
 	GLT_API void gltDeleteText(GLTtext* text);
 #define gltDestroyText gltDeleteText
 
@@ -121,7 +121,7 @@ extern "C" {
 
 	GLT_API void gltDrawText(GLTtext* text, const GLfloat mvp[16]);
 
-	GLT_API void gltDrawText2D(GLTtext* text, GLfloat x, GLfloat y, GLfloat scale, GLfloat mvp[16] = NULL);
+	GLT_API void gltDrawText2D(GLTtext* text, GLfloat scale, GLfloat mvp[16] = NULL);
 	GLT_API void gltDrawText2DAligned(GLTtext* text, GLfloat x, GLfloat y, GLfloat scale, int horizontalAlignment, int verticalAlignment);
 
 	GLT_API void gltDrawText3D(GLTtext* text, GLfloat x, GLfloat y, GLfloat z, GLfloat scale, GLfloat view[16], GLfloat projection[16]);
@@ -153,7 +153,7 @@ extern "C" {
 #define _GLT_TEXT2D_POSITION_LOCATION 0
 #define _GLT_TEXT2D_TEXCOORD_LOCATION 1
 
-#define _GLT_TEXT2D_POSITION_SIZE 2
+#define _GLT_TEXT2D_POSITION_SIZE 3
 #define _GLT_TEXT2D_TEXCOORD_SIZE 2
 #define _GLT_TEXT2D_VERTEX_SIZE (_GLT_TEXT2D_POSITION_SIZE + _GLT_TEXT2D_TEXCOORD_SIZE)
 
@@ -216,21 +216,24 @@ extern "C" {
 
 		GLuint _vao;
 		GLuint _vbo;
+		float x;
+		float y;
+		float z;
 	};
 
 	GLT_API void _gltGetViewportSize(GLint* width, GLint* height);
 
 	GLT_API void _gltMat4Mult(const GLfloat lhs[16], const GLfloat rhs[16], GLfloat result[16]);
 
-	GLT_API void _gltUpdateBuffers(GLTtext* text, float x = 0.f, float y = 0.f);
+	GLT_API void _gltUpdateBuffers(GLTtext* text);
 
 	GLT_API GLboolean _gltCreateText2DShader(void);
 	GLT_API GLboolean _gltCreateText2DFontTexture(void);
 
-	GLT_API GLTtext* gltCreateText(void)
+	GLT_API GLTtext* gltCreateText(float x, float y, float z)
 	{
 		GLTtext* text = (GLTtext*)calloc(1, sizeof(GLTtext));
-
+		
 		_GLT_ASSERT(text);
 
 		if (!text)
@@ -241,6 +244,10 @@ extern "C" {
 
 		_GLT_ASSERT(text->_vao);
 		_GLT_ASSERT(text->_vbo);
+
+		text->x = x;
+		text->y = y;
+		text->z = z;
 
 		if (!text->_vao || !text->_vbo)
 		{
@@ -410,13 +417,13 @@ extern "C" {
 		_gltDrawText();
 	}
 
-	GLT_API void gltDrawText2D(GLTtext* text, GLfloat x, GLfloat y, GLfloat scale, GLfloat mvp[16])
+	GLT_API void gltDrawText2D(GLTtext* text, GLfloat scale, GLfloat mvp[16])
 	{
 		if (!text)
 			return;
 
 		if (text->_dirty)
-			_gltUpdateBuffers(text, x, y);
+			_gltUpdateBuffers(text);
 
 		if (!text->vertexCount)
 			return;
@@ -448,7 +455,7 @@ extern "C" {
 		else if (verticalAlignment == GLT_RIGHT)
 			y -= gltGetTextHeight(text, scale);
 
-		gltDrawText2D(text, x, y, scale);
+		//gltDrawText2D(text, x, y, scale);
 	}
 
 	GLT_API void gltDrawText3D(GLTtext* text, GLfloat x, GLfloat y, GLfloat z, GLfloat scale, GLfloat view[16], GLfloat projection[16])
@@ -656,8 +663,11 @@ extern "C" {
 		}
 	}
 
-	GLT_API void _gltUpdateBuffers(GLTtext* text, float x, float y)
+	GLT_API void _gltUpdateBuffers(GLTtext* text)
 	{
+		float x = text->x;
+		float y = text->y;
+		float z = text->z;
 		if (!text || !text->_dirty)
 			return;
 
@@ -743,31 +753,37 @@ extern "C" {
 			{
 				vertices[vertexElementIndex++] = glyphX;
 				vertices[vertexElementIndex++] = glyphY;
+				vertices[vertexElementIndex++] = z;
 				vertices[vertexElementIndex++] = glyph.u1;
 				vertices[vertexElementIndex++] = glyph.v1;
 
 				vertices[vertexElementIndex++] = glyphX + glyphWidth;
 				vertices[vertexElementIndex++] = glyphY + glyphHeight;
+				vertices[vertexElementIndex++] = z;
 				vertices[vertexElementIndex++] = glyph.u2;
 				vertices[vertexElementIndex++] = glyph.v2;
 
 				vertices[vertexElementIndex++] = glyphX + glyphWidth;
 				vertices[vertexElementIndex++] = glyphY;
+				vertices[vertexElementIndex++] = z;
 				vertices[vertexElementIndex++] = glyph.u2;
 				vertices[vertexElementIndex++] = glyph.v1;
 
 				vertices[vertexElementIndex++] = glyphX;
 				vertices[vertexElementIndex++] = glyphY;
+				vertices[vertexElementIndex++] = z;
 				vertices[vertexElementIndex++] = glyph.u1;
 				vertices[vertexElementIndex++] = glyph.v1;
 
 				vertices[vertexElementIndex++] = glyphX;
 				vertices[vertexElementIndex++] = glyphY + glyphHeight;
+				vertices[vertexElementIndex++] = z;
 				vertices[vertexElementIndex++] = glyph.u1;
 				vertices[vertexElementIndex++] = glyph.v2;
 
 				vertices[vertexElementIndex++] = glyphX + glyphWidth;
 				vertices[vertexElementIndex++] = glyphY + glyphHeight;
+				vertices[vertexElementIndex++] = z;
 				vertices[vertexElementIndex++] = glyph.u2;
 				vertices[vertexElementIndex++] = glyph.v2;
 			}
@@ -822,7 +838,7 @@ extern "C" {
 	static const GLchar* _gltText2DVertexShaderSource =
 		"#version 330\n"
 		"\n"
-		"in vec2 position;\n"
+		"in vec3 position;\n"
 		"in vec2 texCoord;\n"
 		"\n"
 		"uniform mat4 mvp;\n"
@@ -833,7 +849,7 @@ extern "C" {
 		"{\n"
 		"	fTexCoord = texCoord;\n"
 		"	\n"
-		"	gl_Position = mvp * vec4(position, 3.0 - 0.01/10.0f, 1.0);\n"
+		"	gl_Position = mvp * vec4(position, 1.0);\n"
 		"}\n";
 
 	static const GLchar* _gltText2DFragmentShaderSource =
