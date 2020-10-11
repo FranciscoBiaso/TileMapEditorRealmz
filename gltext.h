@@ -121,7 +121,7 @@ extern "C" {
 
 	GLT_API void gltDrawText(GLTtext* text, const GLfloat mvp[16]);
 
-	GLT_API void gltDrawText2D(GLTtext* text, GLfloat x, GLfloat y, GLfloat scale);
+	GLT_API void gltDrawText2D(GLTtext* text, GLfloat x, GLfloat y, GLfloat scale, GLfloat mvp[16] = NULL);
 	GLT_API void gltDrawText2DAligned(GLTtext* text, GLfloat x, GLfloat y, GLfloat scale, int horizontalAlignment, int verticalAlignment);
 
 	GLT_API void gltDrawText3D(GLTtext* text, GLfloat x, GLfloat y, GLfloat z, GLfloat scale, GLfloat view[16], GLfloat projection[16]);
@@ -222,7 +222,7 @@ extern "C" {
 
 	GLT_API void _gltMat4Mult(const GLfloat lhs[16], const GLfloat rhs[16], GLfloat result[16]);
 
-	GLT_API void _gltUpdateBuffers(GLTtext* text);
+	GLT_API void _gltUpdateBuffers(GLTtext* text, float x = 0.f, float y = 0.f);
 
 	GLT_API GLboolean _gltCreateText2DShader(void);
 	GLT_API GLboolean _gltCreateText2DFontTexture(void);
@@ -410,34 +410,21 @@ extern "C" {
 		_gltDrawText();
 	}
 
-	GLT_API void gltDrawText2D(GLTtext* text, GLfloat x, GLfloat y, GLfloat scale)
+	GLT_API void gltDrawText2D(GLTtext* text, GLfloat x, GLfloat y, GLfloat scale, GLfloat mvp[16])
 	{
 		if (!text)
 			return;
 
 		if (text->_dirty)
-			_gltUpdateBuffers(text);
+			_gltUpdateBuffers(text, x, y);
 
 		if (!text->vertexCount)
 			return;
 
-#ifndef GLT_MANUAL_VIEWPORT
-		GLint viewportWidth, viewportHeight;
-		_gltGetViewportSize(&viewportWidth, &viewportHeight);
-		gltViewport(viewportWidth, viewportHeight);
-#endif
+		glUniformMatrix4fv(_gltText2DShaderMVPUniformLocation, 1, GL_FALSE, mvp);
+		glBindVertexArray(text->_vao);
+		glDrawArrays(GL_TRIANGLES, 0, text->vertexCount);
 
-		const GLfloat model[16] = {
-			scale, 0.0f, 0.0f, 0.0f,
-			0.0f, scale, 0.0f, 0.0f,
-			0.0f, 0.0f, scale, 0.0f,
-			x, y, 0.0f, 1.0f,
-		};
-
-		GLfloat mvp[16];
-		_gltMat4Mult(_gltText2DProjectionMatrix, model, mvp);
-
-		_gltDrawText();
 	}
 
 	GLT_API void gltDrawText2DAligned(GLTtext* text, GLfloat x, GLfloat y, GLfloat scale, int horizontalAlignment, int verticalAlignment)
@@ -669,7 +656,7 @@ extern "C" {
 		}
 	}
 
-	GLT_API void _gltUpdateBuffers(GLTtext* text)
+	GLT_API void _gltUpdateBuffers(GLTtext* text, float x, float y)
 	{
 		if (!text || !text->_dirty)
 			return;
@@ -706,11 +693,11 @@ extern "C" {
 
 		GLsizei vertexElementIndex = 0;
 
-		GLfloat glyphX = 0.0f;
-		GLfloat glyphY = 0.0f;
+		GLfloat glyphX = x;
+		GLfloat glyphY = y;
 
 		GLfloat glyphWidth;
-		const GLfloat glyphHeight = (GLfloat)_gltFontGlyphHeight;
+		const GLfloat glyphHeight = -1 * (GLfloat)_gltFontGlyphHeight;
 
 		const GLfloat glyphAdvanceX = 0.0f;
 		const GLfloat glyphAdvanceY = 0.0f;
@@ -725,14 +712,14 @@ extern "C" {
 
 			if (c == '\n')
 			{
-				glyphX = 0.0f;
-				glyphY += glyphHeight + glyphAdvanceY;
+				glyphX = x;
+				glyphY = x + glyphHeight + glyphAdvanceY;
 
 				continue;
 			}
 			else if (c == '\r')
 			{
-				glyphX = 0.0f;
+				glyphX = x;
 
 				continue;
 			}
@@ -829,8 +816,11 @@ extern "C" {
 		gltInitialized = GL_FALSE;
 	}
 
+
+
+
 	static const GLchar* _gltText2DVertexShaderSource =
-		"#version 330 core\n"
+		"#version 330\n"
 		"\n"
 		"in vec2 position;\n"
 		"in vec2 texCoord;\n"
@@ -843,11 +833,11 @@ extern "C" {
 		"{\n"
 		"	fTexCoord = texCoord;\n"
 		"	\n"
-		"	gl_Position = mvp * vec4(position, 0.0, 1.0);\n"
+		"	gl_Position = mvp * vec4(position, 3.0 - 0.01/10.0f, 1.0);\n"
 		"}\n";
 
 	static const GLchar* _gltText2DFragmentShaderSource =
-		"#version 330 core\n"
+		"#version 330\n"
 		"\n"
 		"out vec4 fragColor;\n"
 		"\n"
