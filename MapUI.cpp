@@ -15,7 +15,7 @@ extern data::MapResources* gResources;
 extern ui::AuxUI* gAuxUI;
 extern ui::DrawingToolUI* gDrawingToolUI;
 extern ctrl::CtrlMap* ctrlMap;
-extern Scripts::SceneScripts* gSceneScripts;
+extern Scripts::ContainerSceneScript* gSceneScripts;
 
 namespace GtkUserInterface { extern GtkBuilder* builder; }
 
@@ -32,7 +32,7 @@ ui::MapUI::MapUI(std::string name, int width, int height, int levels) : Map(name
     scrolledwindowMapUI = gtk_builder_get_object(GtkUserInterface::builder, "scrolledwindowMapUI");
     _gtk_label_mouse_coords =  gtk_builder_get_object(GtkUserInterface::builder, "GtkLabelMouseCoords");
     
-    _glScene = new GLScence((Map*)this);
+    _glScene = new GLScene((Map*)this);
     this->setGlScene(_glScene);
     loadOpenGLMap();
 
@@ -94,7 +94,7 @@ ui::MapUI::MapUI(std::string name, int width, int height, int levels) : Map(name
     _canDrawSelectionSquare = false;
 
 
-    _glScence->setCamera(glm::vec2(0, 0), worldFloor);
+    _GLScene->setCamera(glm::vec2(0, 0), worldFloor);
     
 }
 
@@ -175,7 +175,7 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
         _mousePosition_select_to = _glScene->screen_to_world(glm::vec2(_mouse_coord), getWidth() * REALMZ_GRID_SIZE, getHeight() * REALMZ_GRID_SIZE);
 
         glm::vec2 offset(0,0);
-        _glScence->updateSelectionQuad(_mousePosition_select_from, _mousePosition_select_to + offset, glm::vec4(0.2, 0.3, 0.9,0.45), glm::vec4(0.2, 1.0, 0.7,0.1), (float)worldFloor - 2 * 0.1f / 10.0f);
+        _GLScene->updateSelectionQuad(_mousePosition_select_from, _mousePosition_select_to + offset, glm::vec4(0.2, 0.3, 0.9,0.45), glm::vec4(0.2, 1.0, 0.7,0.1), (float)worldFloor - 2 * 0.1f / 10.0f);
     }
     
     glm::vec2 world_coords = _glScene->screen_to_world(_mouse_coord, (getWidth() - 1) * REALMZ_GRID_SIZE, (getHeight() - 1) * REALMZ_GRID_SIZE);
@@ -232,21 +232,21 @@ gboolean ui::MapUI::cb_scroll(GtkWidget* widget, GdkEvent* event, gpointer user_
 {
     if (event->scroll.direction == GDK_SCROLL_UP && isLeftKeyPressed)
     {
-        glm::vec3 center = _glScence->getCameraCenter();
+        glm::vec3 center = _GLScene->getCameraCenter();
         worldFloor -= 1;
         if (worldFloor <= 0)
             worldFloor = 0;
         
-        _glScence->setCamera(glm::vec2(center.x, center.y), worldFloor);
+        _GLScene->setCamera(glm::vec2(center.x, center.y), worldFloor);
     }
     else if (event->scroll.direction == GDK_SCROLL_DOWN && isLeftKeyPressed)
     {
-        glm::vec3 center = _glScence->getCameraCenter();
+        glm::vec3 center = _GLScene->getCameraCenter();
         worldFloor += 1;
 
         if (worldFloor >= levels - 1)
             worldFloor = levels - 1;
-        _glScence->setCamera(glm::vec2(center.x, center.y), worldFloor);
+        _GLScene->setCamera(glm::vec2(center.x, center.y), worldFloor);
     }
 
     // print world floor //
@@ -301,7 +301,7 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
          {
           
           glm::vec2 leftTop, rightBot;
-          _glScence->get_LeftTop_rightbot(_mousePosition_select_from, _mousePosition_select_to, leftTop, rightBot);
+          _GLScene->get_LeftTop_rightbot(_mousePosition_select_from, _mousePosition_select_to, leftTop, rightBot);
             
 
 
@@ -328,7 +328,7 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
           }
           if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_SCRIPT)
           {
-              gSceneScripts->addScript(leftTop, rightBot, floor, "", "");
+              gSceneScripts->addScript(Scripts::SceneScript(leftTop, rightBot, floor));
           }
           
         }
@@ -350,7 +350,7 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
 
         _camera_on_hit_space = _glScene->getCameraCenter();
         hide_shadow_square();
-        _glScence->disableQuadShadow();
+        _GLScene->disableQuadShadow();
         
       }
 
@@ -405,18 +405,18 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
 
       else if (event->key.keyval == GDK_KEY_plus || event->key.keyval == GDK_KEY_equal)
       {
-          _glScence->zoomIn();
+          _GLScene->zoomIn();
           
       }
       else if (event->key.keyval == GDK_KEY_minus || event->key.keyval == GDK_KEY_endash)
       {
-          _glScence->zoomOut();
+          _GLScene->zoomOut();
           
       }
       else if (event->key.keyval == GDK_KEY_S || event->key.keyval == GDK_KEY_s)
       {
-          _glScence->setScaleFactor(1.0);
-          _glScence->setCamera(glm::vec2(0,0));
+          _GLScene->setScaleFactor(1.0);
+          _GLScene->setCamera(glm::vec2(0,0));
           
       }
       else if (event->key.keyval == GDK_KEY_Control_L)
@@ -430,25 +430,25 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
       if (event->key.keyval == GDK_KEY_Shift_L && gDrawingToolUI->getDrawingMode() != def::DrawingToolMode::SELECTING_SCRIPT && 
           gDrawingToolUI->is_script_enable())
       {
-          _glScence->enableQuadSelection();
+          _GLScene->enableQuadSelection();
           gDrawingToolUI->setPreviousDrawingMode(gDrawingToolUI->getDrawingMode());
           gDrawingToolUI->setDrawingMode(def::DrawingToolMode::SELECTING_SCRIPT);
-          _mousePosition_select_from = _glScence->screen_to_world(_mouse_coord, (getWidth() - 1) * REALMZ_GRID_SIZE, (getHeight() - 1) * REALMZ_GRID_SIZE);
+          _mousePosition_select_from = _GLScene->screen_to_world(_mouse_coord, (getWidth() - 1) * REALMZ_GRID_SIZE, (getHeight() - 1) * REALMZ_GRID_SIZE);
           _mousePosition_select_to = _mousePosition_select_from;
           _canDrawSelectionSquare = true;
-          _glScence->disableQuadShadow();
+          _GLScene->disableQuadShadow();
           
       }
       else if (event->key.keyval == GDK_KEY_Shift_L && gDrawingToolUI->getDrawingMode() != def::DrawingToolMode::SELECTING_BRUSH &&
           gDrawingToolUI->is_brush_enable())
       {
-          _glScence->enableQuadSelection();
+          _GLScene->enableQuadSelection();
           gDrawingToolUI->setPreviousDrawingMode(gDrawingToolUI->getDrawingMode());
           gDrawingToolUI->setDrawingMode(def::DrawingToolMode::SELECTING_BRUSH);
-          _mousePosition_select_from = _glScence->screen_to_world(_mouse_coord, (getWidth() - 1) * REALMZ_GRID_SIZE, (getHeight() - 1) * REALMZ_GRID_SIZE);
+          _mousePosition_select_from = _GLScene->screen_to_world(_mouse_coord, (getWidth() - 1) * REALMZ_GRID_SIZE, (getHeight() - 1) * REALMZ_GRID_SIZE);
           _mousePosition_select_to = _mousePosition_select_from;
           _canDrawSelectionSquare = true;
-          _glScence->disableQuadShadow();
+          _GLScene->disableQuadShadow();
           
       }
       /*
@@ -469,27 +469,27 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
       {
         ctrlModes = ctrlModesPrevious;  
         show_shadow_square();  
-        _glScence->enableQuadShadow();
+        _GLScene->enableQuadShadow();
         
       }
 
       if (event->key.keyval == GDK_KEY_Shift_L && gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_ERASE)
       {
           gDrawingToolUI->setDrawingMode(gDrawingToolUI->gePrevioustDrawingMode());
-          _glScence->disableQuadSelection();
+          _GLScene->disableQuadSelection();
           _mousePosition_select_to = _mousePosition_select_from;          
           _canDrawSelectionSquare = false;
-          _glScence->enableQuadShadow();
+          _GLScene->enableQuadShadow();
           
       }
 
       if (event->key.keyval == GDK_KEY_Shift_L && gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_BRUSH)
       {
           gDrawingToolUI->setDrawingMode(gDrawingToolUI->gePrevioustDrawingMode()); 
-          _glScence->disableQuadSelection();
+          _GLScene->disableQuadSelection();
           _mousePosition_select_to = _mousePosition_select_from;
           _canDrawSelectionSquare = false;
-          _glScence->enableQuadShadow();
+          _GLScene->enableQuadShadow();
           
       }
 
@@ -497,10 +497,10 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
       if (event->key.keyval == GDK_KEY_Shift_L && gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_SCRIPT)
       {
           gDrawingToolUI->setDrawingMode(gDrawingToolUI->gePrevioustDrawingMode());
-          _glScence->disableQuadSelection();
+          _GLScene->disableQuadSelection();
           _mousePosition_select_to = _mousePosition_select_from;
           _canDrawSelectionSquare = false;
-          _glScence->enableQuadShadow();
+          _GLScene->enableQuadShadow();
       }
 
       else if (event->key.keyval == GDK_KEY_Control_L)
@@ -611,7 +611,7 @@ void ui::MapUI::delThingMapUI(glm::vec2 world_coords, int level)
 
     //scene::Cylinder& cylinder = at(world_coords.y, world_coords.x, level);
 
-    _glScence->addLightCylindergMapUI(index);    
+    _GLScene->addLightCylindergMapUI(index);    
     _glScene->getQuad(index).setColor(glm::vec4(1,1,1,0.5));
 }
 
@@ -895,7 +895,7 @@ void ui::MapUI::loadOpenGLMap()
             {   
                 
                 _glScene->addQuad(-line, col, (level - adjust) * 1.0f, REALMZ_GRID_SIZE - gridBorderSize, glm::vec4(1,1,1, alpha));
-                _glScence->getQuad((line * getWidth() + col) + level * getWidth() * getHeight()).setTextCoord(0, 0, 32, 32);
+                _GLScene->getQuad((line * getWidth() + col) + level * getWidth() * getHeight()).setTextCoord(0, 0, 32, 32);
 
             }
         }
@@ -1230,12 +1230,12 @@ void ui::MapUI::upateCylinderLight(glm::vec2 world_coords, int floor)
             // update thing attribute cylinder //
             cylinder.setLight(false);
             // update graphics color //
-            _glScence->removeLightCylindergMapUI(index);
+            _GLScene->removeLightCylindergMapUI(index);
         }
         else
         {
             cylinder.setLight(true);
-            _glScence->addLightCylindergMapUI(index);
+            _GLScene->addLightCylindergMapUI(index);
         }
     }
     catch (def::ReturnMsg& msg)

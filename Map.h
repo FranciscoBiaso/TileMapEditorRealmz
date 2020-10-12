@@ -8,7 +8,7 @@
 #include "Vec2.h"
 
 namespace data { class Thing; }
-class GLScence; 
+class GLScene; 
 
 namespace scene {
 
@@ -21,7 +21,7 @@ namespace scene {
 	class Map
 	{
 	protected:
-		GLScence* _glScence;
+		GLScene* _GLScene;
 		std::string name;/**< name of the map */
 		int width;/**< width */
 		int height;/**< height */
@@ -84,7 +84,7 @@ namespace scene {
 		 */
 		int getCountThings();
 
-		void setGlScene(GLScence*);
+		void setGlScene(GLScene*);
 
 		void saveInternalMap();
 		void loadInternalMapFromJson();

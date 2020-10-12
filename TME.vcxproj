@@ -155,7 +155,7 @@
     <ClCompile Include="DrawingToolUI.cpp" />
     <ClCompile Include="GLRect.cpp" />
     <ClCompile Include="SceneScripts.cpp" />
-    <ClCompile Include="GLScence.cpp" />
+    <ClCompile Include="GLScene.cpp" />
     <ClCompile Include="GLTriangle.cpp" />
     <ClCompile Include="ImgPack.cpp" />
     <ClCompile Include="ImgPackUI.cpp" />
@@ -183,7 +183,7 @@
     <ClInclude Include="DrawingToolUI.h" />
     <ClInclude Include="GLRect.h" />
     <ClInclude Include="SceneScripts.h" />
-    <ClInclude Include="GLScence.h" />
+    <ClInclude Include="GLScene.h" />
     <ClInclude Include="GLTriangle.h" />
     <ClInclude Include="ImgPack.h" />
     <ClInclude Include="ImgPackUI.h" />

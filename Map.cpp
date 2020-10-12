@@ -1,7 +1,7 @@
 #include "Map.h"
 #include "Cylinder.h"
 #include <gtk/gtk.h>
-#include "GLScence.h"
+#include "GLScene.h"
 #include "json/json.h"
 #include <fstream>
 #include "AuxUI.h"
@@ -42,7 +42,7 @@ data::Thing scene::Map::addThing(data::Thing newThing, int line, int col, int le
 	glm::vec2 glmRef(ref.getX(), ref.getY());
 
 	// GET QUAD FROM RENDER STRUCTURE  //
-	GLRect& quad = _glScence->getQuad((line * getWidth() + col) + level * getWidth() * getHeight());
+	GLRect& quad = _GLScene->getQuad((line * getWidth() + col) + level * getWidth() * getHeight());
 	// SET VALUES //
 	quad.setTextCoord(glmRef);
 
@@ -65,7 +65,7 @@ void scene::Map::removeThing(std::string name, int line, int col, int level)
 {
 	this->structure[level][width * line + col].removeItem(name);
 	_count_things--; 
-	_glScence->getQuad(line * getWidth() + col).reset_textcoord(-1);
+	_GLScene->getQuad(line * getWidth() + col).reset_textcoord(-1);
 }
 
 void scene::Map::drawMap(cairo_t* cr, math::Vec2<int> camera_position, int widthTiles, int heightTiles, bool draw_borders)
@@ -132,9 +132,9 @@ int scene::Map::getCountThings()
 	return _count_things;
 }
 
-void scene::Map::setGlScene(GLScence* gl)
+void scene::Map::setGlScene(GLScene* gl)
 {
-	_glScence = gl;
+	_GLScene = gl;
 }
 
 void scene::Map::saveInternalMap()
@@ -232,7 +232,7 @@ void scene::Map::loadInternalMapFromJson()
 					Cylinder& cylinder = at(y, x, z);
 					cylinder.setLight(hasLight);
 					if (!hasLight)
-						_glScence->removeLightCylindergMapUI((y * getWidth() + x) + z * getWidth() * getHeight());
+						_GLScene->removeLightCylindergMapUI((y * getWidth() + x) + z * getWidth() * getHeight());
 				}
 			}
 			

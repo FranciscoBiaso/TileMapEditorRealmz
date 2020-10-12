@@ -8,7 +8,7 @@
 #include <gdk/gdk.h>
 #include <gtk/gtk.h>
 #include <iostream>
-#include "GLScence.h"
+#include "GLScene.h"
 
 namespace ui {
 
@@ -30,7 +30,7 @@ namespace ui {
 			MOVING_VIEW_OF_MAP
 		};
 	private:
-		GLScence* _glScene;
+		GLScene* _glScene;
 		GtkWidget* drawingArea; // widget to draw //
 		GObject* gtkMapViewPort; // container to draw the map //
 		GObject* gtkMapFrame; 
@@ -270,7 +270,7 @@ namespace ui {
 		void loadMapFromJson();
 		void saveMap() { this->saveInternalMap(); }
 
-		GLScence* getGLScene() { return _glScence; }
+		GLScene* getGLScene() { return _GLScene; }
 
 		bool hasAutoBorder(std::string name, std::vector<std::string>& borders);
 		void addThingWithAutoBorderMapUI(glm::vec2 coord);
