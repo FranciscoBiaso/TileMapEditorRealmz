@@ -6,10 +6,12 @@
 #include "CtrlMap.h"
 #include "Thing.h"
 #include "SceneScripts.h"
+#include "ScriptUI.h"
 #ifdef _WIN32
 #include <Windows.h>
 #endif
 
+extern ui::ScriptUI* gScriptUI;
 extern ui::StuffBookUI* gStuffBook;
 extern data::MapResources* gResources;
 extern ui::AuxUI* gAuxUI;
@@ -329,6 +331,7 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
           if (gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_SCRIPT)
           {
               gSceneScripts->addScript(Scripts::SceneScript(leftTop, rightBot, floor));
+              gScriptUI->updateTree();
           }
           
         }
@@ -1248,4 +1251,9 @@ void ui::MapUI::upateCylinderLight(glm::vec2 world_coords, int floor)
 bool ui::MapUI::isCylinderGrid(scene::Cylinder & cylinder)
 {
     return cylinder.isEmpty();
+}
+
+int ui::MapUI::getLevels()
+{
+    return this->levels;
 }

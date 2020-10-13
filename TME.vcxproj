@@ -165,6 +165,7 @@
     <ClCompile Include="ImgObj.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapUI.cpp" />
+    <ClCompile Include="ScriptUI.cpp" />
     <ClCompile Include="StuffBookUI.cpp" />
     <ClCompile Include="TextureAtlas.cpp" />
     <ClCompile Include="Thing.cpp" />
@@ -193,6 +194,7 @@
     <ClInclude Include="ImgObj.h" />
     <ClInclude Include="MapUI.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ScriptUI.h" />
     <ClInclude Include="StuffBookUI.h" />
     <ClInclude Include="TextureAtlas.h" />
     <ClInclude Include="Thing.h" />

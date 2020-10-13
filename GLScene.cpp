@@ -182,12 +182,15 @@ gboolean GLScene::render(GtkGLArea* area, GdkGLContext* context)
     //////////////////////
     
     // script rects //
-    glBindVertexArray(gl_vao[3]);
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer[3]);
-    glBufferData(GL_ARRAY_BUFFER, gSceneScripts->getQuads().size() * (vertices + textures + colors) * sizeof(float), &gSceneScripts->getQuads()[0], GL_DYNAMIC_DRAW);
-    if (gSceneScripts->getQuads().size() != 0)
-        glDrawArrays(GL_TRIANGLES, 0, gSceneScripts->getQuads().size() * (vertices + textures + colors));
-
+    if (gSceneScripts->areScriptsRectsVisibles())
+    {
+        glBindVertexArray(gl_vao[3]);
+        glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer[3]);
+        glBufferData(GL_ARRAY_BUFFER, gSceneScripts->getQuads().size() * (vertices + textures + colors) * sizeof(float), &gSceneScripts->getQuads()[0], GL_DYNAMIC_DRAW);
+        if (gSceneScripts->getQuads().size() != 0)
+            glDrawArrays(GL_TRIANGLES, 0, gSceneScripts->getQuads().size() * (vertices + textures + colors));
+    }
+    
 
     /// /////////////////////////////
     /// shadow QUAD /////////////////
@@ -213,33 +216,37 @@ gboolean GLScene::render(GtkGLArea* area, GdkGLContext* context)
     }
 
 
-    // TEXT //
-    auto mapScripts = gSceneScripts->getScripts();
-    
-    gltInit();
-    
-    gltBeginDraw();
+    // TEXTS scripts //
+    if (gSceneScripts->areScriptsTextsVisibles())
+    {
+        auto mapScripts = gSceneScripts->getScripts();
 
-    // Draw any amount of text between begin and end
-    gltColor(1.0f, 1.0f, 1.0f, 1.0f);
+        gltInit();
 
-    //scale(glm::vec3(0.8, 0.8, 1.0));
-    for (auto it = mapScripts.begin(); it != mapScripts.end(); it++)
-    {   
-        glm::vec2 offset = it->second.offsetText;
-        glm::vec2 leftTop = it->second.leftTopPoint;
-        float z = it->second.zText;
-        GLTtext* text = gltCreateText(leftTop.x + offset.x,leftTop.y - offset.y, z);
-        gltSetText(text, it->second.name.c_str());
-        gltDrawText2D(text, 1.0, glm::value_ptr(_mvp));
-        gltDeleteText(text);
+        gltBeginDraw();
+
+        // Draw any amount of text between begin and end
+        gltColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+        //scale(glm::vec3(0.8, 0.8, 1.0));
+        for (auto it = mapScripts.begin(); it != mapScripts.end(); it++)
+        {
+            glm::vec2 offset = it->second.offsetText;
+            glm::vec2 leftTop = it->second.leftTopPoint;
+            float z = it->second.zText;
+            GLTtext* text = gltCreateText(leftTop.x + offset.x, leftTop.y - offset.y, z);
+            std::string textStr = it->second.name + ": " + it->second.scriptToLoad;
+            gltSetText(text, textStr.c_str());
+            gltDrawText2D(text, 1.0, glm::value_ptr(_mvp));
+            gltDeleteText(text);
+        }
+
+        // Finish drawing text
+        gltEndDraw();
     }
 
-    // Finish drawing text
-    gltEndDraw();
-
     // DISABLE //
-    scale(glm::vec3(1.0, 1.0, 1.0));
+    //scale(glm::vec3(1.0, 1.0, 1.0));
     glBindVertexArray(0);
     glUseProgram(0);
 

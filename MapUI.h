@@ -283,6 +283,7 @@ namespace ui {
 		 */
 		bool isCylinderGrid(scene::Cylinder &);
 
+		int getLevels();
 	};
 }
 

@@ -9,6 +9,7 @@
 #include "CtrlMap.h"
 #include "AppLoaderSettings.h"
 #include "SceneScripts.h"
+#include "ScriptUI.h"
 
 #include <Windows.h>
 
@@ -20,6 +21,7 @@
 namespace GtkUserInterface { GtkBuilder* builder;}
 data::MapResources* gResources = nullptr;
 ui::StuffBookUI* gStuffBook = nullptr;
+ui::ScriptUI* gScriptUI = nullptr;
 ui::ImgPackUI * gImgPackUI = nullptr;
 ui::AuxUI* gAuxUI = nullptr;
 ui::MapUI* gMapUI = nullptr;
@@ -96,6 +98,7 @@ static gboolean cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer user
             gResources->getImgPack().saveImgPackAsJsonFile();
             gResources->saveStuffBook();
             gMapUI->saveMap();
+            gScriptUI->saveScriptsAsJson();
         }
     }
    
@@ -138,6 +141,7 @@ int main(int argc, char** argv)
 
 
     gStuffBook = new ui::StuffBookUI();
+    gScriptUI = new ui::ScriptUI();
     gImgPackUI = new ui::ImgPackUI();
     gThingCreatorTool = new ui::ThingCreatorTool();
     gGraphicsTool = new ui::GraphicsTool();
@@ -150,6 +154,7 @@ int main(int argc, char** argv)
     gStuffBook->updateTree(); // update tree view //
     gMapUI->loadMapFromJson();
     gMapUI->loadAutoBorderFromJson();
+    gScriptUI->loadScriptsFromJson();
     gMapUI->forceRedraw();
 
     // Controller // ---------------------//
@@ -163,7 +168,6 @@ int main(int argc, char** argv)
 
     GtkWidget* window = GTK_WIDGET(gtk_builder_get_object(GtkUserInterface::builder, "window"));
     gtk_window_maximize((GtkWindow*)window);
-
     
     gtk_widget_add_events(window, GDK_ALL_EVENTS_MASK);
     g_signal_connect(G_OBJECT(window), "button-release-event", G_CALLBACK(cb_clickNotify), NULL);
@@ -171,9 +175,14 @@ int main(int argc, char** argv)
     g_signal_connect(G_OBJECT(window), "key-press-event", G_CALLBACK(cb_clickNotify), NULL);
     g_signal_connect(G_OBJECT(window), "key-release-event", G_CALLBACK(cb_clickNotify), NULL);
     gtk_widget_show_all(window);
+
+    // activ user interface if needed //
+    gScriptUI->activeButtons();
+
     gtk_main();
     delete gResources;
     delete gStuffBook;
+    delete gScriptUI;
     delete gImgPackUI;
     delete gAuxUI;
     delete gThingCreatorTool;

@@ -31,6 +31,7 @@ namespace Scripts {
         float zBorder;
         float zText;
         std::string name;
+        std::string scriptToLoad;
         glm::vec2 offsetText;
     }SceneScript;
 
@@ -40,9 +41,26 @@ namespace Scripts {
         ContainerSceneScript();
         std::vector<GLRect> getQuads();
         void addScript(Scripts::SceneScript);
-        const std::map < std::string, Scripts::SceneScript>& getScripts();
+        void delScript(std::string scriptID);
+        std::map < std::string, Scripts::SceneScript>& getScripts();
+
+        void setShowScriptsTexts(bool value);
+        void setShowScriptsRects(bool value);
+        bool areScriptsTextsVisibles();
+        bool areScriptsRectsVisibles();
+
+        void cleanScriptRects();
+        void cleanScripts();
+
+        void updateRectColor(std::string script, glm::vec4 color);
+
+        std::string getSelectedScriptID();
+        void setSelectedScriptID(std::string);
 
     private:
+        std::string _selectedScriptID;
+        bool _showScriptsTexts;
+        bool _showScriptsRects;
         static int _coutScripts;
         std::vector<GLRect> _areaQuads; // used by opengl to draw //        
         std::map < std::string, Scripts::SceneScript> _scripts;
