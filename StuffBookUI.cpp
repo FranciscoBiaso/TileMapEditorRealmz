@@ -40,20 +40,30 @@ gboolean ui::StuffBookUI::static_cb_removeThing(GtkWidget* widget, GdkEventKey* 
   return reinterpret_cast<StuffBookUI*>(user_data)->cb_removeThing(widget, event, user_data);
 }
 
+
 void ui::StuffBookUI::createTreeView()
-{
-    GtkCellRenderer* renderer;
-    GtkTreeViewColumn* col;
+{   
+    GtkCellRenderer* renderer1, *renderer2;
+    GtkTreeViewColumn* col1,*col2;
 
-    col = gtk_tree_view_column_new();// create a new col //
-    gtk_tree_view_column_set_sizing(col, GTK_TREE_VIEW_COLUMN_FIXED); // set col as fixed //
-    
-    gtk_tree_view_column_set_title(col, "Things"); // title, not used //
-    gtk_tree_view_append_column(GTK_TREE_VIEW(gtkTreeViewStuffBook), col); // append col into tree view //
+    col1 = gtk_tree_view_column_new();// create a new col //
+    gtk_tree_view_column_set_sizing(col1, GTK_TREE_VIEW_COLUMN_FIXED); // set col as fixed //    
+    gtk_tree_view_column_set_title(col1, "Things"); // title, not used //
+    gtk_tree_view_append_column(GTK_TREE_VIEW(gtkTreeViewStuffBook), col1); // append col into tree view //
 
-    renderer = gtk_cell_renderer_text_new(); // adjust how text is drawn using object properties //
-    gtk_tree_view_column_pack_start(col, renderer, TRUE);
-    gtk_tree_view_column_add_attribute(col, renderer, "text", 0);
+    renderer1 = gtk_cell_renderer_text_new(); // adjust how text is drawn using object properties //
+    gtk_tree_view_column_pack_start(col1, renderer1, TRUE);
+    gtk_tree_view_column_add_attribute(col1, renderer1, "text", 0);
+
+
+    col2 = gtk_tree_view_column_new();// create a new col //
+    gtk_tree_view_column_set_sizing(col2, GTK_TREE_VIEW_COLUMN_FIXED); // set col as fixed //
+    gtk_tree_view_column_set_title(col2, "pixbuf"); // title, not used //
+    gtk_tree_view_append_column(GTK_TREE_VIEW(gtkTreeViewStuffBook), col2); // append col into tree view //
+
+    renderer2 = gtk_cell_renderer_pixbuf_new();
+    gtk_tree_view_column_pack_start(col2, renderer2, TRUE);
+    gtk_tree_view_column_add_attribute(col2, renderer2, "pixbuf", 1);
 
     gtk_tree_view_set_show_expanders(GTK_TREE_VIEW(gtkTreeViewStuffBook), true); // show expanders //
     gtk_tree_view_set_enable_tree_lines(GTK_TREE_VIEW(gtkTreeViewStuffBook), true); // tree lines view //
@@ -72,7 +82,7 @@ GtkTreeModel* ui::StuffBookUI::fillTree()
     GtkTreeStore* treestore; 
     GtkTreeIter toplevel;
 
-    treestore = gtk_tree_store_new(1, G_TYPE_STRING); // type of store //
+    treestore = gtk_tree_store_new(2, G_TYPE_STRING, GDK_TYPE_PIXBUF); // type of store //
     auto mapType = gResources->getStuffBook(); // get stuffbook //
 
     for (auto it = mapType.begin(); it != mapType.end(); it++) // iterate through stuffbook //
@@ -83,8 +93,17 @@ GtkTreeModel* ui::StuffBookUI::fillTree()
         auto map = it->second; // access the sub dicionary [things] //
         for (auto it_j = map.begin(); it_j != map.end(); it_j++) // iterate through each thing into this type //
         {
+            data::Thing thing = it_j->second;
+            math::Vec2<int> ref = thing.getImgObjPtr()->getRef(0);
+            GdkPixbuf* pixelBuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, 32, 32);
+            // used to render 16x16 pixel buffers
+            //GdkPixbuf* pixelBufDest = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, 16, 16);
+            //gdk_pixbuf_copy_area(gResources->getImgPack().getTextureAtlas()->getPixelbuf(), ref.getX() * REALMZ_GRID_SIZE, ref.getY() * REALMZ_GRID_SIZE, 32, 32, pixelBuf, 0, 0);
+            //gdk_pixbuf_scale(pixelBuf, pixelBufDest, 0, 0, 16, 16, 0, 0, 0.5, 0.5, GDK_INTERP_NEAREST);
             gtk_tree_store_append(treestore, &child, &toplevel); // add child //
-            gtk_tree_store_set(treestore, &child, 0, it_j->first.c_str(), -1); // set name //
+            gtk_tree_store_set(treestore, &child, 0, it_j->first.c_str(),1, pixelBuf, -1); // set name //
+            g_object_unref(pixelBuf);
+            //g_object_unref(pixelBufDest);
         }
     }
 
