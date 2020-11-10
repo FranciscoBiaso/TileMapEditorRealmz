@@ -146,6 +146,10 @@ void scene::Map::saveInternalMap()
 	//root["0_width"] = width;
 	//root["0_height"] = height;
 	root["0_name"] = name;
+	glm::vec3 camera = _GLScene->getCameraCenter();
+	root["0_camera_x"] = camera.x;
+	root["0_camera_y"] = camera.y;
+	root["0_camera_z"] = camera.z;
 	
 	Json::Value cylinderJson;
 	for (int z = 0; z < levels; z++)
@@ -205,7 +209,7 @@ void scene::Map::loadInternalMapFromJson()
 	{
 		if (jsonObj["0_name"].asString() != mapName)
 			return;
-
+		
 		gAuxUI->printMsg("Loading Map from file!");
 		Json::Value map_units = jsonObj["map_units"];
 		
@@ -216,6 +220,7 @@ void scene::Map::loadInternalMapFromJson()
 			int x = cylinder["x"].asInt();
 			int y = cylinder["y"].asInt();
 			int z = cylinder["z"].asInt();
+
 			bool hasLight = cylinder["has_light"].asBool();
 
 			Json::Value itens = map_units[i]["items"];
@@ -236,10 +241,11 @@ void scene::Map::loadInternalMapFromJson()
 				}
 			}
 			
-		}	
+		}
 	}
 	else
 	{
 		gAuxUI->printMsg("No ImgPack data to be loaded!");
 	}
+
 }

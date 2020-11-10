@@ -97,13 +97,13 @@ GtkTreeModel* ui::StuffBookUI::fillTree()
             math::Vec2<int> ref = thing.getImgObjPtr()->getRef(0);
             GdkPixbuf* pixelBuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, 32, 32);
             // used to render 16x16 pixel buffers
-            //GdkPixbuf* pixelBufDest = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, 16, 16);
-            //gdk_pixbuf_copy_area(gResources->getImgPack().getTextureAtlas()->getPixelbuf(), ref.getX() * REALMZ_GRID_SIZE, ref.getY() * REALMZ_GRID_SIZE, 32, 32, pixelBuf, 0, 0);
-            //gdk_pixbuf_scale(pixelBuf, pixelBufDest, 0, 0, 16, 16, 0, 0, 0.5, 0.5, GDK_INTERP_NEAREST);
+            GdkPixbuf* pixelBufDest = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, 16, 16);
+            gdk_pixbuf_copy_area(gResources->getImgPack().getTextureAtlas()->getPixelbuf(), ref.getX() * REALMZ_GRID_SIZE, ref.getY() * REALMZ_GRID_SIZE, 32, 32, pixelBuf, 0, 0);
+            gdk_pixbuf_scale(pixelBuf, pixelBufDest, 0, 0, 16, 16, 0, 0, 0.5, 0.5, GDK_INTERP_NEAREST);
             gtk_tree_store_append(treestore, &child, &toplevel); // add child //
-            gtk_tree_store_set(treestore, &child, 0, it_j->first.c_str(),1, pixelBuf, -1); // set name //
+            gtk_tree_store_set(treestore, &child, 0, it_j->first.c_str(),1, pixelBufDest, -1); // set name //
             g_object_unref(pixelBuf);
-            //g_object_unref(pixelBufDest);
+            g_object_unref(pixelBufDest);
         }
     }
 

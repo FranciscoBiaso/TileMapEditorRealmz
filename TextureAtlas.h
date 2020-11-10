@@ -41,6 +41,7 @@ namespace data {
 		void leftShiftCursor();	
 	public:
 		TextureAtlas() = delete;
+		~TextureAtlas();
 		/**
 		 * constructor.
 		 * 

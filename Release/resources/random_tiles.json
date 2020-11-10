@@ -1,0 +1,34 @@
+{
+   "mainObj": 
+   [
+       {
+        "thing_name" : "gra_default", 
+        "randomTiles" : 
+            [
+                {
+                    "name" : "gra_broken_floor",
+                    "percentage" : 35
+                },
+                {
+                    "name" : "gra_dirty_floor",
+                    "percentage" : 10
+                }
+            ]
+       },
+        {
+        "thing_name" : "f_barrel", 
+        "randomTiles" : 
+            [
+                {
+                    "name" : "f_bottles",
+                    "percentage" : 35
+                },
+                {
+                    "name" : "f_box",
+                    "percentage" : 10
+                }
+            ]
+       }      
+   ]
+  
+}

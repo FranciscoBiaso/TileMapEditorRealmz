@@ -19,7 +19,7 @@
 class GLScene
 {
 public:
-    GLScene(scene::Map *); // used map width, height //
+    GLScene(scene::Map *, float cameraX, float cameraY, float cameraZ); // used map width, height //
     /**
     *  @brief This method render all objects into the scene.
     */
@@ -138,5 +138,7 @@ private:
     GLRect _selection[2]; /**< square used during selection interior and border */
     int width; /**< screen width  */
     int height; /**< screen height  */
+
+    glm::vec3 _cameraJson;
 
 };

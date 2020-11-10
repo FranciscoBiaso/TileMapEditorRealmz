@@ -9,6 +9,11 @@
 #include <gtk/gtk.h>
 #include <iostream>
 #include "GLScene.h"
+typedef struct RandomTile {
+	RandomTile() {}
+	double percentage;
+	std::string name;
+}RandomTile;
 
 namespace ui {
 
@@ -75,6 +80,7 @@ namespace ui {
 		int _scroll_y_position;
 		int worldFloor;
 		std::map<std::string, std::vector<std::string>> _autoBorders;
+		std::map<std::string, std::vector<RandomTile>> _randomTiles;
 
 
 		void draw_map_ui(cairo_t* cr);
@@ -266,15 +272,20 @@ namespace ui {
 		 */
 		std::string mouse_coords_to_word_position_to_string(math::Vec2<int> screen_coord);
 
+		void loadRandomTilesFromJson();
 		void loadAutoBorderFromJson();
+		void loadMapInfoFromJson(glm::vec3& cameraVec3Json);
 		void loadMapFromJson();
-		void saveMap() { this->saveInternalMap(); }
+		void saveMap() { this->saveInternalMap(); saveMapInfoAsJson(); }
+		void saveMapInfoAsJson();
 
 		GLScene* getGLScene() { return _GLScene; }
 
 		bool hasAutoBorder(std::string name, std::vector<std::string>& borders);
-		void addThingWithAutoBorderMapUI(glm::vec2 coord);
+		bool hasRandomTile(std::string name,std::vector<RandomTile>& rTiles);
+		void addThingSpecial(glm::vec2 coord);
 		void cleanAutoBorders();
+		void cleanRandomTiles();
 		void setCanSeeDownStairs(bool value);
 		void updateGlSceneColorFloor(int floor, glm::vec4 color);
 		void upateCylinderLight(glm::vec2 coords, int floor);

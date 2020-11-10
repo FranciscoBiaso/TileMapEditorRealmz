@@ -27,7 +27,7 @@ namespace scene {
 		int height;/**< height */
 		int levels;/**< total levels or floors */
 		std::vector<std::vector<Cylinder>> structure; /**< internal structure (unity = cylinder) */
-		int _count_things;/**< count things placed into the map - starts empty */
+		int _count_things;/**< count things placed into the map - starts empty */		
 
 		/**
 		 * @brief This method delets all thing with name = thingName from the map.

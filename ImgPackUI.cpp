@@ -84,9 +84,9 @@ GtkTreeModel* ui::ImgPackUI::fillTree()
 
         gtk_tree_store_append(treestore, &toplevel, NULL); // top level //
         gtk_tree_store_set(treestore, &toplevel, 0, it->getName().c_str(), 1, pixelBuf, -1); // set type //
-        
-        //gResources->getImgPack().getTextureAtlas()->getPixelbuf()
-        
+        g_object_unref(pixelBuf);
+
+        //gResources->getImgPack().getTextureAtlas()->getPixelbuf()        
     }
 
     return GTK_TREE_MODEL(treestore);

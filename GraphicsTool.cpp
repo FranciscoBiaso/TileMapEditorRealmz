@@ -696,26 +696,26 @@ void ui::GraphicsTool::createTreeViewImgObj()
 
 void ui::GraphicsTool::cb_splitImgObj(GtkWidget* widget, gpointer data)
 {
+
     int width = gdk_pixbuf_get_width(pixelBufImgSrc);
     int height = gdk_pixbuf_get_height(pixelBufImgSrc);
+
+    gchar* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(gtkFileChooserButtonImg));
+    std::string strFileName = filename;
+    std::string prefix = strFileName.substr(strFileName.find_last_of("\\") + 1);
+    prefix = prefix.substr(0,prefix.find_last_of("."));
+  
     int imgName = 1;
-    auto listImgs = gResources->getImgPack().getStrucutre();
-
-    if (!listImgs.empty())
-    {
-        imgName = listImgs.size() + 1;
-    }
-
-
     for (int h = 0; h < height; h += 32)
     {
         for (int c = 0; c < width; c += 32)
         {
             gdk_pixbuf_copy_area(pixelBufImgSrc, c, h, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE / 2);
-            gResources->getImgPack().addImgObj(std::to_string(imgName), pixelBufImgDest,def::IMG_SIZE::IMG_SIZE_32X32);
+            gResources->getImgPack().addImgObj(std::to_string(imgName) + " " + prefix, pixelBufImgDest, def::IMG_SIZE::IMG_SIZE_32X32);
             imgName++;
         }
-    }
+    }    
+
     gImgPackUI->updateTree(); // update tree view //
 }
 
@@ -787,6 +787,7 @@ bool ui::GraphicsTool::loadImgPackFromJson()
         // sort structure before display //
         gResources->getImgPack().sort();
         gImgPackUI->updateTree();
+
     }
     else
     {

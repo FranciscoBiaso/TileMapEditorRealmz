@@ -21,7 +21,7 @@ namespace data {
 		std::list<data::ImgObj> _imgs;
 		data::TextureAtlas* textureAtlas;
 		/**
-		 * @brief This method is used to increase memory when needed.		 
+		 * @brief This method is used to increase memory when needed. 
 		 */
 		void resizeTextureAtlas();
 	public:

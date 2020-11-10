@@ -1,147 +1,72 @@
 {
-   "gro_a" : 
+   "f_barrel" : 
    {
-      "img_ptr" : "155",
+      "img_ptr" : "217 Castle",
+      "type" : "furnitures"
+   },
+   "f_bottles" : 
+   {
+      "img_ptr" : "218 Castle",
+      "type" : "furnitures"
+   },
+   "f_box" : 
+   {
+      "img_ptr" : "216 Castle",
+      "type" : "furnitures"
+   },
+   "gra_broken_floor" : 
+   {
+      "img_ptr" : "97 Castle",
       "type" : "ground"
    },
-   "gro_b" : 
+   "gra_default" : 
    {
-      "img_ptr" : "40",
+      "img_ptr" : "155 Castle",
       "type" : "ground"
    },
-   "str_a_1" : 
+   "gra_dirty_floor" : 
    {
-      "img_ptr" : "1",
+      "img_ptr" : "98 Castle",
+      "type" : "ground"
+   },
+   "str_1_bot" : 
+   {
+      "img_ptr" : "60 Castle",
       "type" : "structures"
    },
-   "str_a_10" : 
+   "str_1_corner_lb" : 
    {
-      "img_ptr" : "18",
+      "img_ptr" : "13 Castle",
       "type" : "structures"
    },
-   "str_a_11" : 
+   "str_1_corner_lt" : 
    {
-      "img_ptr" : "19",
+      "img_ptr" : "15 Castle",
       "type" : "structures"
    },
-   "str_a_12" : 
+   "str_1_corner_rb" : 
    {
-      "img_ptr" : "20",
+      "img_ptr" : "14 Castle",
       "type" : "structures"
    },
-   "str_a_13" : 
+   "str_1_corner_rt" : 
    {
-      "img_ptr" : "21",
+      "img_ptr" : "16 Castle",
       "type" : "structures"
    },
-   "str_a_14" : 
+   "str_1_left" : 
    {
-      "img_ptr" : "22",
+      "img_ptr" : "1 Castle",
       "type" : "structures"
    },
-   "str_a_15" : 
+   "str_1_right" : 
    {
-      "img_ptr" : "23",
+      "img_ptr" : "61 Castle",
       "type" : "structures"
    },
-   "str_a_2" : 
+   "str_1_top" : 
    {
-      "img_ptr" : "2",
-      "type" : "structures"
-   },
-   "str_a_3" : 
-   {
-      "img_ptr" : "11",
-      "type" : "structures"
-   },
-   "str_a_4" : 
-   {
-      "img_ptr" : "12",
-      "type" : "structures"
-   },
-   "str_a_5" : 
-   {
-      "img_ptr" : "13",
-      "type" : "structures"
-   },
-   "str_a_6" : 
-   {
-      "img_ptr" : "14",
-      "type" : "structures"
-   },
-   "str_a_7" : 
-   {
-      "img_ptr" : "15",
-      "type" : "structures"
-   },
-   "str_a_8" : 
-   {
-      "img_ptr" : "16",
-      "type" : "structures"
-   },
-   "str_a_9" : 
-   {
-      "img_ptr" : "17",
-      "type" : "structures"
-   },
-   "str_b_1" : 
-   {
-      "img_ptr" : "65",
-      "type" : "structures"
-   },
-   "str_b_10" : 
-   {
-      "img_ptr" : "29",
-      "type" : "structures"
-   },
-   "str_b_11" : 
-   {
-      "img_ptr" : "28",
-      "type" : "structures"
-   },
-   "str_b_12" : 
-   {
-      "img_ptr" : "31",
-      "type" : "structures"
-   },
-   "str_b_2" : 
-   {
-      "img_ptr" : "64",
-      "type" : "structures"
-   },
-   "str_b_3" : 
-   {
-      "img_ptr" : "62",
-      "type" : "structures"
-   },
-   "str_b_4" : 
-   {
-      "img_ptr" : "59",
-      "type" : "structures"
-   },
-   "str_b_5" : 
-   {
-      "img_ptr" : "34",
-      "type" : "structures"
-   },
-   "str_b_6" : 
-   {
-      "img_ptr" : "35",
-      "type" : "structures"
-   },
-   "str_b_7" : 
-   {
-      "img_ptr" : "36",
-      "type" : "structures"
-   },
-   "str_b_8" : 
-   {
-      "img_ptr" : "37",
-      "type" : "structures"
-   },
-   "str_b_9" : 
-   {
-      "img_ptr" : "30",
+      "img_ptr" : "2 Castle",
       "type" : "structures"
    }
 }

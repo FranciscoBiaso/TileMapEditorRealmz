@@ -63,7 +63,7 @@ const GLchar* fragmentSource = R"glsl(
 )glsl";
 // outColor = texture(tex, Texcoord);
 
-GLScene::GLScene(scene::Map* map) : map(map)
+GLScene::GLScene(scene::Map* map, float cameraX, float cameraY, float cameraZ) : map(map)
 {
     _gtkGLArea = gtk_gl_area_new();
     g_signal_connect(_gtkGLArea, "render", G_CALLBACK(static_render), this);
@@ -77,6 +77,7 @@ GLScene::GLScene(scene::Map* map) : map(map)
     enableQuadShadow();
     gridImg = gtk_image_new_from_file("ui_imgs//unity.png");
     scaleFactor = 1.0f;   
+    _cameraJson = glm::vec3(cameraX, cameraY, cameraZ);
    
 }
 
@@ -408,10 +409,10 @@ void GLScene::resize(GtkGLArea* area, gint width, gint height)
         height / 2 * 1.0f,
         -0.001f,5.f
     );    
-        
+
+    setCamera(glm::vec2(_cameraJson.x, _cameraJson.y), _cameraJson.z);
     // Use the entire window for rendering.
     glViewport(0, 0, width, height);
-    setCamera(glm::vec2(0, 0), 0);
 }
 
 void GLScene::scale(glm::vec3 scale)
@@ -419,7 +420,7 @@ void GLScene::scale(glm::vec3 scale)
     glm::mat4 zoom(1.0f);
     zoom[0][0] = scale.x;
     zoom[1][1] = scale.y;
-    zoom[2][2] = scale.z;
+    zoom[2][2] = 1.0;;
     _camera = glm::lookAt(
         _camera_center,
         _camera_center + glm::vec3(0.0f, 0.0f, -1.0),
@@ -438,7 +439,12 @@ void GLScene::setCamera(glm::vec2 center, float z)
         _camera_center,
         _camera_center + glm::vec3(0.0f, 0.0f, -1.0),
         glm::vec3(0.0f, 1.0f, 0.0f));
-    _mvp = _projection * _camera;
+
+    zoom[0][0] = scaleFactor;
+    zoom[1][1] = scaleFactor;
+    zoom[2][2] = 1.0;
+
+    _mvp = _projection * _camera * zoom;
 }
 
 void GLScene::translateCamera(glm::vec2 delta)
@@ -448,7 +454,12 @@ void GLScene::translateCamera(glm::vec2 delta)
         _camera_center,
         _camera_center + glm::vec3(0.0f, 0.0f, -1.0),
         glm::vec3(0.0f, 1.0f, 0.0f));
-    _mvp = _projection * _camera * glm::mat4(1.0);
+
+    glm::mat4 zoom(1);
+    zoom[0][0] = scaleFactor;
+    zoom[1][1] = scaleFactor;
+    zoom[2][2] = 1.0;;
+    _mvp = _projection * _camera * glm::mat4(1.0) * zoom;
 }
 
 void GLScene::resetZoom()
@@ -457,7 +468,7 @@ void GLScene::resetZoom()
     glm::mat4 zoom(1.0f);
     zoom[0][0] = scaleFactor;
     zoom[1][1] = scaleFactor;
-    zoom[2][2] = scaleFactor;
+    zoom[2][2] = 1.0;;
     _mvp = _projection * _camera * glm::mat4(1.0) * zoom;
 }
 
@@ -469,19 +480,19 @@ void GLScene::zoomIn()
     glm::mat4 zoom(1);
     zoom[0][0] = scaleFactor;
     zoom[1][1] = scaleFactor;
-    zoom[2][2] = scaleFactor;
+    zoom[2][2] = 1.0;;
     _mvp = _projection * _camera * glm::mat4(1.0) * zoom;
 }
 
 void GLScene::zoomOut()
 {
     scaleFactor -= 0.05f;
-    if (scaleFactor <= 0.65)
-        scaleFactor = 0.65;
+    if (scaleFactor <= 0.55)
+        scaleFactor = 0.55;
     glm::mat4 zoom(1);
     zoom[0][0] = scaleFactor;
     zoom[1][1] = scaleFactor;
-    zoom[2][2] = scaleFactor;
+    zoom[2][2] = 1.0;
     _mvp = _projection * _camera * glm::mat4(1.0) * zoom;
 }
 

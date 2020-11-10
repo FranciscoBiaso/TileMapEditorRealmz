@@ -30,6 +30,12 @@ data::TextureAtlas::TextureAtlas(int width, int height)
 	}
 }
 
+
+data::TextureAtlas::~TextureAtlas()
+{
+	g_object_unref(pixelBuf);
+}
+
 void data::TextureAtlas::resetCursor()
 {
 	cursor.setXY(0,0);
@@ -122,7 +128,7 @@ void data::TextureAtlas::delImgObj(std::list<data::ImgObj>::iterator it, std::li
 	for (int i = 0; i < countShifts; i++) // sets up //
 		shiftFront.rightShiftCursor(TEXTURE_ATLAS_MAX_WIDTH);
 
-	// iterate through each img startin with startPos until last img into the data strcuture //
+	// iterate through each img starting with startPos until last img into the data strcuture //
 	for (; it != end; it++)
 	{
 		for (int i = 0; i < it->getSizeAsInt(); i++)
@@ -199,6 +205,6 @@ bool data::TextureAtlas::loadTextureAtlasInfoFromJson()
 	if (!jsonObj.isNull()) // loading img pack //
 	{
 		cursor.setX(jsonObj["cursor_x"].asInt());
-		cursor.setX(jsonObj["cursor_y"].asInt());
+		cursor.setY(jsonObj["cursor_y"].asInt());
 	}
 }

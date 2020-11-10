@@ -2,16 +2,16 @@
    "thingsAutoBorders": 
    [
        {
-        "thing_name" : "gro_a", 
+        "thing_name" : "gra_default", 
         "thing_type" : "walkable", 
-        "border_left" : "str_a_1",
-        "border_right" : "str_a_1",
-        "border_top" : "str_a_2",
-        "border_bot" : "str_a_2",
-        "border_left-top" : "str_a_7",
-        "border_right-top" : "str_a_8",
-        "border_left-bot" : "str_a_5",
-        "border_right-bot" : "str_a_6"
+        "border_left" : "str_1_left",
+        "border_right" : "str_1_right",
+        "border_top" : "str_1_top",
+        "border_bot" : "str_1_bot",
+        "border_left-top" : "str_1_corner_lt",
+        "border_right-top" : "str_1_corner_rt",
+        "border_left-bot" : "str_1_corner_lb",
+        "border_right-bot" : "str_1_corner_rb"
        },
        
        {

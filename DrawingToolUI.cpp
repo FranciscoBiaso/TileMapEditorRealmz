@@ -17,7 +17,9 @@ ui::DrawingToolUI::DrawingToolUI()
     viewDownStairs = gtk_builder_get_object(GtkUserInterface::builder, "gtkButtonViewDownStairs");
     buttonEye = gtk_builder_get_object(GtkUserInterface::builder, "gtkToggleButtonEye");
     toggleButtonScript = gtk_builder_get_object(GtkUserInterface::builder, "gtkToggleButtonScript");
-
+    reloadFiles = gtk_builder_get_object(GtkUserInterface::builder, "gtkButtonReloadfiles");
+    buttonAutoBorder = gtk_builder_get_object(GtkUserInterface::builder, "gtkToggleButtonAutoBorder");
+    buttonMagicWand = gtk_builder_get_object(GtkUserInterface::builder, "gtkToggleButtonMagicWand");
 
     drawingMode = def::DrawingToolMode::DRAWING_NONE;
 
@@ -29,6 +31,9 @@ ui::DrawingToolUI::DrawingToolUI()
     g_signal_connect(zoomOut, "clicked", G_CALLBACK(static_cb_signalGtkToggleButtonZoomOut), this);
     g_signal_connect(zoomReset, "clicked", G_CALLBACK(static_cb_signalGtkToggleButtonZoomReset), this);
     g_signal_connect(viewDownStairs, "clicked", G_CALLBACK(static_cb_signalGtkButtonViewDownStairs), this);
+    g_signal_connect(reloadFiles, "clicked", G_CALLBACK(static_cb_signalGtkButtonReloadfiles), this);
+    g_signal_connect(brush, "toggled", G_CALLBACK(static_cb_signalGtkToggleButtonBrush), this);
+    g_signal_connect(brush, "toggled", G_CALLBACK(static_cb_signalGtkToggleButtonBrush), this);
 }
 
 def::DrawingToolMode ui::DrawingToolUI::getDrawingMode() const
@@ -79,6 +84,16 @@ void ui::DrawingToolUI::static_cb_signalGtkToggleButtonBrush(GtkToggleButton* to
 void ui::DrawingToolUI::static_cb_signalGtkToggleButtonEraser(GtkToggleButton* togglebutton, gpointer user_data)
 {
     reinterpret_cast<DrawingToolUI*>(user_data)->cb_signalGtkToggleButtonEraser(togglebutton, user_data);
+}
+
+void ui::DrawingToolUI::static_cb_signalGtkButtonAutoBorder(GtkToggleButton* togglebutton, gpointer user_data)
+{
+    reinterpret_cast<DrawingToolUI*>(user_data)->cb_signalGtkButtonAutoBorder(togglebutton, user_data);
+}
+
+void ui::DrawingToolUI::static_cb_signalGtkButtonMagicWand(GtkToggleButton* togglebutton, gpointer user_data)
+{
+    reinterpret_cast<DrawingToolUI*>(user_data)->cb_signalGtkButtonMagicWand(togglebutton, user_data);
 }
 
 GtkToggleButton* ui::DrawingToolUI::getToggleButton(enum def::DrawingToolMode mode)
@@ -179,7 +194,9 @@ void ui::DrawingToolUI::cb_signalGtkToggleButtonZoomReset(GtkButton* togglebutto
 void ui::DrawingToolUI::cb_signalGtkButtonReloadfiles(GtkButton* button, gpointer user_data)
 {
     gMapUI->cleanAutoBorders();
+    gMapUI->cleanRandomTiles();
     gMapUI->loadAutoBorderFromJson();
+    gMapUI->loadRandomTilesFromJson();
 }
 
 void ui::DrawingToolUI::cb_signalGtkToggleButtonZoomIn(GtkButton* togglebutton, gpointer user_data)
@@ -193,6 +210,15 @@ void ui::DrawingToolUI::cb_signalGtkToggleButtonZoomOut(GtkButton* togglebutton,
     gMapUI->getGLScene()->zoomOut();
     gMapUI->forceRedraw();
 }
+
+void ui::DrawingToolUI::cb_signalGtkButtonAutoBorder(GtkToggleButton* button, gpointer user_data)
+{
+}
+
+void ui::DrawingToolUI::cb_signalGtkButtonMagicWand(GtkToggleButton* button, gpointer user_data)
+{
+}
+
 
 bool ui::DrawingToolUI::areAllToogleFalse()
 {
@@ -243,4 +269,14 @@ bool ui::DrawingToolUI::is_eraser_enable()
 bool ui::DrawingToolUI::is_script_enable()
 {
     return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggleButtonScript));
+}
+
+bool ui::DrawingToolUI::is_autoborder_enable()
+{
+    return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(buttonAutoBorder));
+}
+
+bool ui::DrawingToolUI::is_magicwand_enable()
+{
+    return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(buttonMagicWand));
 }

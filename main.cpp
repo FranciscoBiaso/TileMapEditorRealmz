@@ -115,7 +115,7 @@ static gboolean cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer user
 
 int main(int argc, char** argv)
 {
-   // FreeConsole();
+    FreeConsole();
     // Gtk lib initialization //---------------------//
     gtk_init(&argc, &argv);
     //---------------------//
@@ -152,10 +152,10 @@ int main(int argc, char** argv)
     gGraphicsTool->loadImgPackFromJson();
     gResources->loadStuffBookFromJson();
     gStuffBook->updateTree(); // update tree view //
-    gMapUI->loadMapFromJson();
     gMapUI->loadAutoBorderFromJson();
+    gMapUI->loadRandomTilesFromJson();
+    gMapUI->loadMapFromJson();
     gScriptUI->loadScriptsFromJson();
-    gMapUI->forceRedraw();
 
     // Controller // ---------------------//
     ctrlMap = new ctrl::CtrlMap();
@@ -178,8 +178,10 @@ int main(int argc, char** argv)
 
     // activ user interface if needed //
     gScriptUI->activeButtons();
-
+    
     gtk_main();
+
+
     delete gResources;
     delete gStuffBook;
     delete gScriptUI;
@@ -190,6 +192,7 @@ int main(int argc, char** argv)
     delete gMapUI;
     delete gDrawingToolUI;
     delete ctrlMap;
+    delete gSceneScripts;
     return 0;
 }
 

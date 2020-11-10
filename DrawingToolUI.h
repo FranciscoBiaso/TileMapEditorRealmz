@@ -22,6 +22,8 @@ namespace ui {
 		GObject* viewDownStairs;
 		GObject* buttonEye;
 		GObject* toggleButtonScript;
+		GObject* buttonAutoBorder;
+		GObject* buttonMagicWand;
 		def::DrawingToolMode drawingMode;
 		def::DrawingToolMode drawingModePrevious;
 
@@ -34,7 +36,9 @@ namespace ui {
 		static void static_cb_signalGtkToggleButtonZoomReset(GtkButton* togglebutton, gpointer user_data);
 		static void static_cb_signalGtkButtonViewDownStairs(GtkButton* togglebutton, gpointer user_data);
 		static void static_cb_signalGtkButtonReloadfiles(GtkButton* togglebutton, gpointer user_data);
-
+		static void static_cb_signalGtkButtonAutoBorder(GtkToggleButton* togglebutton, gpointer user_data);
+		static void static_cb_signalGtkButtonMagicWand(GtkToggleButton* togglebutton, gpointer user_data);
+		
 		/**
 		 *  @brief Auxiliary function to avoid static members.
 		 */
@@ -92,10 +96,14 @@ namespace ui {
 		void cb_signalGtkToggleButtonZoomReset(GtkButton* togglebutton, gpointer user_data);
 		void cb_signalGtkButtonViewDownStairs(GtkButton* button, gpointer user_data);
 		void cb_signalGtkButtonReloadfiles(GtkButton* togglebutton, gpointer user_data);
+		void cb_signalGtkButtonAutoBorder(GtkToggleButton* togglebutton, gpointer user_data);
+		void cb_signalGtkButtonMagicWand(GtkToggleButton* togglebutton, gpointer user_data);
 
 		bool is_brush_enable();
 		bool is_eraser_enable();
 		bool is_script_enable();
+		bool is_autoborder_enable();
+		bool is_magicwand_enable();
 
 		void disableAllToggleButtonsMinus(GtkToggleButton* togglebutton, enum def::DrawingToolMode mode);
 		GtkToggleButton * getToggleButton(enum def::DrawingToolMode mode);

@@ -28,14 +28,22 @@ ui::MapUI::MapUI(std::string name, int width, int height, int levels) : Map(name
     for (int i = 0; i < levels; i++)
         isFloorTransparency.push_back(false);
         
-    worldFloor = levels - 1;
+    //worldFloor = levels - 1;
     gtkMapViewPort = gtk_builder_get_object(GtkUserInterface::builder, "gtkMapViewPort");
     gtkMapFrame = gtk_builder_get_object(GtkUserInterface::builder, "gtkMapFrame");
     scrolledwindowMapUI = gtk_builder_get_object(GtkUserInterface::builder, "scrolledwindowMapUI");
     _gtk_label_mouse_coords =  gtk_builder_get_object(GtkUserInterface::builder, "GtkLabelMouseCoords");
     
-    _glScene = new GLScene((Map*)this);
+    // load map from json file //
+    glm::vec3 cameraJson;
+    loadMapInfoFromJson(cameraJson);
+    worldFloor = cameraJson.z;
+
+    _glScene = new GLScene((Map*)this, cameraJson.x, cameraJson.y, cameraJson.z);
+
     this->setGlScene(_glScene);
+     //_glScene->setCamera(_cameraJsonVec2, worldFloor);
+
     loadOpenGLMap();
 
     gtk_widget_set_can_focus(_glScene->getGLArea(), true);
@@ -87,16 +95,12 @@ ui::MapUI::MapUI(std::string name, int width, int height, int levels) : Map(name
 	}
     _grid_enable = true;
 
-    camera_at(math::Vec2(0, 0));
     _camera_move_speed = REALMZ_GRID_SIZE;
     camera_set_delta(REALMZ_GRID_SIZE);
 
     enable_draw_map_borders();
     show_shadow_square();
     _canDrawSelectionSquare = false;
-
-
-    _GLScene->setCamera(glm::vec2(0, 0), worldFloor);
     
 }
 
@@ -190,13 +194,13 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
 
     if (ctrlModes == DRAWING_PEN_SELECTED && mousePositionHasChanged) // we only add new item if mouse square changes //
     {
-        addThingWithAutoBorderMapUI(world_coords);        
+        addThingSpecial(world_coords);
+        ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
     }
 
     if (ctrlModes == DRAWING_ERASER_SELECTED && mousePositionHasChanged) // we only add new item if mouse square changes //
     {
         delThingMapUI(world_coords,std::abs(worldFloor));
-        ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
     }
 
     if (ctrlModes == DRAWING_EYE_SELECTED && mousePositionHasChanged) // we only add new item if mouse square changes //
@@ -274,7 +278,7 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
             if (thingIsSelected)
             {
                 // add thing with auto border if possible //
-                addThingWithAutoBorderMapUI(world_coords);
+                addThingSpecial(world_coords);
             }
             
             ctrlModes = DRAWING_PEN_SELECTED;        
@@ -452,7 +456,17 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
           _mousePosition_select_to = _mousePosition_select_from;
           _canDrawSelectionSquare = true;
           _GLScene->disableQuadShadow();
-          
+      }
+      else if (event->key.keyval == GDK_KEY_Shift_L && gDrawingToolUI->getDrawingMode() != def::DrawingToolMode::SELECTING_ERASE &&
+          gDrawingToolUI->is_eraser_enable())
+      {
+          _GLScene->enableQuadSelection();
+          gDrawingToolUI->setPreviousDrawingMode(gDrawingToolUI->getDrawingMode());
+          gDrawingToolUI->setDrawingMode(def::DrawingToolMode::SELECTING_ERASE);
+          _mousePosition_select_from = _GLScene->screen_to_world(_mouse_coord, (getWidth() - 1) * REALMZ_GRID_SIZE, (getHeight() - 1) * REALMZ_GRID_SIZE);
+          _mousePosition_select_to = _mousePosition_select_from;
+          _canDrawSelectionSquare = true;
+          _GLScene->disableQuadShadow();
       }
       /*
       if(isLeftKeyPressed && (event->key.keyval == GDK_KEY_s || event->key.keyval == GDK_KEY_S))
@@ -599,7 +613,15 @@ void ui::MapUI::delThingMapUI(int line, int col, int level)
     this->cleansCylinder(line, col, level);
     int index = (line * getWidth() + col) + level * getWidth() * getHeight();
     _glScene->getQuad(index).setTextCoord(0, 0, 32, 32);
-    _glScene->getQuad(index).setColor(glm::vec4(1, 1, 1, 0.5));
+
+    //_GLScene->addLightCylindergMapUI(index);
+
+    this->structure[level][width * line + col].setLight(true);
+
+    if (isFloorTransparency[worldFloor])
+        _glScene->getQuad(index).setColor(glm::vec4(1, 1, 0.75, 0.3));
+    else
+        _glScene->getQuad(index).setColor(glm::vec4(1, 1, 1, 0.5));
 }
 
 void ui::MapUI::delThingMapUI(glm::vec2 world_coords, int level)
@@ -612,10 +634,14 @@ void ui::MapUI::delThingMapUI(glm::vec2 world_coords, int level)
     this->cleansCylinder(world_coords.y, world_coords.x, level);
     _glScene->getQuad(index).setTextCoord(0,0,32,32);
 
-    //scene::Cylinder& cylinder = at(world_coords.y, world_coords.x, level);
+    this->structure[level][width * world_coords.y + world_coords.x].setLight(true);
 
-    _GLScene->addLightCylindergMapUI(index);    
-    _glScene->getQuad(index).setColor(glm::vec4(1,1,1,0.5));
+    //_GLScene->addLightCylindergMapUI(index);    
+    if(isFloorTransparency[worldFloor])
+        _glScene->getQuad(index).setColor(glm::vec4(1, 1, 0.75,0.3));
+    else
+        _glScene->getQuad(index).setColor(glm::vec4(1, 1, 1, 0.5));
+
 }
 
 void ui::MapUI::delThingMapUI(std::string thing_name, math::Vec3<int> thing_position)
@@ -817,7 +843,6 @@ void ui::MapUI::camera_block()
         _camera_position.setY(getHeight() * REALMZ_GRID_SIZE);
 }
 
-
 void ui::MapUI::enable_draw_map_borders()
 {
     _draw_map_borders = true;
@@ -905,17 +930,65 @@ void ui::MapUI::loadOpenGLMap()
     }
 }
 
+void ui::MapUI::loadMapInfoFromJson(glm::vec3 & cameraVec3Json)
+{
+    std::ifstream ifs("resources//map_info.json");// file to read //
+    Json::CharReaderBuilder rbuilder;	// reader //
+    std::string errs; // to check errors //
+    Json::Value jsonObj;
+    data::Thing thing;
+    Json::parseFromStream(rbuilder, ifs, &jsonObj, &errs); // parser //   
+    if (!jsonObj.isNull()) // loading img pack //
+    {
+        cameraVec3Json = glm::vec3(jsonObj["0_camera_x"].asInt(), jsonObj["0_camera_y"].asInt(), jsonObj["0_camera_z"].asInt());
+    }
+}
+
+void ui::MapUI::loadRandomTilesFromJson()
+{
+    std::ifstream ifs("resources//random_tiles.json");// file to read //
+    Json::CharReaderBuilder rbuilder;	// reader //
+    std::string errs; // to check errors //
+    Json::Value jsonObj;
+    Json::parseFromStream(rbuilder, ifs, &jsonObj, &errs); // parser //   
+    if (!jsonObj.isNull())
+    {
+        Json::Value mainObj = jsonObj["mainObj"];
+
+        for (int i = 0; i < mainObj.size(); i++)
+        {
+
+            Json::Value thingName = mainObj[i]["thing_name"];
+            Json::Value radom_tiles = mainObj[i]["randomTiles"];
+
+            std::vector<RandomTile> v;
+            for (int j = 0; j < radom_tiles.size(); j++)
+            {
+                RandomTile randomTile;
+                randomTile.name = radom_tiles[j]["name"].asString();
+                randomTile.percentage = radom_tiles[j]["percentage"].asDouble();
+                v.push_back(randomTile);
+            }
+
+            _randomTiles[thingName.asString()] = v;
+        }
+    }
+    else
+    {
+        gAuxUI->printMsg("Failed to load autoborder file");
+    }
+}
+
 void ui::MapUI::loadAutoBorderFromJson()
 {
     std::ifstream ifs("resources//auto_border.json");// file to read //
     Json::CharReaderBuilder rbuilder;	// reader //
     std::string errs; // to check errors //
-    Json::Value jsonObj;    
+    Json::Value jsonObj;
     Json::parseFromStream(rbuilder, ifs, &jsonObj, &errs); // parser //   
     if (!jsonObj.isNull())
     {
         Json::Value thingsAutoBorders = jsonObj["thingsAutoBorders"];
-        
 
         for (int i = 0; i < thingsAutoBorders.size(); i++)
         {
@@ -953,6 +1026,27 @@ void ui::MapUI::loadMapFromJson()
     loadInternalMapFromJson();
 }
 
+void ui::MapUI::saveMapInfoAsJson()
+{
+    Json::Value root;
+    Json::Value jsonArrayCylinders(Json::arrayValue);
+    root["0_camera_x"] = _glScene->getCameraCenter().x;
+    root["0_camera_y"] = _glScene->getCameraCenter().y;
+    root["0_camera_z"] = _glScene->getCameraCenter().z;
+
+    Json::StreamWriterBuilder builder;
+
+    builder["commentStyle"] = "None";
+    builder["indentation"] = "   ";
+    std::unique_ptr<Json::StreamWriter> writer(
+        builder.newStreamWriter());
+
+    // Make a new JSON document for the configuration. Preserve original comments.
+    std::ofstream ofs("resources//map_info.json", std::ofstream::out);// file to read //
+    writer->write(root, &ofs);
+
+    ofs.close();
+}
 
 bool ui::MapUI::hasAutoBorder(std::string thingName, std::vector<std::string> & borders)
 {    
@@ -967,15 +1061,28 @@ bool ui::MapUI::hasAutoBorder(std::string thingName, std::vector<std::string> & 
     return false;
 }
 
-void ui::MapUI::addThingWithAutoBorderMapUI(glm::vec2 coord)
+bool ui::MapUI::hasRandomTile(std::string thingName, std::vector<RandomTile>& rTiles)
+{
+    for (auto it = _randomTiles.begin(); it != _randomTiles.end(); it++) // iterate through stuffbook //
+    {
+        if (it->first == thingName)
+        {
+            rTiles = it->second;
+            return true;
+        }
+    }
+    return false;
+}
+
+void ui::MapUI::addThingSpecial(glm::vec2 coord)
 {   
     std::vector <std::string> borders;
     std::vector<int> listToNotIterate;
     std::map<int, int> listToFill;
     bool hasTile[8];
-    if (hasAutoBorder(drawObj.getName(), borders))
+    data::Thing tmp;
+    if (gDrawingToolUI->is_autoborder_enable() && hasAutoBorder(drawObj.getName(), borders))
     {   
-        data::Thing tmp;
         // 0 left left 
         for(int i=0;i<borders.size();i++)
             if (borders[i] != "")
@@ -1142,16 +1249,28 @@ void ui::MapUI::addThingWithAutoBorderMapUI(glm::vec2 coord)
             
         }
 
-        ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI(coord, std::abs(worldFloor))));
-        ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
+    }
 
-    }
+    std::vector <RandomTile> randomTiles;
     // add only once //
-    else
+    std::string thingToAdd;
+    thingToAdd = drawObj.getName();
+
+    if (gDrawingToolUI->is_magicwand_enable() && hasRandomTile(drawObj.getName(), randomTiles) && !randomTiles.empty())
     {
-        ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI(coord, std::abs(worldFloor))));
-        ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
+        int random = std::rand() % randomTiles.size();
+        if (randomTiles[random].percentage >= std::rand() % 101)
+        {
+            thingToAdd = randomTiles[random].name;
+        }
     }
+
+    gStuffBook->getThingByName(thingToAdd, tmp);
+    tmp.setStuffBookRefName(thingToAdd);
+
+    ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI(coord, std::abs(worldFloor), tmp)));
+    ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
+    
 }
 
 
@@ -1182,6 +1301,11 @@ bool ui::MapUI::isIntoMap(glm::vec2 coords)
 void  ui::MapUI::cleanAutoBorders()
 {
     _autoBorders.clear();
+}
+
+void ui::MapUI::cleanRandomTiles()
+{
+    _randomTiles.clear();
 }
 
 void ui::MapUI::setCanSeeDownStairs(bool value)
