@@ -19,6 +19,6 @@
 * Create a new empty project under Visual Studio.
 * Select project properties. Under Tab "Configuration Properties", select Tab "General". Under Menu "C++ Language Standard", choose "Preview - Features the Latest C++ Working Draft (std:C++latest).
 * Select Tab "Linker". Select Tab "input". Go to Menu "Additional Dependencies" them add opengl32.lib.
-* Select Tab "C/C++". Go to Menu "Additional Include Directories" them add "include Folder".
+* Select Tab "C/C++". Go to Menu "Additional Include Directories" them add "include Folder". [JSON LIB](https://github.com/nlohmann/json) & [GLM](https://glm.g-truc.net/0.9.9/index.html)
 * Add all source code to the project.
 * Build!
