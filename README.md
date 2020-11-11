@@ -13,6 +13,7 @@
 > The artistic module provides tools to allow visualization of the scene and facilitates the creation process.
 ---
 ### How to compile under windows:
+* [Download Gtk+](https://www.gtk.org/docs/installations/windows/) and set up.
 * [Download Microsoft Visual C++ 2019](https://support.microsoft.com/pt-br/help/2977003/the-latest-supported-visual-c-downloads).
 * Clone this repository.
 * Select Configuration "Release".
