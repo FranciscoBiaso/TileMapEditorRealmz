@@ -17,7 +17,6 @@
 TME.vcxproj.FileListAbsolute.txt
 Doxyfile
 html/*
-include/*
 Debug/*
 x64/*
 latex/
