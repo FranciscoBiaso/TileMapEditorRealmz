@@ -11,3 +11,14 @@
 > The utility module, no less important, contains tools that help other modules to achieve their purposes.
 * #### Artistic module:
 > The artistic module provides tools to allow visualization of the scene and facilitates the creation process.
+---
+### How to compile under windows:
+* [Download Microsoft Visual C++ 2019](https://support.microsoft.com/pt-br/help/2977003/the-latest-supported-visual-c-downloads).
+* Clone this repository.
+* Select Configuration "Release".
+* Create a new empty project under Visual Studio.
+* Select project properties. Under Tab "Configuration Properties", select Tab "General". Under Menu "C++ Language Standard", choose "Preview - Features the Latest C++ Working Draft (std:C++latest).
+* Select Tab "Linker". Select Tab "input". Go to Menu "Additional Dependencies" them add opengl32.lib.
+* Select Tab "C/C++". Go to Menu "Additional Include Directories" them add "include Folder".
+* Add all source code to the project.
+* Build!
