@@ -22,3 +22,7 @@
 * Select Tab "C/C++". Go to Menu "Additional Include Directories" them add "include Folder". [JSON LIB](https://github.com/nlohmann/json) & [GLM](https://glm.g-truc.net/0.9.9/index.html)
 * Add all source code to the project.
 * Build!
+---
+### How to change user interface:
+* [Download Glade Interface 3.8.5](https://glade.gnome.org/).
+* Import a file "builder.ui".
