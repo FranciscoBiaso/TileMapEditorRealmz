@@ -16,13 +16,13 @@
 * [Download vckpg](https://github.com/Microsoft/vcpkg)
 * [Execute file] bootstrap-vcpkg.bat
 * open cmd, go into vcpkg dir and install packages.
-> vcpkg.exe install jsoncpp
-> vcpkg.exe install glm
-> vcpkg.exe install gtk
+* vcpkg.exe install jsoncpp
+* vcpkg.exe install glm
+* vcpkg.exe install gtk
 * Inside visual studio 2019 open TME.sln
-> Select project properties. Under Tab "Configuration Properties", select Tab "General". Under Menu "C++ Language Standard", choose "Preview - Features the Latest C++ Working Draft (std:C++latest).
-> Check if your configuration is release and target plataform x86.
-> Select Tab "Linker". Select Tab "input". Go to Menu "Additional Dependencies" them add opengl32.lib.
+* Select project properties. Under Tab "Configuration Properties", select Tab "General". Under Menu "C++ Language Standard", choose "Preview - Features the Latest C++ Working Draft (std:C++latest).
+* Check if your configuration is release and target plataform x86.
+* Select Tab "Linker". Select Tab "input". Go to Menu "Additional Dependencies" them add opengl32.lib.
 * Build!
 ---
 ### Additional Info?
