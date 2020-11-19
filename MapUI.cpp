@@ -268,7 +268,9 @@ gboolean ui::MapUI::cb_scroll(GtkWidget* widget, GdkEvent* event, gpointer user_
 gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer user_data)
 {
     int floor = std::abs(worldFloor);
-    if (event->type == GDK_BUTTON_PRESS)
+    guint button;
+    gdk_event_get_button(event, &button);
+    if (event->type == GDK_BUTTON_PRESS && button == GDK_BUTTON_PRIMARY)
     {
         glm::vec2 world_coords = _glScene->screen_to_world(_mouse_coord, (getWidth() - 1) * REALMZ_GRID_SIZE, (getHeight() - 1) * REALMZ_GRID_SIZE);
         // BRUSH //
@@ -340,10 +342,18 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
           
         }
     }
+    else if (event->type == GDK_BUTTON_PRESS && button == GDK_BUTTON_SECONDARY)
+    {
+        glm::vec2 world_coords = _glScene->screen_to_world(_mouse_coord, (getWidth() - 1) * REALMZ_GRID_SIZE, (getHeight() - 1) * REALMZ_GRID_SIZE);
+        scene::Cylinder& cylinder = at(world_coords.y / REALMZ_GRID_SIZE * -1, world_coords.x / REALMZ_GRID_SIZE, floor);
+        // only add light over things //
+        if (isCylinderGrid(cylinder)) return TRUE;    
+        gStuffBook->selectThing(cylinder.getTopItem());
+        gStuffBook->updateTree();
+    }
     else if (event->type == GDK_BUTTON_RELEASE)
     {
-        ctrlModes = DRAWING_EMPTY;
-        
+        ctrlModes = DRAWING_EMPTY;        
     }
 
     if (event->type == GDK_KEY_PRESS)

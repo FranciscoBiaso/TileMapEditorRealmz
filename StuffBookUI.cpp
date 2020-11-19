@@ -286,3 +286,24 @@ bool ui::StuffBookUI::getThingByName(std::string name, data::Thing& thing)
     }
     return false;
 }
+
+void ui::StuffBookUI::selectThing(data::Thing thing)
+{
+    auto itType = gResources->getStuffBook().find(std::string(thing.getType()));
+    if (itType != gResources->getStuffBook().end())// founded type //
+    {
+        auto map = itType->second;
+        // let's found the Thing by name //
+        auto mapThing = map.find(std::string(thing.getStuffBookRefName()));
+        if (mapThing != map.end())// founded //
+        {
+            lastThingSelected = mapThing->second.getName();
+            gAuxUI->printMsg("Thing " + mapThing->second.getName() + " selected!");
+            data::Thing t = mapThing->second;
+            t.setStuffBookRefName(lastThingSelected);
+            gMapUI->setDrawThingObj(t);
+            gDrawingToolUI->setDrawingMode(def::DrawingToolMode::DRAWING_BRUSH);
+        }
+    }
+  
+}

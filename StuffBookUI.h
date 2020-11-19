@@ -71,6 +71,8 @@ namespace ui {
 		std::string getLastThingSelected() { return lastThingSelected; }
 
 		bool getThingByName(std::string name, data::Thing & thing);
+
+		void selectThing(data::Thing);
 	};
 }
 
