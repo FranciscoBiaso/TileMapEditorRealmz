@@ -52,7 +52,7 @@ const GLchar* fragmentSource = R"glsl(
         }
         else
         {
-            outColor = texture(textureAtlas, Texcoord) * Color.xyzw;
+            outColor = texture(textureAtlas, Texcoord) * vec4(Color.xyz, 1.0);
         }
 
         if(abs(Texcoord.x - -1.0) < eps && abs(Texcoord.y - -1.0) < eps)
@@ -123,9 +123,9 @@ gboolean GLScene::render(GtkGLArea* area, GdkGLContext* context)
     glEnable(GL_BLEND); 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(gl_program);
     GLint texLoc1 = glGetUniformLocation(gl_program, "textureAtlas");
@@ -139,11 +139,18 @@ gboolean GLScene::render(GtkGLArea* area, GdkGLContext* context)
     glUniformMatrix4fv(mvpID, 1, GL_FALSE, glm::value_ptr(_mvp));
     
     // TEXTURE 0 //
-    glActiveTexture(GL_TEXTURE0 );
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex[0]);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, gResources->getImgPack().getTextureAtlas()->getAtlasWidth(),
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 
+        gResources->getImgPack().getTextureAtlas()->getAtlasWidth(),
         gResources->getImgPack().getTextureAtlas()->getAtlasHeight(),
         0, GL_RGBA, GL_UNSIGNED_BYTE, gdk_pixbuf_get_pixels(gResources->getImgPack().getTextureAtlas()->getPixelbuf()));
+    
     glUniform1i(texLoc1, 0);// send texture 0 to shader //
     //////////////////////////
     
@@ -151,13 +158,16 @@ gboolean GLScene::render(GtkGLArea* area, GdkGLContext* context)
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, tex[1]);
     _pixbuf = gtk_image_get_pixbuf(GTK_IMAGE(gridImg));
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     if (_pixbuf != NULL)
     {
         int width = gdk_pixbuf_get_width(_pixbuf);
         int height = gdk_pixbuf_get_height(_pixbuf);
 
-
-        guchar* p = gdk_pixbuf_get_pixels(_pixbuf);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, gdk_pixbuf_get_pixels(_pixbuf));
         
     }
@@ -246,14 +256,16 @@ gboolean GLScene::render(GtkGLArea* area, GdkGLContext* context)
         gltEndDraw();
     }
 
+    glFlush();
+    
+
     // DISABLE //
     //scale(glm::vec3(1.0, 1.0, 1.0));
     glBindVertexArray(0);
     glUseProgram(0);
 
-    glFlush();
     
-    return TRUE;
+    return FALSE;
 }
 
 void GLScene::addQuad(int line, int col, float floor, float size,glm::vec4 color)
@@ -354,42 +366,18 @@ gboolean GLScene::realize(GtkGLArea* area)
    
     float color[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     glGenTextures(2, tex);
-
-    glBindTexture(GL_TEXTURE_2D, tex[0]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, gResources->getImgPack().getTextureAtlas()->getAtlasWidth(),
-                                           gResources->getImgPack().getTextureAtlas()->getAtlasHeight(),
-            0, GL_RGBA, GL_UNSIGNED_BYTE, gdk_pixbuf_get_pixels(gResources->getImgPack().getTextureAtlas()->getPixelbuf()));
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    glBindTexture(GL_TEXTURE_2D, tex[1]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    _pixbuf = gtk_image_get_pixbuf(GTK_IMAGE(gridImg));
-    if (_pixbuf != NULL)
-    {
-        int width = gdk_pixbuf_get_width(_pixbuf);
-        int height = gdk_pixbuf_get_height(_pixbuf);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, gdk_pixbuf_get_pixels(_pixbuf));
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
+    //glBindTexture(GL_TEXTURE_2D, tex[0]);
+    //glBindTexture(GL_TEXTURE_2D, tex[1]);
     
 
-    return TRUE;
+    return FALSE;
 }
 
 void GLScene::resize(GtkGLArea* area, gint width, gint height)
 {
     this->width = width;
     this->height = height;
-    const float aspectRatio = ((float)width) / height;
+    const float aspectRatio = width / (float)height;
     float xSpan = 1; // Feel free to change this to any xSpan you need.
     float ySpan = 1; // Feel free to change this to any ySpan you need.
     
@@ -404,7 +392,7 @@ void GLScene::resize(GtkGLArea* area, gint width, gint height)
  
     _projection = glm::ortho(
         -width / 2 * 1.0f,
-        width / 2 * 1.0f,
+        width/2 * 1.0f,
         -height / 2 * 1.0f,
         height / 2 * 1.0f,
         -0.001f,5.f
