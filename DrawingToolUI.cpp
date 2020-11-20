@@ -32,8 +32,25 @@ ui::DrawingToolUI::DrawingToolUI()
     g_signal_connect(zoomReset, "clicked", G_CALLBACK(static_cb_signalGtkToggleButtonZoomReset), this);
     g_signal_connect(viewDownStairs, "clicked", G_CALLBACK(static_cb_signalGtkButtonViewDownStairs), this);
     g_signal_connect(reloadFiles, "clicked", G_CALLBACK(static_cb_signalGtkButtonReloadfiles), this);
-    g_signal_connect(brush, "toggled", G_CALLBACK(static_cb_signalGtkToggleButtonBrush), this);
-    g_signal_connect(brush, "toggled", G_CALLBACK(static_cb_signalGtkToggleButtonBrush), this);
+
+    gtk_widget_set_tooltip_text(GTK_WIDGET(brush), "It is the tool used to draw thing objects on the map.\n" 
+                                                   "It is necessary to load a thing object from the stuff\n" 
+                                                   "book on the left side of the screen to start drawing");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(eraser), "It is the tool used to erase things on the map.");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(zoomIn), "Brings the camera closer to the scene.");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(zoomOut), "Take the camera away from the scene.");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(reloadFiles), "Used to reload auto border and random tiles from \njson files. Will be detailed below.");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(viewDownStairs), "It generates transparency in the current floor, \nallowing you to see the floor below."
+                                                     "To change the edited floor, hold the ctrl key and scroll with the mouse wheel.");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(buttonEye), "Hides the tile during the game, until the party (in exploration mode)\n"
+                                                     "or character(in Combat mode) sees it or a script or ability reveals it.\n"
+                                                     "Until then it will be  displayed as a black square, like an empty tile");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(toggleButtonScript), "Enables the insertion of scripts on the map.It must be done by activating\n"
+                                                     "the shift key.Then, hold the mouse buttonand drag to define a rectangle.");    
+    gtk_widget_set_tooltip_text(GTK_WIDGET(buttonAutoBorder), "Enables the use of auto border.");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(buttonMagicWand), "Enables the use of random tiles.");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(zoomReset), "Restart camera vision.");
+
 }
 
 def::DrawingToolMode ui::DrawingToolUI::getDrawingMode() const

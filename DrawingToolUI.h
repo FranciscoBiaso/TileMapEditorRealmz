@@ -53,6 +53,7 @@ namespace ui {
 		 *  @brief This methods checks if all toggle button are false.
 		 */
 		bool areAllToogleFalse();
+
 	public:
 		/**
 		 * constructor.
