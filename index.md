@@ -1,37 +1,43 @@
-## Welcome to GitHub Pages
-
-You can use the [editor on GitHub](https://github.com/FranciscoBiaso/TileMapEditorRealmz/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
-
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/FranciscoBiaso/TileMapEditorRealmz/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+# Tile Map Editor - Realmz :earth_americas:
+> ### A scenario editor for creating 2D [tile](https://en.wikipedia.org/wiki/Tile-based_video_game) maps using C++ language and [GTK](https://www.gtk.org/) library.
+> The purpose of the software is to allow the end user to be able to create scenarios and export them for use in games.
+---
+### Software Modules:
+* #### Graphics module:
+> The graphics module is intended to assist in the manipulation of images. Textures atlases can be loaded and their images can be sliced and edited to later be transformed into important scenario data.
+* #### Thing creator module:
+> The module of manipulation of things aims to create a list of all objects (things) that can fill the scenario.
+* #### Utility module:
+> The utility module, no less important, contains tools that help other modules to achieve their purposes.
+* #### Artistic module:
+> The artistic module provides tools to allow visualization of the scene and facilitates the creation process.
+---
+### How to compile under windows?
+* [Download vckpg](https://github.com/Microsoft/vcpkg)
+* [Execute file] bootstrap-vcpkg.bat
+* open cmd, go into vcpkg dir and install packages.
+* vcpkg.exe install jsoncpp
+* vcpkg.exe install glm
+* vcpkg.exe install gtk
+* Inside visual studio 2019 open TME.sln
+* Select project properties. Under Tab "Configuration Properties", select Tab "General". Under Menu "C++ Language Standard", choose "Preview - Features the Latest C++ Working Draft (std:C++latest).
+* Check if your configuration is release and target plataform x86.
+* Select Tab "Linker". Select Tab "input". Go to Menu "Additional Dependencies" them add opengl32.lib.
+* Build!
+---
+### Additional Info?
+* [Gtk+](https://www.gtk.org/docs/installations/windows/);
+* [Download Microsoft Visual C++ 2019](https://support.microsoft.com/pt-br/help/2977003/the-latest-supported-visual-c-downloads).
+* [JSON LIB](https://github.com/nlohmann/json)
+* [GLM](https://glm.g-truc.net/0.9.9/index.html)
+---
+### How to update user interface ?
+* [Download Glade Interface 3.8.5](https://glade.gnome.org/).
+* Import a file "builder.ui".
+---
+### How-to-use document
+[LINK](https://docs.google.com/document/d/1b8dCI-x1lf8KnOY9ViKGYOPtrx2xBoiCGlwxvzwZAoQ/edit?usp=sharing)
+---
+### App Download
+[LINK](https://gofile.io/d/P9r7fH)
+---
