@@ -36,6 +36,14 @@ ui::ScriptUI::ScriptUI()
     g_signal_connect(gtkTreeViewScript, "key-press-event", G_CALLBACK(static_cb_removeImgObj), this);
     g_signal_connect(gtkEntryScriptSearch, "activate", G_CALLBACK(static_cb_onActive), this);
     g_signal_connect(gtkTreeViewScript, "row-activated", G_CALLBACK(static_cb_rowActive), this);
+    g_signal_connect(gtkEntryScriptSearch, "focus-in-event", G_CALLBACK(cb_onFocusInEvent), this);
+}
+
+gboolean ui::ScriptUI::cb_onFocusInEvent(GtkWidget* widget, GdkEvent* event, gpointer   user_data)
+{
+    GtkEntryBuffer* gtkEntryBuffer = gtk_entry_get_buffer(GTK_ENTRY(gtkEntryScriptSearch));
+    gtk_entry_buffer_delete_text(gtkEntryBuffer, 0, gtk_entry_buffer_get_length(gtkEntryBuffer));
+    return FALSE;
 }
 
 void ui::ScriptUI::static_cb_rowActive(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* column, gpointer user_data)

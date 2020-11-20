@@ -24,7 +24,7 @@ namespace ui {
 		static void static_cb_clicked(GtkCellRendererText* renderer, char* path, char* new_text, gpointer user_data);
 		static void static_cb_signalGtkToggleButtonScriptText(GtkToggleButton* togglebutton, gpointer user_data);
 		static void static_cb_signalGtkToggleButtonScriptRects(GtkToggleButton* togglebutton, gpointer user_data);
-
+		static gboolean cb_onFocusInEvent(GtkWidget* widget, GdkEvent* event, gpointer   user_data);
 		void activeButtons();
 
 		void searchScriptByID(std::string ID);
