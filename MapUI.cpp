@@ -33,7 +33,7 @@ ui::MapUI::MapUI(std::string name, int width, int height, int levels) : Map(name
     gtkMapFrame = gtk_builder_get_object(GtkUserInterface::builder, "gtkMapFrame");
     scrolledwindowMapUI = gtk_builder_get_object(GtkUserInterface::builder, "scrolledwindowMapUI");
     _gtk_label_mouse_coords =  gtk_builder_get_object(GtkUserInterface::builder, "GtkLabelMouseCoords");
-    
+    _scrolledwindowGL = gtk_builder_get_object(GtkUserInterface::builder, "scrolledwindowGL");
     // load map from json file //
     glm::vec3 cameraJson;
     loadMapInfoFromJson(cameraJson);
@@ -60,11 +60,10 @@ ui::MapUI::MapUI(std::string name, int width, int height, int levels) : Map(name
     gtk_widget_add_events(_glScene->getGLArea(), GDK_SCROLL_MASK);
 
 
-
     //gtk_widget_set_size_request(GTK_WIDGET(_glScene->getGLArea()), 100,100);
     gtk_container_add(GTK_CONTAINER(gtkMapViewPort), _glScene->getGLArea());
-
     
+
     //g_signal_connect(G_OBJECT(_glScene->getGLArea()), "draw", G_CALLBACK(static_cb_draw_callback), this);
     g_signal_connect(G_OBJECT(_glScene->getGLArea()), "button-press-event", G_CALLBACK(static_cb_clickNotify), this);
     g_signal_connect(G_OBJECT(_glScene->getGLArea()), "button-release-event", G_CALLBACK(static_cb_clickNotify), this);
@@ -101,7 +100,6 @@ ui::MapUI::MapUI(std::string name, int width, int height, int levels) : Map(name
     enable_draw_map_borders();
     show_shadow_square();
     _canDrawSelectionSquare = false;
-    
 }
 
 void ui::MapUI::static_my_getsize(GtkWidget* widget, GtkAllocation* allocation, void* data)
@@ -454,7 +452,6 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
       else if (event->key.keyval == GDK_KEY_Shift_L)
       {
           isLeftShiftKeyPressed = true;
-
       }
 
 

@@ -41,6 +41,7 @@ namespace ui {
 		GObject* gtkMapFrame; 
 		GObject* scrolledwindowMapUI;
 		GObject* _gtk_label_mouse_coords;
+		GObject* _scrolledwindowGL;
 		int viewWidth, viewHeight;
 		int _map_layer;
 		data::Thing drawObj;

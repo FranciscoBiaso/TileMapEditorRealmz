@@ -31,6 +31,7 @@ ui::DrawingToolUI* gDrawingToolUI = nullptr;
 ctrl::CtrlMap* ctrlMap = nullptr;
 Scripts::ContainerSceneScript* gSceneScripts = nullptr;
 AppLoaderSettings gAppLoaderSettings;
+GtkWidget* window; // Main window
 //-----------------------------------------//
 
 #ifdef TME_DEBUG
@@ -115,7 +116,7 @@ static gboolean cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer user
 
 int main(int argc, char** argv)
 {
-    FreeConsole();
+    //FreeConsole();
     // Gtk lib initialization //---------------------//
     gtk_init(&argc, &argv);
     //---------------------//
@@ -166,14 +167,14 @@ int main(int argc, char** argv)
     debugTextureAtlas = new DebugTextureAtlas(gResources->getImgPack().getTextureAtlas()->getPixelbuf());
 #endif
 
-    GtkWidget* window = GTK_WIDGET(gtk_builder_get_object(GtkUserInterface::builder, "window"));
-    gtk_window_maximize((GtkWindow*)window);
-    
+    window = GTK_WIDGET(gtk_builder_get_object(GtkUserInterface::builder, "window"));    
+      
     gtk_widget_add_events(window, GDK_ALL_EVENTS_MASK);
     g_signal_connect(G_OBJECT(window), "button-release-event", G_CALLBACK(cb_clickNotify), NULL);
     g_signal_connect(G_OBJECT(window), "button-press-event", G_CALLBACK(cb_clickNotify), NULL);
     g_signal_connect(G_OBJECT(window), "key-press-event", G_CALLBACK(cb_clickNotify), NULL);
-    g_signal_connect(G_OBJECT(window), "key-release-event", G_CALLBACK(cb_clickNotify), NULL);
+    g_signal_connect(G_OBJECT(window), "key-release-event", G_CALLBACK(cb_clickNotify), NULL);    
+    gtk_window_maximize((GtkWindow*)window);
     gtk_widget_show_all(window);
 
     // activ user interface if needed //
