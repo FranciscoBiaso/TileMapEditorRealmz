@@ -236,16 +236,15 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
 
 gboolean ui::MapUI::cb_scroll(GtkWidget* widget, GdkEvent* event, gpointer user_data)
 {
-    if (event->scroll.direction == GDK_SCROLL_UP && isLeftKeyPressed)
+    if (event->scroll.direction == GDK_SCROLL_UP && isLeftShiftKeyPressed)
     {
         glm::vec3 center = _GLScene->getCameraCenter();
         worldFloor -= 1;
         if (worldFloor <= 0)
-            worldFloor = 0;
-        
+            worldFloor = 0;        
         _GLScene->setCamera(glm::vec2(center.x, center.y), worldFloor);
     }
-    else if (event->scroll.direction == GDK_SCROLL_DOWN && isLeftKeyPressed)
+    else if (event->scroll.direction == GDK_SCROLL_DOWN && isLeftShiftKeyPressed)
     {
         glm::vec3 center = _GLScene->getCameraCenter();
         worldFloor += 1;
@@ -253,6 +252,17 @@ gboolean ui::MapUI::cb_scroll(GtkWidget* widget, GdkEvent* event, gpointer user_
         if (worldFloor >= levels - 1)
             worldFloor = levels - 1;
         _GLScene->setCamera(glm::vec2(center.x, center.y), worldFloor);
+    }
+
+    if (event->scroll.direction == GDK_SCROLL_UP && !isLeftShiftKeyPressed)
+    {
+        _GLScene->zoomIn();
+        forceRedraw();
+    }
+    else if (event->scroll.direction == GDK_SCROLL_DOWN && !isLeftShiftKeyPressed)
+    {
+        _GLScene->zoomOut();
+        forceRedraw();
     }
 
     // print world floor //
@@ -438,9 +448,15 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
       }
       else if (event->key.keyval == GDK_KEY_Control_L)
       {
-          isLeftKeyPressed = true;
+          isLeftCtrlKeyPressed = true;
           
       }
+      else if (event->key.keyval == GDK_KEY_Shift_L)
+      {
+          isLeftShiftKeyPressed = true;
+
+      }
+
 
       // SHIFT + SCRIPT BUTTON //
 
@@ -532,8 +548,13 @@ gboolean ui::MapUI::cb_clickNotify(GtkWidget* widget, GdkEvent* event, gpointer 
 
       else if (event->key.keyval == GDK_KEY_Control_L)
       {
-          isLeftKeyPressed = false;
+          isLeftCtrlKeyPressed = false;
          
+      }
+      else if (event->key.keyval == GDK_KEY_Shift_L)
+      {
+          isLeftShiftKeyPressed = false;
+
       }
     }
     selectCursor();

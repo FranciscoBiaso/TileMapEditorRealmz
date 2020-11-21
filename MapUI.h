@@ -89,7 +89,8 @@ namespace ui {
 		void show_shadow_square();
 
 		// mouse zoom //
-		bool isLeftKeyPressed;
+		bool isLeftShiftKeyPressed;
+		bool isLeftCtrlKeyPressed;
 		std::vector<bool> isFloorTransparency;
 
 
