@@ -44,9 +44,13 @@ int data::ImgObj::getSizeAsInt() const
 	}
 }
 
-
 void data::ImgObj::setImgRefs(const std::vector<math::Vec2<int>> references)
 {
 	for (int i = 0; i < references.size(); i++)
 		imgs[i] = references[i];
+}
+
+void data::ImgObj::setName(std::string name)
+{
+	this->name = name;
 }

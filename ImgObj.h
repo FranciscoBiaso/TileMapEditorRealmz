@@ -64,6 +64,8 @@ namespace data {
 		 * @brief This method sets math::Vec2<int> ref from index i.
 		 */
 		void setImgRef(int i, math::Vec2<int> v) { imgs[i].setX(v.getX()); imgs[i].setY(v.getY()); }
+
+		void setName(std::string name);
 	};
 
 }

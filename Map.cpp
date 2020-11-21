@@ -40,7 +40,7 @@ data::Thing scene::Map::addThing(data::Thing newThing, int line, int col, int le
 	// GET THING REF //
 	math::Vec2<int> ref = newThing.getImgObjPtr()->getRef(0);
 	glm::vec2 glmRef(ref.getX(), ref.getY());
-
+	
 	// GET QUAD FROM RENDER STRUCTURE  //
 	GLRect& quad = _GLScene->getQuad((line * getWidth() + col) + level * getWidth() * getHeight());
 	// SET VALUES //

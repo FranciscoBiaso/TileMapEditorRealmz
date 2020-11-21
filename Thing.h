@@ -45,7 +45,7 @@ namespace data {
 		/**
 		 *  @brief This method gets imgObj_ptr (data::ImgObj*).
 		 */
-		const data::ImgObj* getImgObjPtr() { return imgObj_ptr; }
+		data::ImgObj* getImgObjPtr() { return imgObj_ptr; }
 
 		/**
 		 *  @brief This method sets name [same as layer].

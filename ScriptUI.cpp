@@ -301,20 +301,7 @@ void ui::ScriptUI::searchScriptByID(std::string ID)
         }       
     }   
 }
-/*
-glm::vec2 leftTopPoint; //ok
-glm::vec2 rightBotPoint;
-glm::vec4 borderColor;
-glm::vec4 rectColor;
-float borderSize;
-float floor;
-float zRect;
-float zBorder;
-float zText;
-std::string name;
-std::string scriptToLoad;
-glm::vec2 offsetText;
-*/
+
 void ui::ScriptUI::saveScriptsAsJson()
 {
     Json::Value jsonValue;
