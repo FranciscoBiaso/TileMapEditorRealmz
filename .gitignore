@@ -11,12 +11,5 @@
 *.pdb
 *.db
 *.suo
-*.res
-*.CopyComplete
-*.APS
-TME.vcxproj.FileListAbsolute.txt
-Doxyfile
-html/*
-Debug/*
-x64/*
-latex/
+/Release
+.vs/*
