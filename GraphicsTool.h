@@ -28,6 +28,7 @@ namespace ui {
 		static int MAX_IMG_WIDGET_WIDTH;
 		static int MAX_IMG_WIDGET_HEIGHT;
 	private:
+		static GObject* gtkFrameGraphicsTool;
 		static GObject* gtkFileChooserButtonImg;
 		static GObject* gtkImgInput;
 		static GObject* gtkFrameImg;
@@ -292,7 +293,7 @@ namespace ui {
 		static void simulate();
 
 		bool loadImgPackFromJson();
-
+		GtkWidget* getParentFrame();
 	};
 
 }

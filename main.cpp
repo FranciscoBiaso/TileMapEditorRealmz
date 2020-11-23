@@ -177,6 +177,13 @@ int main(int argc, char** argv)
     gtk_window_maximize((GtkWindow*)window);
     gtk_widget_show_all(window);
 
+
+    if (gAppLoaderSettings.getMapType() == "map_maker")
+    {
+        gtk_widget_hide(gThingCreatorTool->getParentFrame());
+        gtk_widget_hide(gGraphicsTool->getParentFrame());
+    }
+
     // activ user interface if needed //
     gScriptUI->activeButtons();
     

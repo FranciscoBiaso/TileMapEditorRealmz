@@ -7,6 +7,7 @@ GObject* ui::ThingCreatorTool::gtkTreeViewThingType = nullptr;
 GObject* ui::ThingCreatorTool::gtkTreeViewThingObj = nullptr;
 GObject* ui::ThingCreatorTool::gtkButtonCreateThing = nullptr;
 GObject* ui::ThingCreatorTool::gtkFrameThingImgView = nullptr;
+GObject* ui::ThingCreatorTool::frame_thing_manipulator = nullptr;
 
 GdkPixbuf* ui::ThingCreatorTool::pixelRegion = nullptr;
 GdkPixbuf* ui::ThingCreatorTool::pixelRegionBackground = nullptr;
@@ -20,6 +21,7 @@ extern ui::AuxUI* gAuxUI;
 
 ui::ThingCreatorTool::ThingCreatorTool()
 {
+    frame_thing_manipulator = gtk_builder_get_object(GtkUserInterface::builder, "frame_thing_manipulator");
     gtkEntryThingName = gtk_builder_get_object(GtkUserInterface::builder, "gtkEntryThingName");
     //gtkEntryThingImg = gtk_builder_get_object(GtkUserInterface::builder, "gtkEntryThingImg");
     gtkTreeViewThingType = gtk_builder_get_object(GtkUserInterface::builder, "gtkTreeViewThingType");
@@ -305,4 +307,10 @@ void ui::ThingCreatorTool::static_cb_updateThingType(GtkTreeView* tree_view, Gtk
 void ui::ThingCreatorTool::static_cb_updateThingName(GtkWidget* widget, gpointer data)
 {
     reinterpret_cast<ThingCreatorTool*>(data)->cb_updateThingName(widget, data);
+}
+
+GtkWidget * ui::ThingCreatorTool::getParentFrame()
+{
+    return GTK_WIDGET(frame_thing_manipulator);
+
 }

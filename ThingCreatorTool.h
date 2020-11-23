@@ -28,6 +28,7 @@ namespace ui {
 		};
 
 	private:
+		static GObject* frame_thing_manipulator;
 		static GObject* gtkEntryThingName;        /* label to enter the name of thing [creating a new name] */
 		//static GObject* gtkEntryThingImg;         /* label to enter the name of img from imgBook */	
 		static GObject* gtkTreeViewThingType;     /* shows thing types */
@@ -102,6 +103,8 @@ namespace ui {
 		 *  @brief This method updates ImgObj pixel area of a Thing.
 		 */
 		void updateImgPixelArea(data::ImgObj*);
+
+		GtkWidget * getParentFrame();
 	};
 }
 

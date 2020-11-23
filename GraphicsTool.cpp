@@ -17,6 +17,7 @@ GObject* ui::GraphicsTool::gtkToggleButton32x64 = nullptr;
 GObject* ui::GraphicsTool::gtkToggleButton64x32 = nullptr;
 GObject* ui::GraphicsTool::gtkToggleButton64x64 = nullptr;
 GObject* ui::GraphicsTool::gtkViewportImgSrc = nullptr;
+GObject* ui::GraphicsTool::gtkFrameGraphicsTool = nullptr;
 
 GtkWidget* ui::GraphicsTool::drawingAreaImgSrc = nullptr;
 GtkWidget* ui::GraphicsTool::drawingAreaImgDst = nullptr;
@@ -55,7 +56,7 @@ ui::GraphicsTool::GraphicsTool()
 {
     // initialize timer //
     g_timeout_add(600, timerChangeSquareData, NULL);
-
+    gtkFrameGraphicsTool = gtk_builder_get_object(GtkUserInterface::builder, "frame1");
     gtkFileChooserButtonImg = gtk_builder_get_object(GtkUserInterface::builder, "gtkFileChooserButtonImg");
     gtkImgInput = gtk_builder_get_object(GtkUserInterface::builder, "gtkImgInput");
     gtkFrameImg = gtk_builder_get_object(GtkUserInterface::builder, "gtkFrameImg");
@@ -793,4 +794,9 @@ bool ui::GraphicsTool::loadImgPackFromJson()
     {
         gAuxUI->printMsg("No ImgPack data to be loaded!");
     }
+}
+
+GtkWidget* ui::GraphicsTool::getParentFrame()
+{
+    return gtk_widget_get_parent(GTK_WIDGET(gtkFrameGraphicsTool));
 }
