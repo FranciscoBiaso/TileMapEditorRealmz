@@ -8,6 +8,7 @@
 #include "DrawingToolUI.h"
 #include "CtrlMap.h"
 #include "AppLoaderSettings.h"
+#include "MapInfoLoader.h"
 #include "SceneScripts.h"
 #include "ScriptUI.h"
 
@@ -31,6 +32,7 @@ ui::DrawingToolUI* gDrawingToolUI = nullptr;
 ctrl::CtrlMap* ctrlMap = nullptr;
 Scripts::ContainerSceneScript* gSceneScripts = nullptr;
 AppLoaderSettings gAppLoaderSettings;
+MapInfoLoader gMapInfoLoader;
 GtkWidget* window; // Main window
 //-----------------------------------------//
 
@@ -129,6 +131,7 @@ int main(int argc, char** argv)
 
     gAuxUI = new ui::AuxUI();
     gAppLoaderSettings.load();
+    gMapInfoLoader.load();
 
     // Resources //---------------------//
     gResources = new data::MapResources();
@@ -146,7 +149,7 @@ int main(int argc, char** argv)
     gImgPackUI = new ui::ImgPackUI();
     gThingCreatorTool = new ui::ThingCreatorTool();
     gGraphicsTool = new ui::GraphicsTool();
-    gMapUI = new ui::MapUI(gAppLoaderSettings.getMapNameToLoad(), gAppLoaderSettings.getMapWidth(), gAppLoaderSettings.getMapHeight(), gAppLoaderSettings.getMapLevels());
+    gMapUI = new ui::MapUI(gAppLoaderSettings.getMapNameToLoad(), gMapInfoLoader.getMapWidth(), gMapInfoLoader.getMapHeight(), gMapInfoLoader.getMapLevels());
     gDrawingToolUI = new ui::DrawingToolUI();
     //---------------------//
 
@@ -167,7 +170,8 @@ int main(int argc, char** argv)
     debugTextureAtlas = new DebugTextureAtlas(gResources->getImgPack().getTextureAtlas()->getPixelbuf());
 #endif
 
-    window = GTK_WIDGET(gtk_builder_get_object(GtkUserInterface::builder, "window"));    
+    window = GTK_WIDGET(gtk_builder_get_object(GtkUserInterface::builder, "window"));  
+    
       
     gtk_widget_add_events(window, GDK_ALL_EVENTS_MASK);
     g_signal_connect(G_OBJECT(window), "button-release-event", G_CALLBACK(cb_clickNotify), NULL);
@@ -178,7 +182,7 @@ int main(int argc, char** argv)
     gtk_widget_show_all(window);
 
 
-    if (gAppLoaderSettings.getMapType() == "map_maker")
+    if (gAppLoaderSettings.getEditorType() == "map_maker")
     {
         gtk_widget_hide(gThingCreatorTool->getParentFrame());
         gtk_widget_hide(gGraphicsTool->getParentFrame());

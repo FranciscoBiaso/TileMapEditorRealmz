@@ -10,15 +10,9 @@ void AppLoaderSettings::load()
 	std::string errs; // to check errors //
 	Json::Value jsonObj;
 	Json::parseFromStream(rbuilder, ifs, &jsonObj, &errs); // parser //
-	mapWidth = jsonObj["map_width"].asInt();
-	mapHeight = jsonObj["map_height"].asInt();
-	mapToLoad = jsonObj["map_to_load"].asString();
-	mapLevels = jsonObj["map_levels"].asInt();
-	mapType = jsonObj["editor_type"].asString();
+	mapToLoad = jsonObj["map_to_load"].asString();	
+	editorType = jsonObj["editor_type"].asString();
 }
 
-int AppLoaderSettings::getMapWidth() { return mapWidth; }
-int AppLoaderSettings::getMapHeight() { return mapHeight; }
-int AppLoaderSettings::getMapLevels() { return mapLevels; }
 std::string AppLoaderSettings::getMapNameToLoad() {return mapToLoad;}
-std::string AppLoaderSettings::getMapType() { return mapType; }
+std::string AppLoaderSettings::getEditorType() { return editorType; }
