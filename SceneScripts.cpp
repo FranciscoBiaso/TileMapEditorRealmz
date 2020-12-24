@@ -12,9 +12,10 @@ Scripts::SceneScript::SceneScript(glm::vec2 leftTopPoint, glm::vec2 rightBotPoin
     borderSize(borderSize), floor(floor),offsetText(offset),
     scriptToLoad("empty")
 {
-    zRect = floor - 9 * 0.1f / 10.0;
-    zBorder = floor - 8 * 0.1f / 10.0;
-    zText = floor - 7 * 0.1f / 10.0;
+    zText = floor   - 2 * 0.001f;
+    zRect = floor   - 3* 0.001f;
+    zBorder = floor - 4 * 0.001f;
+    
 }
 
 std::vector<GLRect> Scripts::ContainerSceneScript::getQuads()

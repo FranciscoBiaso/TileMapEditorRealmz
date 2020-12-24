@@ -166,8 +166,8 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
 
     // mouse in world coords formated by 32 grid size//
     // float gridBorderSize = 1;
-    _glScene->_shadowSquare.updatePosition(glm::vec3(_glScene->screen_to_world(glm::vec2(_mouse_coord),(getWidth()-1) * REALMZ_GRID_SIZE,(getHeight()-1) * REALMZ_GRID_SIZE), (float)worldFloor - 0.01), REALMZ_GRID_SIZE);
-    glm::vec4 shadowSquareColor = glm::vec4(0.9, 0.9, 0.0, 0.25);
+    _glScene->_shadowSquare.updatePosition(glm::vec3(_glScene->screen_to_world(glm::vec2(_mouse_coord),(getWidth()-1) * REALMZ_GRID_SIZE,(getHeight()-1) * REALMZ_GRID_SIZE), (float)worldFloor - 1 * 0.001f), REALMZ_GRID_SIZE);
+    glm::vec4 shadowSquareColor = glm::vec4(0.9, 0.9, 0.0, 0.35);
 
     _glScene->_shadowSquare.setColor(shadowSquareColor);
     _glScene->_shadowSquare.reset_textcoord(-1);
@@ -179,7 +179,7 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
         _mousePosition_select_to = _glScene->screen_to_world(glm::vec2(_mouse_coord), getWidth() * REALMZ_GRID_SIZE, getHeight() * REALMZ_GRID_SIZE);
 
         glm::vec2 offset(0,0);
-        _GLScene->updateSelectionQuad(_mousePosition_select_from, _mousePosition_select_to + offset, glm::vec4(0.2, 0.3, 0.9,0.45), glm::vec4(0.2, 1.0, 0.7,0.1), (float)worldFloor - 2 * 0.1f / 10.0f);
+        _GLScene->updateSelectionQuad(_mousePosition_select_from, _mousePosition_select_to + offset, glm::vec4(0.2, 0.3, 0.9,0.45), glm::vec4(0.2, 1.0, 0.7,0.1), (float)worldFloor - 1 * 0.001f);
     }
     
     glm::vec2 world_coords = _glScene->screen_to_world(_mouse_coord, (getWidth() - 1) * REALMZ_GRID_SIZE, (getHeight() - 1) * REALMZ_GRID_SIZE);
@@ -572,7 +572,7 @@ data::Thing ui::MapUI::addThingMapUI(int line, int col, int level)
     data::Thing ret;
     if (thingIsSelected)
     {
-        ret = addThing(drawObj, line, col, level);
+        ret = addThing(drawObj, line, col, level, gResources->getLayerDic()[drawObj.getType()]);
     }
     else
     {
@@ -591,7 +591,7 @@ data::Thing ui::MapUI::addThingMapUI(glm::vec2 world_coords, int level)
     // mouse x is col, y is row //
     if (thingIsSelected)
     {
-        ret = addThing(drawObj, (int)world_coords.y, (int)world_coords.x, level);
+        ret = addThing(drawObj, (int)world_coords.y, (int)world_coords.x, level, gResources->getLayerDic()[drawObj.getType()]);
     }
     else
     {
@@ -610,7 +610,7 @@ data::Thing ui::MapUI::addThingMapUI(glm::vec2 world_coords, int level, data::Th
     // mouse x is col, y is row //
     if (thingIsSelected)
     {
-        ret = addThing(thing, (int)world_coords.y, (int)world_coords.x, level);
+        ret = addThing(thing, (int)world_coords.y, (int)world_coords.x, level, gResources->getLayerDic()[thing.getType()]);
     }
     else
     {
@@ -625,7 +625,7 @@ data::Thing ui::MapUI::addThingMapUI(math::Vec2<int> worl_coords, float level)
     // mouse x is col, y is row //
     if (thingIsSelected)
     {
-        ret = addThing(drawObj, worl_coords.getY(), worl_coords.getX(), level);
+        ret = addThing(drawObj, worl_coords.getY(), worl_coords.getX(), level, gResources->getLayerDic()[drawObj.getType()]);
         gAuxUI->printMsg("Thing " + drawObj.getName() + " added as ["+ drawObj.getType() + "]!");
         
     }
@@ -638,18 +638,26 @@ data::Thing ui::MapUI::addThingMapUI(math::Vec2<int> worl_coords, float level)
 
 void ui::MapUI::delThingMapUI(int line, int col, int level)
 {
+    int totalLayers = gResources->getLayerDic().size();    
+    // clean each layer
+    for (int layer = 0; layer < totalLayers; layer++)
+    {
+        int index = totalLayers * (getWidth() * getHeight() * level + line * getWidth() + col) + layer;
+        _glScene->getQuad(index).setTextCoord(0, 0, 32, 32);
+        if (layer == 0)
+            _glScene->getQuad(index).setColor(glm::vec4(1, 1, 1, 0.5f));
+        else
+            _glScene->getQuad(index).setColor(glm::vec4(1, 1, 1, 0.0f));
+    }
     this->cleansCylinder(line, col, level);
-    int index = (line * getWidth() + col) + level * getWidth() * getHeight();
-    _glScene->getQuad(index).setTextCoord(0, 0, 32, 32);
-
-    //_GLScene->addLightCylindergMapUI(index);
-
     this->structure[level][width * line + col].setLight(true);
 
+    /*
     if (isFloorTransparency[worldFloor])
         _glScene->getQuad(index).setColor(glm::vec4(1, 1, 0.75, 0.3));
     else
         _glScene->getQuad(index).setColor(glm::vec4(1, 1, 1, 0.5));
+        */
 }
 
 void ui::MapUI::delThingMapUI(glm::vec2 world_coords, int level)
@@ -657,18 +665,22 @@ void ui::MapUI::delThingMapUI(glm::vec2 world_coords, int level)
     // format data 
     world_coords.x /= REALMZ_GRID_SIZE;
     world_coords.y /= REALMZ_GRID_SIZE * -1.0;
-    int index = (world_coords.y * getWidth() + world_coords.x) + level * getWidth() * getHeight();
 
-    this->cleansCylinder(world_coords.y, world_coords.x, level);
-    _glScene->getQuad(index).setTextCoord(0,0,32,32);
-
-    this->structure[level][width * world_coords.y + world_coords.x].setLight(true);
-
-    //_GLScene->addLightCylindergMapUI(index);    
-    if(isFloorTransparency[worldFloor])
-        _glScene->getQuad(index).setColor(glm::vec4(1, 1, 0.75,0.3));
-    else
-        _glScene->getQuad(index).setColor(glm::vec4(1, 1, 1, 0.5));
+    int line = world_coords.y;
+    int col = world_coords.x;
+    int totalLayers = gResources->getLayerDic().size();
+    // clean each layer
+    for (int layer = 0; layer < totalLayers; layer++)
+    {
+        int index = totalLayers * (getWidth() * getHeight() * level + line * getWidth() + col) + layer;
+        _glScene->getQuad(index).setTextCoord(0, 0, 32, 32);
+        if (layer == 0)
+            _glScene->getQuad(index).setColor(glm::vec4(1, 1, 1, 0.5f));
+        else
+            _glScene->getQuad(index).setColor(glm::vec4(1, 1, 1, 0.0f));
+    }
+    this->cleansCylinder(line, col, level);
+    this->structure[level][width * line + col].setLight(true);
 
 }
 
@@ -888,6 +900,7 @@ bool ui::MapUI::can_draw_map_borders()
 
 void ui::MapUI::draw_map_ui(cairo_t * cr)
 {
+    /*
     int widthTiles = viewWidth / REALMZ_GRID_SIZE + 2;
     int heightTiles = viewHeight / REALMZ_GRID_SIZE + 2;
 
@@ -931,6 +944,7 @@ void ui::MapUI::draw_map_ui(cairo_t * cr)
             cylinder->draw(cr);
         }
     }
+    */
 }
 
 std::string ui::MapUI::mouse_coords_to_word_position_to_string(math::Vec2<int> screen_coords)
@@ -942,17 +956,31 @@ void ui::MapUI::loadOpenGLMap()
 {
     float gridBorderSize = 0;
     float alpha = 0.5f; // THIS VALUE IS IMPORTANTE, CHECK GLSL SHADER //
-    float adjust = 0.1; // space to draw selection quad //
+    float adjust = 0.01; // space to draw selection quad //
+    auto layerDictionary = gResources->getLayerDic();
+    int totalLayers = layerDictionary.size();
     for (int level = 0; level < levels; level++)
     {
         for (int line = 0; line < getHeight(); line++)
         {
             for (int col = 0; col < getWidth(); col++)
             {   
-                
-                _glScene->addQuad(-line, col, (level - adjust) * 1.0f, REALMZ_GRID_SIZE - gridBorderSize, glm::vec4(1,1,1, alpha));
-                _GLScene->getQuad((line * getWidth() + col) + level * getWidth() * getHeight()).setTextCoord(0, 0, 32, 32);
+                for (int layer = 0; layer < totalLayers; layer++)
+                {
+                    
+                    int index = totalLayers * (getWidth() * getHeight() * level + line * getWidth() + col) + layer;
+                    
+                    if (layer == 0)                    
+                        _glScene->addQuad(-line, col, level + (adjust * (-totalLayers -1  + layer + 1)) * 1.0f, REALMZ_GRID_SIZE - gridBorderSize, glm::vec4(1, 1, 1, alpha));                        
+                    else
+                    {
+                        _glScene->addQuad(-line - 0 * layer, col + 0 * layer, level + (adjust * (-totalLayers - 1 + layer + 1)) * 1.0f, REALMZ_GRID_SIZE - gridBorderSize, glm::vec4(1, 1, 1, alpha));
+                        float n = totalLayers - 1;
+                        _GLScene->getQuad(index).setColor(glm::vec4(1,1,1,0));
+                    }
+                    _GLScene->getQuad(index).setTextCoord(0, 0, 32, 32);
 
+                }                
             }
         }
     }
@@ -1354,13 +1382,14 @@ void ui::MapUI::setCanSeeDownStairs(bool value)
 
 void ui::MapUI::updateGlSceneColorFloor(int floor, glm::vec4 color)
 {
+    int totalLayers = gResources->getLayerDic().size();
     for (int line = 0; line < getHeight(); line++)
     {
         for (int col = 0; col < getWidth(); col++)
         {
-            int index = (line * getWidth() + col) + floor * getWidth() * getHeight();
+            int index = totalLayers * (getWidth() * getHeight() * floor + line * getWidth() + col) + 0;            
             GLRect& quad = _glScene->getQuad(index);
-            if(std::abs(quad.T1.colorA.a - 0.5) < 0.01) // this is a grid
+            if(std::abs(quad.T1.colorA.a - 0.5) < 0.01) // this is a texture 
                 quad.setColor(color);
             if(std::abs(quad.T1.colorA.a - 0.3) < 0.01) // this is a grid
                 quad.setColor(color);

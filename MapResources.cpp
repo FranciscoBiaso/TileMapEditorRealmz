@@ -144,3 +144,8 @@ int data::MapResources::getItemFromStuffBook(std::string itemName, data::Thing &
 	}
 	return 0;
 }
+
+std::map<std::string, int>& data::MapResources::getLayerDic()
+{
+	return layerOrder;
+}

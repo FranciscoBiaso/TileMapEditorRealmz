@@ -39,9 +39,14 @@ const GLchar* fragmentSource = R"glsl(
     out vec4 outColor;
     uniform sampler2D textureAtlas;
     uniform sampler2D gridTexture;
-    float eps = 0.001;
+    float eps = 0.01;
+    float epsColor = 0.05f;
     void main()
     {
+
+        // let's check the texture texel
+        vec4 texelColor = texture(textureAtlas, Texcoord);    
+
         if(abs(Color.a - 0.5) < eps)
         {
             outColor = texture(gridTexture, Texcoord) * vec4(Color.xyz, 1.0);
@@ -52,13 +57,26 @@ const GLchar* fragmentSource = R"glsl(
         }
         else
         {
-            outColor = texture(textureAtlas, Texcoord) * vec4(Color.xyz, 1.0);
+            outColor = texture(textureAtlas, Texcoord) * Color.xyzw;
         }
 
         if(abs(Texcoord.x - -1.0) < eps && abs(Texcoord.y - -1.0) < eps)
         {
-            outColor = Color;
+            outColor =  Color.xyzw;
+            //discard;
         }
+            
+        // alpha color should be discarded f73071
+        if(abs(texelColor.x - 247.0f/255.0) < epsColor && 
+           abs(texelColor.y - 48.0f/255.0) < epsColor && 
+           abs(texelColor.z - 113.0f/255.0) < epsColor)
+        {
+            outColor =   vec4(Color.xyz, 0.0);
+        }
+
+
+        //if(Texcoord.x == -1 && Texcoord.y == -1)
+           // discard;
     }
 )glsl";
 // outColor = texture(tex, Texcoord);
@@ -146,7 +164,7 @@ gboolean GLScene::render(GtkGLArea* area, GdkGLContext* context)
     glGenerateMipmap(GL_TEXTURE_2D);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);    
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 
         gResources->getImgPack().getTextureAtlas()->getAtlasWidth(),
         gResources->getImgPack().getTextureAtlas()->getAtlasHeight(),
         0, GL_RGBA, GL_UNSIGNED_BYTE, gdk_pixbuf_get_pixels(gResources->getImgPack().getTextureAtlas()->getPixelbuf()));
@@ -395,7 +413,7 @@ void GLScene::resize(GtkGLArea* area, gint width, gint height)
         width/2 * 1.0f,
         -height / 2 * 1.0f,
         height / 2 * 1.0f,
-        -0.001f,5.f
+        -0.0001f,5.f
     );    
 
     setCamera(glm::vec2(_cameraJson.x, _cameraJson.y), _cameraJson.z);
@@ -491,11 +509,23 @@ glm::vec3 GLScene::getCameraCenter()
 
 glm::vec2 GLScene::screen_to_world(glm::vec2 screen, int w, int h)
 {
-    float percent_x = (2.0f * screen.x / width - 1) * width/2.0;
+    double factor = 1.0;
+    /*
+    if (scaleFactor > 1)
+    {
+        factor = scaleFactor - 1;
+    }
+    else if (scaleFactor < 1) 
+    {
+        factor = 1 - scaleFactor;
+    }
+    */
+
+    float percent_x = (2.0f * screen.x / width - 1) * (width / 2.0 * factor);
     int wx = _camera_center.x + percent_x;
     int wx_norm = std::floor(wx/ REALMZ_GRID_SIZE) * REALMZ_GRID_SIZE;
 
-    float percent_y = (2.0f * screen.y / height - 1) * height / 2.0;
+    float percent_y = (2.0f * screen.y / height - 1) * (height / 2.0 * factor);
     int wy = -_camera_center.y + percent_y;
     int wy_norm = std::floor(wy / REALMZ_GRID_SIZE) * REALMZ_GRID_SIZE;
 

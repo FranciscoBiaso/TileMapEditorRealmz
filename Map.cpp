@@ -22,7 +22,7 @@ scene::Map::Map(std::string name, int width, int height, int levels) : name(name
 		{
 			for (int col = 0; col < width; col++)
 			{
-				this->structure[level][width * row + col].setCoords(col, row, level);
+					this->structure[level][width * row + col].setCoords(col, row, level);
 			}
 		}
 	}	
@@ -33,16 +33,17 @@ scene::Map::Map(std::string name, int width, int height, int levels) : name(name
 #include "Thing.h"
 #include "ImgObj.h"
 
-data::Thing scene::Map::addThing(data::Thing newThing, int line, int col, int level)
+data::Thing scene::Map::addThing(data::Thing newThing, int line, int col, int level, int layer)
 {	
 	newThing.setName(std::to_string(_count_things));
 	_count_things++;
 	// GET THING REF //
 	math::Vec2<int> ref = newThing.getImgObjPtr()->getRef(0);
 	glm::vec2 glmRef(ref.getX(), ref.getY());
-	
+	int totalLayers = gResources->getLayerDic().size();	
+	int index = totalLayers * (getWidth() * getHeight() * level + line * getWidth() + col) + layer;
 	// GET QUAD FROM RENDER STRUCTURE  //
-	GLRect& quad = _GLScene->getQuad((line * getWidth() + col) + level * getWidth() * getHeight());
+	GLRect& quad = _GLScene->getQuad(index);
 	// SET VALUES //
 	quad.setTextCoord(glmRef);
 
@@ -53,7 +54,7 @@ data::Thing scene::Map::addThing(data::Thing newThing, int line, int col, int le
 		quad.setColor(glm::vec4(1, 1, 1, 1));
 
 	// add into internal structure
-	return this->structure[level][width * line + col].addItem(newThing);	
+	return this->structure[level][width * line + col].addItem(newThing);
 }
 
 void scene::Map::cleansCylinder( int line, int col, int level)
@@ -150,7 +151,8 @@ void scene::Map::saveInternalMap()
 	root["0_camera_x"] = camera.x;
 	root["0_camera_y"] = camera.y;
 	root["0_camera_z"] = camera.z;
-	
+
+	int lSize = gResources->getLayerDic().size();
 	Json::Value cylinderJson;
 	for (int z = 0; z < levels; z++)
 	{
@@ -162,7 +164,7 @@ void scene::Map::saveInternalMap()
 
 				Json::Value jsonArrayItems(Json::arrayValue);
 				scene::Cylinder & cylinder = structure[floor][width * y + x];
-				auto items = structure[floor][width * y + x].getItems();
+				auto items = cylinder.getItems();
 
 				for (int i = 0; i < items.size(); i++)
 				{
@@ -173,7 +175,8 @@ void scene::Map::saveInternalMap()
 				cylinderJson["x"] = x;
 				cylinderJson["z"] = floor;
 				cylinderJson["has_light"] = cylinder.hasLight();
-				jsonArrayCylinders.append(cylinderJson);
+				if(jsonArrayItems.size() != 0)
+					jsonArrayCylinders.append(cylinderJson);
 			}
 		}
 	}
@@ -233,11 +236,13 @@ void scene::Map::loadInternalMapFromJson()
 				if (gResources->getItemFromStuffBook(stuffBookItemName, aux) != 0)
 				{			
 					aux.setStuffBookRefName(stuffBookItemName);
-					addThing(aux, y, x, z);
+					auto layers = gResources->getLayerDic();
+					int layer = layers[aux.getType()];
+					addThing(aux, y, x, z, layer);
 					Cylinder& cylinder = at(y, x, z);
 					cylinder.setLight(hasLight);
 					if (!hasLight)
-						_GLScene->removeLightCylindergMapUI((y * getWidth() + x) + z * getWidth() * getHeight());
+						_GLScene->removeLightCylindergMapUI((y * getWidth() + x) + z * getWidth() * getHeight() + layer);
 				}
 			}
 			

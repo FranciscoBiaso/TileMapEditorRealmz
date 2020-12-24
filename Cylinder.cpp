@@ -62,19 +62,20 @@ data::Thing scene::Cylinder::addItem(data::Thing thing)
 	thing.setCylinder(this);
 
 	// work only with one layer //
-	cleans();
-	items.push_back(thing);
-	return thing;
+	//cleans();
+	//items.push_back(thing);
+	//return thing;
 
 
 	// \/ work with multiple layers //
 
 	// if item already exists swap them return //
 	if (ifItemByLayerAlreadyExistsSwap(thing)) return thing;
+	
 
 	// we only push back if we dont have this item //
 	items.push_back(thing);
-
+	
 	// sorting cylinder //
 	std::sort(items.begin(), items.end(), [](data::Thing& a, data::Thing& b) -> bool
 		{			
