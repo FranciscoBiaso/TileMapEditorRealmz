@@ -509,25 +509,12 @@ glm::vec3 GLScene::getCameraCenter()
 
 glm::vec2 GLScene::screen_to_world(glm::vec2 screen, int w, int h)
 {
-    double factor = 1.0;
-    /*
-    if (scaleFactor > 1)
-    {
-        factor = scaleFactor - 1;
-    }
-    else if (scaleFactor < 1) 
-    {
-        factor = 1 - scaleFactor;
-    }
-    */
+    
+    int wx = _camera_center.x + (screen.x - width / 2.0);
+    int wx_norm = (int)(std::floor(wx / getRealGridSize())) * REALMZ_GRID_SIZE;
 
-    float percent_x = (2.0f * screen.x / width - 1) * (width / 2.0 * factor);
-    int wx = _camera_center.x + percent_x;
-    int wx_norm = std::floor(wx/ REALMZ_GRID_SIZE) * REALMZ_GRID_SIZE;
-
-    float percent_y = (2.0f * screen.y / height - 1) * (height / 2.0 * factor);
-    int wy = -_camera_center.y + percent_y;
-    int wy_norm = std::floor(wy / REALMZ_GRID_SIZE) * REALMZ_GRID_SIZE;
+    int wy = -_camera_center.y + (screen.y - height / 2.0);
+    int wy_norm = (int)(std::floor(wy / getRealGridSize())) * REALMZ_GRID_SIZE;
 
     if (wx_norm < 0)
         wx_norm = 0;
@@ -619,4 +606,9 @@ void GLScene::removeLightCylindergMapUI(int index)
 void GLScene::addLightCylindergMapUI(int index)
 {
     getQuad(index).setColor(glm::vec4(1, 1, 1, 1));
+}
+
+float GLScene::getRealGridSize()
+{
+    return REALMZ_GRID_SIZE * scaleFactor;
 }

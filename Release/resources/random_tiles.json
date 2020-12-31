@@ -2,15 +2,15 @@
    "mainObj": 
    [
        {
-        "thing_name" : "gra_default", 
+        "thing_name" : "ground_1", 
         "randomTiles" : 
             [
                 {
-                    "name" : "gra_broken_floor",
+                    "name" : "ground_1",
                     "percentage" : 35
                 },
                 {
-                    "name" : "gra_dirty_floor",
+                    "name" : "ground_2",
                     "percentage" : 10
                 }
             ]

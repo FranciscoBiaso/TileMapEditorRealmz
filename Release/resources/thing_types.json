@@ -2,8 +2,11 @@
   "types": [
             {"name": "ground", "layer": 0, "classes" : []},
             {"name": "ground_level", "layer": 1, "classes" : []},
-            {"name": "furnitures", "layer": 3, "classes" : []},
-            {"name": "creatures", "layer": 4, "classes" : []},
-            {"name": "structures", "layer": 5, "classes" :  []}
+            {"name": "furnitures", "layer": 2, "classes" : []},
+            {"name": "creatures", "layer": 3, "classes" : []},
+            {"name": "structures", "layer": 4, "classes" :  []}
            ]  
 }
+
+
+

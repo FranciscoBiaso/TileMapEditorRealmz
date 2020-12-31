@@ -154,6 +154,7 @@
     <ClCompile Include="DrawingFunctions.cpp" />
     <ClCompile Include="DrawingToolUI.cpp" />
     <ClCompile Include="GLRect.cpp" />
+    <ClCompile Include="MapInfoLoader.cpp" />
     <ClCompile Include="SceneScripts.cpp" />
     <ClCompile Include="GLScene.cpp" />
     <ClCompile Include="GLTriangle.cpp" />
@@ -183,6 +184,7 @@
     <ClInclude Include="DrawingFunctions.h" />
     <ClInclude Include="DrawingToolUI.h" />
     <ClInclude Include="GLRect.h" />
+    <ClInclude Include="MapInfoLoader.h" />
     <ClInclude Include="SceneScripts.h" />
     <ClInclude Include="GLScene.h" />
     <ClInclude Include="GLTriangle.h" />

@@ -1,7 +1,7 @@
 {
    "map_to_load" : "default",
-   "map_width" : 85,
-   "map_height" : 85,
+   "map_width" : 35,
+   "map_height" : 35,
    "map_levels" : 4,
-   "editor_type" : "map_maker"
+   "editor_type" : "full"
 }

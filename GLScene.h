@@ -115,6 +115,7 @@ public:
     void addLightCylindergMapUI(int index);
 
     GLRect _shadowSquare;
+    float getRealGridSize();
 
 private:
     scene::Map* map;

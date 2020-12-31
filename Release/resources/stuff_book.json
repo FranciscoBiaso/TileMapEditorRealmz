@@ -1,72 +1,92 @@
 {
-   "f_barrel" : 
+   "furniture_4" : 
    {
-      "img_ptr" : "217 Castle",
+      "img_ptr" : "134 castleAtlas",
       "type" : "furnitures"
    },
-   "f_bottles" : 
+   "furnitures_1" : 
    {
-      "img_ptr" : "218 Castle",
+      "img_ptr" : "139 castleAtlas",
       "type" : "furnitures"
    },
-   "f_box" : 
+   "furnitures_2" : 
    {
-      "img_ptr" : "216 Castle",
+      "img_ptr" : "138 castleAtlas",
       "type" : "furnitures"
    },
-   "gra_broken_floor" : 
+   "furnitures_3" : 
    {
-      "img_ptr" : "97 Castle",
+      "img_ptr" : "137 castleAtlas",
+      "type" : "furnitures"
+   },
+   "furnitures_4" : 
+   {
+      "img_ptr" : "136 castleAtlas",
+      "type" : "furnitures"
+   },
+   "gl_1" : 
+   {
+      "img_ptr" : "135 castleAtlas",
+      "type" : "ground_level"
+   },
+   "gl_2" : 
+   {
+      "img_ptr" : "123 castleAtlas",
+      "type" : "ground_level"
+   },
+   "gl_3" : 
+   {
+      "img_ptr" : "116 castleAtlas",
+      "type" : "ground_level"
+   },
+   "gl_4" : 
+   {
+      "img_ptr" : "115 castleAtlas",
+      "type" : "ground_level"
+   },
+   "ground_1" : 
+   {
+      "img_ptr" : "155 castleAtlas",
       "type" : "ground"
    },
-   "gra_default" : 
+   "ground_2" : 
    {
-      "img_ptr" : "155 Castle",
+      "img_ptr" : "empty",
       "type" : "ground"
    },
-   "gra_dirty_floor" : 
+   "str_1" : 
    {
-      "img_ptr" : "98 Castle",
-      "type" : "ground"
-   },
-   "str_1_bot" : 
-   {
-      "img_ptr" : "60 Castle",
+      "img_ptr" : "122 castleAtlas",
       "type" : "structures"
    },
-   "str_1_corner_lb" : 
+   "str_2" : 
    {
-      "img_ptr" : "13 Castle",
+      "img_ptr" : "1 castleAtlas",
       "type" : "structures"
    },
-   "str_1_corner_lt" : 
+   "str_3" : 
    {
-      "img_ptr" : "15 Castle",
+      "img_ptr" : "2 castleAtlas",
       "type" : "structures"
    },
-   "str_1_corner_rb" : 
+   "str_4" : 
    {
-      "img_ptr" : "14 Castle",
+      "img_ptr" : "13 castleAtlas",
       "type" : "structures"
    },
-   "str_1_corner_rt" : 
+   "str_5" : 
    {
-      "img_ptr" : "16 Castle",
+      "img_ptr" : "14 castleAtlas",
       "type" : "structures"
    },
-   "str_1_left" : 
+   "str_6" : 
    {
-      "img_ptr" : "1 castle_",
+      "img_ptr" : "15 castleAtlas",
       "type" : "structures"
    },
-   "str_1_right" : 
+   "str_7" : 
    {
-      "img_ptr" : "61 Castle",
-      "type" : "structures"
-   },
-   "str_1_top" : 
-   {
-      "img_ptr" : "2 Castle",
+      "img_ptr" : "16 castleAtlas",
       "type" : "structures"
    }
 }

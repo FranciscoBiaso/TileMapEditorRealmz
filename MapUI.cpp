@@ -145,14 +145,15 @@ gboolean ui::MapUI::static_cb_onLeave(GtkWidget* widget, GdkEvent* event, gpoint
 
 gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpointer user_data)
 {
+    float realGridSize = _glScene->getRealGridSize();
     if (mouseStartPositionToMoveMapView.getX() == 0 &&
         mouseStartPositionToMoveMapView.getY() == 0)
     {
         mouseStartPositionToMoveMapView.setXY(e->x, e->y);
     }
 
-    mousePosition_by_32.setX((int)(e->x / REALMZ_GRID_SIZE));
-    mousePosition_by_32.setY((int)(e->y / REALMZ_GRID_SIZE));
+    mousePosition_by_32.setX((int)(e->x / realGridSize));
+    mousePosition_by_32.setY((int)(e->y / realGridSize));
     mousePosition_windows_coord.setXY(e->x, e->y);
 
     _mouse_coord = glm::vec2(e->x, e->y);
@@ -161,13 +162,13 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
     bool mousePositionHasChanged = _mouse_to_world != _mouse_to_world_previous;
 
     // mouse position normalized //;
-    glm::vec2 mouse_coord_nomalized = glm::vec2(std::floor(e->x / REALMZ_GRID_SIZE), std::floor(e->y/ REALMZ_GRID_SIZE))* (float)REALMZ_GRID_SIZE;
-    glm::vec2 mouse_coord_nomalized_by_grid = glm::vec2(std::floor(e->x / REALMZ_GRID_SIZE), std::floor(e->y / REALMZ_GRID_SIZE));
+    glm::vec2 mouse_coord_nomalized = glm::vec2(std::floor(e->x / realGridSize), std::floor(e->y/ realGridSize))* (float)realGridSize;
+    glm::vec2 mouse_coord_nomalized_by_grid = glm::vec2(std::floor(e->x / realGridSize), std::floor(e->y / realGridSize));
 
     // mouse in world coords formated by 32 grid size//
     // float gridBorderSize = 1;
-    _glScene->_shadowSquare.updatePosition(glm::vec3(_glScene->screen_to_world(glm::vec2(_mouse_coord),(getWidth()-1) * REALMZ_GRID_SIZE,(getHeight()-1) * REALMZ_GRID_SIZE), (float)worldFloor - 1 * 0.001f), REALMZ_GRID_SIZE);
-    glm::vec4 shadowSquareColor = glm::vec4(0.9, 0.9, 0.0, 0.35);
+    _glScene->_shadowSquare.updatePosition(glm::vec3(_glScene->screen_to_world(glm::vec2(_mouse_coord),(getWidth()-1) * realGridSize,(getHeight()-1) * realGridSize), (float)worldFloor - 1 * 0.001f), REALMZ_GRID_SIZE);
+    glm::vec4 shadowSquareColor = glm::vec4(0.9, 0.9, 0.0, 0.32);
 
     _glScene->_shadowSquare.setColor(shadowSquareColor);
     _glScene->_shadowSquare.reset_textcoord(-1);
@@ -176,18 +177,18 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
         gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_BRUSH || 
         gDrawingToolUI->getDrawingMode() == def::DrawingToolMode::SELECTING_SCRIPT)
     {
-        _mousePosition_select_to = _glScene->screen_to_world(glm::vec2(_mouse_coord), getWidth() * REALMZ_GRID_SIZE, getHeight() * REALMZ_GRID_SIZE);
+        _mousePosition_select_to = _glScene->screen_to_world(glm::vec2(_mouse_coord), getWidth() * realGridSize, getHeight() * realGridSize);
 
         glm::vec2 offset(0,0);
         _GLScene->updateSelectionQuad(_mousePosition_select_from, _mousePosition_select_to + offset, glm::vec4(0.2, 0.3, 0.9,0.45), glm::vec4(0.2, 1.0, 0.7,0.1), (float)worldFloor - 1 * 0.001f);
     }
     
-    glm::vec2 world_coords = _glScene->screen_to_world(_mouse_coord, (getWidth() - 1) * REALMZ_GRID_SIZE, (getHeight() - 1) * REALMZ_GRID_SIZE);
+    glm::vec2 world_coords = _glScene->screen_to_world(_mouse_coord, (getWidth() - 1) * realGridSize, (getHeight() - 1) * realGridSize);
 
     // show floor //
     gtk_label_set_text(GTK_LABEL(_gtk_label_mouse_coords),
-            std::string("(" + std::to_string((int)world_coords.x / REALMZ_GRID_SIZE) + ", " +
-            std::to_string(-1 * (int)world_coords.y / REALMZ_GRID_SIZE) + ", " +
+            std::string("(" + std::to_string((int)(world_coords.x / realGridSize)) + ", " +
+            std::to_string(-1 * (int)(world_coords.y / realGridSize)) + ", " +
             std::to_string(worldFloor-(levels-1)) + ")").c_str());
 
     if (ctrlModes == DRAWING_PEN_SELECTED && mousePositionHasChanged) // we only add new item if mouse square changes //
@@ -1138,13 +1139,18 @@ void ui::MapUI::addThingSpecial(glm::vec2 coord)
     bool hasTile[8];
     data::Thing tmp;
     if (gDrawingToolUI->is_autoborder_enable() && hasAutoBorder(drawObj.getName(), borders))
-    {   
+    {
+        // multiple floors functionality //
+        // we need to remove the strcuture from the clicked floor //
+        // delete the center tile //
+        delThingMapUI(coord, std::abs(worldFloor));
+
         // 0 left left 
-        for(int i=0;i<borders.size();i++)
+        for (int i = 0; i < borders.size(); i++)
             if (borders[i] != "")
             {
                 glm::vec2 mapCoords = coord + getOffset(i);
-                                
+
                 try
                 {
                     scene::Cylinder& cylinder = at(mapCoords.y / REALMZ_GRID_SIZE * -1, mapCoords.x / REALMZ_GRID_SIZE, std::abs(worldFloor));
@@ -1177,7 +1183,7 @@ void ui::MapUI::addThingSpecial(glm::vec2 coord)
                         listToNotIterate.push_back(7);
                     }
                 }
-                catch (def::ReturnMsg & msg)
+                catch (def::ReturnMsg& msg)
                 {
                     if (msg == def::ReturnMsg::ARRAY_OUT_OF_RANGE)
                     {
@@ -1185,15 +1191,15 @@ void ui::MapUI::addThingSpecial(glm::vec2 coord)
                     }
                 }
 
-                
+
             }
 
-        
+
         for (int i = 0; i < borders.size(); i++)
             if (borders[i] != "")
             {
                 glm::vec2 mapCoords = coord + getOffset(i);
-                
+
                 try
                 {
                     scene::Cylinder& cylinder = at(mapCoords.y / REALMZ_GRID_SIZE * -1, mapCoords.x / REALMZ_GRID_SIZE, std::abs(worldFloor));
@@ -1221,7 +1227,8 @@ void ui::MapUI::addThingSpecial(glm::vec2 coord)
 
 
         // SINGLES //
-        if (hasTile[def::Combinations::LEFT_BOT]) 
+
+        if (hasTile[def::Combinations::LEFT_BOT])
         {
             listToFill[def::Combinations::LEFT] = def::Combinations::RIGHT_BOT;
             listToFill[def::Combinations::BOT] = def::Combinations::LEFT_TOP;
@@ -1242,8 +1249,8 @@ void ui::MapUI::addThingSpecial(glm::vec2 coord)
             listToFill[def::Combinations::BOT] = def::Combinations::RIGHT_TOP;
         }
         // check diagonal combinations DOUBLES//
-        if(hasTile[def::Combinations::LEFT_TOP] && hasTile[def::Combinations::TOP])
-        { 
+        if (hasTile[def::Combinations::LEFT_TOP] && hasTile[def::Combinations::TOP])
+        {
             listToFill[def::Combinations::LEFT] = def::Combinations::RIGHT_TOP;
         }
         if (hasTile[def::Combinations::TOP] && hasTile[def::Combinations::RIGHT_TOP])
@@ -1281,13 +1288,13 @@ void ui::MapUI::addThingSpecial(glm::vec2 coord)
         for (auto it = listToFill.begin(); it != listToFill.end(); it++)
         {
             glm::vec2 mapCoords = coord + getOffset(it->first);
-            
+
             try
             {
                 scene::Cylinder& cylinder = at(mapCoords.y / REALMZ_GRID_SIZE * -1, mapCoords.x / REALMZ_GRID_SIZE, std::abs(worldFloor));
                 if (!cylinder.hasThingByName(drawObj.getName()))
                 {
-                    gStuffBook->getThingByName(borders[it->second], tmp);                    
+                    gStuffBook->getThingByName(borders[it->second], tmp);
                     tmp.setStuffBookRefName(borders[it->second]);
 
                     ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI(mapCoords, std::abs(worldFloor), tmp)));
@@ -1301,10 +1308,7 @@ void ui::MapUI::addThingSpecial(glm::vec2 coord)
                     continue;
                 }
             }
-           
-            
-        }
-
+        }  
     }
 
     std::vector <RandomTile> randomTiles;
@@ -1326,7 +1330,6 @@ void ui::MapUI::addThingSpecial(glm::vec2 coord)
 
     ctrlMap->add_ctrlz(ctrl::sOperation(ctrl::eOperation::ADD_THING, addThingMapUI(coord, std::abs(worldFloor), tmp)));
     ctrlMap->add_last_operation(ctrl::eManipulator::OPERATION);
-    
 }
 
 
@@ -1399,6 +1402,7 @@ void ui::MapUI::updateGlSceneColorFloor(int floor, glm::vec4 color)
 
 void ui::MapUI::upateCylinderLight(glm::vec2 world_coords, int floor)
 {
+    return;
     try
     {
         scene::Cylinder & cylinder = at(world_coords.y / REALMZ_GRID_SIZE * -1, world_coords.x / REALMZ_GRID_SIZE, floor);
@@ -1407,8 +1411,10 @@ void ui::MapUI::upateCylinderLight(glm::vec2 world_coords, int floor)
 
         world_coords.x /= REALMZ_GRID_SIZE;
         world_coords.y /= REALMZ_GRID_SIZE * -1.0;
-        int index = (world_coords.y * getWidth() + world_coords.x) + floor * getWidth() * getHeight();
 
+        int totalLayers = gResources->getLayerDic().size();
+        int index = totalLayers * (getWidth() * getHeight() * floor + world_coords.y * getWidth() + world_coords.x) + 0;
+        
         if (cylinder.hasLight())
         {
             // update thing attribute cylinder //
