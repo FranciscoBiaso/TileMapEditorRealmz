@@ -26,6 +26,7 @@ namespace data {
 		 *  @brief This method fills stuffBook data loading from json file.
 		 */
 		void createStuffBookFromJson();
+
 	public:
 		/**
 		 *  constructor

@@ -32,7 +32,9 @@ namespace scene {
 		/**
 		 * @brief This method delets all thing with name = thingName from the map.
 		 */
-		void deletAllThings(std::string thingName);
+		void deletAllThingsByStuffBookRefName(std::string name);
+		void deleteAllThings();
+		void updateTextureCoords();
 	public:
 		/**
 		 * Constructor.
@@ -63,6 +65,7 @@ namespace scene {
 		 * @brief This method removes a Thing from the map position [x,y,z] by name.
 		 */
 		void removeThing(std::string name, int x, int y, int z);
+		void removeThingByStuffbookRefname(std::string name, int line, int col, int level);
 
 		/**
 		 * @brief This method gets map width.

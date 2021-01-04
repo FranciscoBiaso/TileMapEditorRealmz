@@ -84,7 +84,7 @@ data::Thing scene::Cylinder::addItem(data::Thing thing)
 	return thing;
 }
 
-void scene::Cylinder::removeItem(std::string name)
+int scene::Cylinder::removeItem(std::string name)
 {
 	std::vector<data::Thing>::iterator it = std::find_if(items.begin(), items.end(), [&, name](data::Thing& thing) {
 		if (thing.getName() == name)
@@ -94,8 +94,28 @@ void scene::Cylinder::removeItem(std::string name)
 	
 	if (it != items.end())
 	{
+		int layer = gResources->getLayerAsInt(it->getType());
 		items.erase(it);
+		return layer;
 	}
+	return -1;
+}
+
+int scene::Cylinder::removeItemByRefName(std::string refName)
+{
+	std::vector<data::Thing>::iterator it = std::find_if(items.begin(), items.end(), [&, refName](data::Thing& thing) {
+		if (thing.getStuffBookRefName() == refName)
+			return true;
+		return false;
+		});
+
+	if (it != items.end())
+	{
+		int layer = gResources->getLayerAsInt(it->getType());
+		items.erase(it);
+		return layer;
+	}
+	return -1;
 }
 
 void scene::Cylinder::draw(cairo_t* cr)

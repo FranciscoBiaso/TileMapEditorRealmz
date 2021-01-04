@@ -242,9 +242,18 @@ namespace ui {
 		void selectCursor();
 
 		/**
-		 * @brief This method delets calls internal delet all things.
+		 * @brief This method deletes all things from a specif stuffBook reference name.
+		 *        Useful when user delete a stuffBook item.
 		 */
-		void deletAllThingsFromTheMap(std::string thingName);
+		void deletAllThingsFromTheMapByStuffBookRefName(std::string thingName);
+		/**
+		 * @brief This method delets calls internal delete, excluding all things from the map stucture.
+		 */
+		void deleteAllThings();
+		/**
+		* @brief This method updates imgObj textures from all live things.
+		*/
+		void updateTextureCoords();
 
 		/**
 		 * @brief This method force redraws the entire map user interface.

@@ -167,7 +167,7 @@ gboolean ui::MapUI::cb_MotionNotify(GtkWidget* widget, GdkEventMotion* e, gpoint
 
     // mouse in world coords formated by 32 grid size//
     // float gridBorderSize = 1;
-    _glScene->_shadowSquare.updatePosition(glm::vec3(_glScene->screen_to_world(glm::vec2(_mouse_coord),(getWidth()-1) * realGridSize,(getHeight()-1) * realGridSize), (float)worldFloor - 1 * 0.001f), REALMZ_GRID_SIZE);
+    _glScene->_shadowSquare.updatePosition(glm::vec3(_glScene->screen_to_world(glm::vec2(_mouse_coord),(getWidth()-1) * REALMZ_GRID_SIZE,(getHeight()-1) * REALMZ_GRID_SIZE), (float)worldFloor - 1 * 0.001f), REALMZ_GRID_SIZE);
     glm::vec4 shadowSquareColor = glm::vec4(0.9, 0.9, 0.0, 0.32);
 
     _glScene->_shadowSquare.setColor(shadowSquareColor);
@@ -766,9 +766,14 @@ gboolean ui::MapUI::cb_onLeave(GtkWidget* widget, GdkEvent* event, gpointer user
     return TRUE;
 }
 
-void ui::MapUI::deletAllThingsFromTheMap(std::string thingName)
+void ui::MapUI::deleteAllThings()
 {
-  deletAllThings(thingName);
+    scene::Map::deleteAllThings();
+}
+
+void ui::MapUI::deletAllThingsFromTheMapByStuffBookRefName(std::string thingName)
+{
+  deletAllThingsByStuffBookRefName(thingName);
 }
 
 void ui::MapUI::forceRedraw()
@@ -1443,4 +1448,9 @@ bool ui::MapUI::isCylinderGrid(scene::Cylinder & cylinder)
 int ui::MapUI::getLevels()
 {
     return this->levels;
+}
+
+void ui::MapUI::updateTextureCoords()
+{
+    scene::Map::updateTextureCoords();
 }

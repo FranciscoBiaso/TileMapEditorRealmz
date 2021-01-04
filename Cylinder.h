@@ -38,13 +38,19 @@ namespace scene {
 
 		/**
 		 * @brief This methods add a new item into the structure then sort by layer.
+		 * @return -1 in case of fail, do not remove the item into map, otherwise:0,1,2,...;
 		 */
 		data::Thing addItem(data::Thing);
 
 		/**
-		 * @brief This methods remove a item by name.
+		 * @brief This methods remove a item by name and returns its layer.
 		 */
-		void removeItem(std::string name);
+		int removeItem(std::string name);
+		/**
+		 * @brief This methods remove a item by stuffBook reference name and returns its layer.
+		 * @return -1 in case of fail, do not remove the item into map, otherwise:0,1,2,...;
+		 */
+		int removeItemByRefName(std::string name);
 
 		/**
 		 * @brief This methods cleans the cylinder.

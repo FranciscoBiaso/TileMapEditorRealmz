@@ -115,7 +115,11 @@ public:
     void addLightCylindergMapUI(int index);
 
     GLRect _shadowSquare;
-    float getRealGridSize();
+
+    /**
+     * @brief This methods return the GRID map size multiplied by scale factor (zoom).
+     */
+    float getRealGridSize();    
 
 private:
     scene::Map* map;

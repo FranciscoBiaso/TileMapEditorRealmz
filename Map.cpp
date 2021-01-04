@@ -52,7 +52,7 @@ data::Thing scene::Map::addThing(data::Thing newThing, int line, int col, int le
 	// we only reste color if it has light //
 	if(cylinder.hasLight())
 		quad.setColor(glm::vec4(1, 1, 1, 1));
-
+	
 	// add into internal structure
 	return this->structure[level][width * line + col].addItem(newThing);
 }
@@ -65,9 +65,28 @@ void scene::Map::cleansCylinder( int line, int col, int level)
 void scene::Map::removeThing(std::string name, int line, int col, int level)
 {
 	this->structure[level][width * line + col].removeItem(name);
-	_count_things--; 
-	_GLScene->getQuad(line * getWidth() + col).reset_textcoord(-1);
+	_count_things--;
+	int totalLayers = gResources->getLayerDic().size();
+	int index = totalLayers * (getWidth() * getHeight() * level + line * getWidth() + col) + 0;
+	_GLScene->getQuad(index).reset_textcoord(-1);
 }
+
+void scene::Map::removeThingByStuffbookRefname(std::string name, int line, int col, int level)
+{
+	int thingLayer = this->structure[level][width * line + col].removeItemByRefName(name);
+	if (thingLayer != -1)
+	{
+		_count_things--;
+		int totalLayers = gResources->getLayerDic().size();
+		int index = totalLayers * (getWidth() * getHeight() * level + line * getWidth() + col) + thingLayer;
+		_GLScene->getQuad(index).setTextCoord(0, 0, 32, 32);
+		if (thingLayer == 0)
+			_GLScene->getQuad(index).setColor(glm::vec4(1, 1, 1, 0.5f));
+		else
+			_GLScene->getQuad(index).setColor(glm::vec4(1, 1, 1, 0.0f));
+	}
+}
+
 
 void scene::Map::drawMap(cairo_t* cr, math::Vec2<int> camera_position, int widthTiles, int heightTiles, bool draw_borders)
 {
@@ -114,7 +133,7 @@ int scene::Map::getHeight() const
 	return height;
 }
 
-void scene::Map::deletAllThings(std::string thingName)
+void scene::Map::deleteAllThings()
 {
 	for (int level = 0; level < levels; level++)
 	{
@@ -122,7 +141,23 @@ void scene::Map::deletAllThings(std::string thingName)
 		{
 			for (int x = 0; x < width; x++)
 			{
-				structure[level][width * y + x].removeItem(thingName);
+				structure[level][width * y + x].cleans();				
+			}
+		}
+	}
+	_count_things = 0;
+}
+
+void scene::Map::deletAllThingsByStuffBookRefName(std::string name)
+{
+	for (int level = 0; level < levels; level++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			for (int x = 0; x < width; x++)
+			{
+				//structure[level][width * y + x].cleans();
+				removeThingByStuffbookRefname(name, y, x, level);				
 			}
 		}
 	}
@@ -253,4 +288,31 @@ void scene::Map::loadInternalMapFromJson()
 		gAuxUI->printMsg("No ImgPack data to be loaded!");
 	}
 
+}
+
+void scene::Map::updateTextureCoords()
+{
+	/*
+	* 
+	* Need to optimize, impossible to apply!
+	* 
+	int totalLayers = gResources->getLayerDic().size();
+	for (int level = 0; level < levels; level++)
+	{
+		for (int line = 0; line < getHeight(); line++)
+		{
+			for (int col = 0; col < getWidth(); col++)
+			{
+				auto things = structure[level][width * line + col].getItems();
+				for (int layer = 0; layer < totalLayers; layer++)
+				{
+					// SET VALUES //
+					int index = totalLayers * (getWidth() * getHeight() * level + line * getWidth() + col) + layer;	// GET QUAD FROM RENDER STRUCTURE  //
+					math::Vec2<int> ref = things.at(layer).getImgObjPtr()->getRef(0);     // vector::at throws an out-of-range						
+					_GLScene->getQuad(index).setTextCoord(glm::vec2(ref.getX(), ref.getY()));			
+				}
+			}
+		}
+	}
+	*/
 }
