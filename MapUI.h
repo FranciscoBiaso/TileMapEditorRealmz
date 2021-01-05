@@ -249,11 +249,7 @@ namespace ui {
 		/**
 		 * @brief This method delets calls internal delete, excluding all things from the map stucture.
 		 */
-		void deleteAllThings();
-		/**
-		* @brief This method updates imgObj textures from all live things.
-		*/
-		void updateTextureCoords();
+		void deleteAllThings();		
 
 		/**
 		 * @brief This method force redraws the entire map user interface.

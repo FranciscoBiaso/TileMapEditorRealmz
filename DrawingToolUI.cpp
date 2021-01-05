@@ -41,7 +41,7 @@ ui::DrawingToolUI::DrawingToolUI()
     gtk_widget_set_tooltip_text(GTK_WIDGET(zoomOut), "Take the camera away from the scene.");
     gtk_widget_set_tooltip_text(GTK_WIDGET(reloadFiles), "Used to reload auto border and random tiles from \njson files. Will be detailed below.");
     gtk_widget_set_tooltip_text(GTK_WIDGET(viewDownStairs), "It generates transparency in the current floor, \nallowing you to see the floor below."
-                                                     "To change the edited floor, hold the ctrl key and scroll with the mouse wheel.");
+                                                     "To change the edited floor, hold the shift key and scroll with the mouse wheel.");
     gtk_widget_set_tooltip_text(GTK_WIDGET(buttonEye), "Hides the tile during the game, until the party (in exploration mode)\n"
                                                      "or character(in Combat mode) sees it or a script or ability reveals it.\n"
                                                      "Until then it will be  displayed as a black square, like an empty tile");

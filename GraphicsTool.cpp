@@ -712,7 +712,7 @@ void ui::GraphicsTool::cb_splitImgObj(GtkWidget* widget, gpointer data)
         for (int c = 0; c < width; c += 32)
         {
             gdk_pixbuf_copy_area(pixelBufImgSrc, c, h, REALMZ_GRID_SIZE, REALMZ_GRID_SIZE, pixelBufImgDest, REALMZ_GRID_SIZE / 2, REALMZ_GRID_SIZE / 2);
-            gResources->getImgPack().addImgObj(std::to_string(imgName) + " " + prefix, pixelBufImgDest, def::IMG_SIZE::IMG_SIZE_32X32);
+            gResources->getImgPack().addImgObj(prefix + " " + std::to_string(imgName), pixelBufImgDest, def::IMG_SIZE::IMG_SIZE_32X32);
             imgName++;
         }
     }    

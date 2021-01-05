@@ -146,14 +146,15 @@ gboolean ui::StuffBookUI::cb_removeThing(GtkWidget* widget, GdkEventKey* event,g
              auto keyIt = (*it).second.find(std::string(name));
              if (keyIt != (*it).second.end() && !((*it).second.empty())) // founded //
              {
+
+                // delet all things from the mapUI //
+                gMapUI->deletAllThingsFromTheMapByStuffBookRefName(std::string(name));
+                gMapUI->forceRedraw();
+
                 // update model, erasing //
                 (*it).second.erase(std::string(name));
                 // update view
                 updateTree();
-
-                // delet all things from the mapUI //
-                gMapUI->deletAllThingsFromTheMap(std::string(name));
-                gMapUI->forceRedraw();
 
                 // has elements ? //
                 if ((*it).second.empty())
@@ -244,8 +245,7 @@ void ui::StuffBookUI::cb_selectThing(GtkTreeView* tree_view, GtkTreePath* path, 
 
 void ui::StuffBookUI::deleteAllThings(std::string imgName)
 {
-  auto map = gResources->getStuffBook(); // get stuffbook //
-  std::vector<std::string> namesToDelete;
+   std::map<std::string, std::map<std::string, data::Thing>>& map = gResources->getStuffBook(); // get stuffbook //
   
   for (auto it = map.begin(); it != map.end(); it++) // iterate through stuffbook //
   {    
@@ -253,20 +253,14 @@ void ui::StuffBookUI::deleteAllThings(std::string imgName)
     {
       if (it_thing->second.getImgObjPtr()->getName() == imgName)
       {
-        namesToDelete.push_back(it_thing->second.getName()); // grab Thing name //
+          std::string refName = it_thing->first;
+          gMapUI->deletAllThingsFromTheMapByStuffBookRefName(refName);
+          gMapUI->forceRedraw();
+          (*it).second.erase(refName);          
+          return;
       }
     }
   }
-
-  // all things to delete from the stuffbook user interface //
-  for (int i = 0; i < namesToDelete.size(); i++)
-  {
-    // delete all things from the mapUI //
-    gMapUI->deletAllThingsFromTheMap(namesToDelete[i]); // clean all deleted things from the map //
-    gResources->delThing(namesToDelete[i]);
-  }
-
-  gMapUI->forceRedraw();
 }
 
 bool ui::StuffBookUI::getThingByName(std::string name, data::Thing& thing)

@@ -39,6 +39,11 @@ namespace data {
 		void addImgObjFromJson(ImgObj);
 
 		/**
+		 *  @brief This method gets std::list<data::ImgObj>&.
+		 */
+		std::list<data::ImgObj> & getImgs() { return _imgs; }
+
+		/**
 		 * @brief This method delete ImgObj from this data strcture.
 		 * @param name key of the ImgObj to be deleted.
 		 */

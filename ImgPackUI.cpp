@@ -12,7 +12,6 @@ extern ui::ThingCreatorTool* gThingCreatorTool;
 extern ui::GraphicsTool* gGraphicsTool;
 extern ui::MapUI* gMapUI;
 extern ui::StuffBookUI* gStuffBook;
-extern ui::MapUI* gMapUI;
 
 #ifdef TME_DEBUG
 extern DebugTextureAtlas* debugTextureAtlas;
@@ -157,12 +156,14 @@ gboolean ui::ImgPackUI::cb_removeImgObj(GtkWidget* widget, GdkEventKey* event, g
     if (gtk_tree_selection_get_selected(gtkTreeSelection, &model, &iter)) // if true //
     {
         gchar* name;
-        gtk_tree_model_get(model, &iter, 0, &name, -1);
-
+        gtk_tree_model_get(model, &iter, 0, &name, -1);        
+        
         // * IMPORTANT * WE DELET ALL THINGS WITH THIS IMG POINTER BEFORE DELETE THIS IMG //
         // delete all things with this image from the stuffbook //
         gStuffBook->deleteAllThings(std::string(name));
+
         // update view //
+        // we update the stuffbook after images pack update //
         gStuffBook->updateTree();
 
         gResources->getImgPack().delImgObj(std::string(name));

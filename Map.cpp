@@ -289,30 +289,3 @@ void scene::Map::loadInternalMapFromJson()
 	}
 
 }
-
-void scene::Map::updateTextureCoords()
-{
-	/*
-	* 
-	* Need to optimize, impossible to apply!
-	* 
-	int totalLayers = gResources->getLayerDic().size();
-	for (int level = 0; level < levels; level++)
-	{
-		for (int line = 0; line < getHeight(); line++)
-		{
-			for (int col = 0; col < getWidth(); col++)
-			{
-				auto things = structure[level][width * line + col].getItems();
-				for (int layer = 0; layer < totalLayers; layer++)
-				{
-					// SET VALUES //
-					int index = totalLayers * (getWidth() * getHeight() * level + line * getWidth() + col) + layer;	// GET QUAD FROM RENDER STRUCTURE  //
-					math::Vec2<int> ref = things.at(layer).getImgObjPtr()->getRef(0);     // vector::at throws an out-of-range						
-					_GLScene->getQuad(index).setTextCoord(glm::vec2(ref.getX(), ref.getY()));			
-				}
-			}
-		}
-	}
-	*/
-}

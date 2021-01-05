@@ -1449,8 +1449,3 @@ int ui::MapUI::getLevels()
 {
     return this->levels;
 }
-
-void ui::MapUI::updateTextureCoords()
-{
-    scene::Map::updateTextureCoords();
-}

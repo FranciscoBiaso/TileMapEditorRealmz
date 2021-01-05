@@ -34,7 +34,6 @@ namespace scene {
 		 */
 		void deletAllThingsByStuffBookRefName(std::string name);
 		void deleteAllThings();
-		void updateTextureCoords();
 	public:
 		/**
 		 * Constructor.

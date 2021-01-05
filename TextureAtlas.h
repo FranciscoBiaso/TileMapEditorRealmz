@@ -21,6 +21,7 @@ namespace data {
 	class TextureAtlas
 	{
 	private:
+		std::vector<math::Vec2<int>> _freeCoordsFromDeletedImgs;
 		static GdkPixbuf* pixelBuf;   /**< Atlas into memory  */
 		static GdkPixbuf* pixelBufClean32x32; /**< region 32x32 to clean images into memory  */
 		math::Vec2<int> cursor; /**< cursor to identify the last empty position */ 
@@ -77,7 +78,7 @@ namespace data {
 		/**
 		 * @brief This methods erases the texture atlas releasing data of atlas pixelbuf.
 		 */
-		void delImgObj(std::list<data::ImgObj>::iterator it, std::list<data::ImgObj>::iterator end);
+		void delImgObj(math::Vec2<int> ref);
 		
 		/**
 		 * @brief This methods gets buffer of pixels (GdkPixbuf*).

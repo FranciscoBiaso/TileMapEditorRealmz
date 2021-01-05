@@ -25,15 +25,16 @@ std::list<data::ImgObj>& data::ImgPack::getImgVec()
 void data::ImgPack::delImgObj(std::string name)
 {
 	// try to find ImgObj by name // O(n)
-	std::list<data::ImgObj>::iterator it = find(name);
+	std::list<data::ImgObj>::iterator iterator = find(name);
 	// if founded //
-	if (it != _imgs.end())
+	if (iterator != _imgs.end())
 	{
-		// remove imgs from texture atlas O(n) //
-		textureAtlas->delImgObj(it, _imgs.end());
-		// erase the image O(1) //
-		_imgs.erase(it);
-	}
+		math::Vec2<int> ref = iterator->getRef(0);
+		// erase the image O(1) //	
+		_imgs.erase(iterator);
+		// erase the image O(1) *new algorithm* //	
+		textureAtlas->delImgObj(ref);				
+	}	
 }
 
 std::list<data::ImgObj>::iterator data::ImgPack::find(std::string imgName)
@@ -83,7 +84,9 @@ void data::ImgPack::saveImgPackAsJsonFile()
 
 bool compare_nocase(const data::ImgObj& first, const data::ImgObj& second)
 {
-	return (std::atoi(first.getName().c_str()) < std::atoi(second.getName().c_str()));
+	if (first.getName() < second.getName())
+		return false;
+	return false;
 }
 
 void data::ImgPack::sort()
